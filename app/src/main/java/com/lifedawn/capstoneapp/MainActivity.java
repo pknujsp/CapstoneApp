@@ -15,6 +15,6 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 		
-		//jsp에서 수정4
+		//sdh에서 수정4
 	}
 }
