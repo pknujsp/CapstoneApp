@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="NotificationCustomTimeBtn" parent="Widget.AppCompat.ImageButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="NotificationCustomTimeUpBtn" parent="NotificationCustomTimeBtn">
+        <item name="android:src">@drawable/ic_baseline_arrow_upward_24</item>
+    </style>
+
+    <style name="NotificationCustomTimeDownBtn" parent="NotificationCustomTimeBtn">
+        <item name="android:src">@drawable/ic_baseline_arrow_downward_24</item>
+    </style>
+
+    <style name="NotificationCustomTimeValue" parent="Widget.AppCompat.EditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">70dp</item>
+        <item name="android:ems">2</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">number</item>
+        <item name="android:maxEms">2</item>
+        <item name="android:text">0</item>
+        <item name="android:textSize">26sp</item>
+    </style>
+</resources>

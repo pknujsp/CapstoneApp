@@ -11,4 +11,20 @@
     <string name="logout_google">구글 로그아웃</string>
     <string name="app_settings">앱 설정</string>
     <string name="input_address_or_place">주소또는 장소를 입력</string>
+    <string name="notification_on_time">정시에 알림</string>
+    <string name="notification_before_10_minutes">10분전에 알림</string>
+    <string name="notification_before_30_minutes">30분전에 알림</string>
+    <string name="notification_before_1_hours">1시간전에 알림</string>
+    <string name="notification_before_2_hours">2시간전에 알림</string>
+    <string name="notification_before_6_hours">6시간전에 알림</string>
+    <string name="notification_before_1_days">하루전에 알림</string>
+    <string name="notification_custom">직접 선택</string>
+    <string name="notification_sound_switch">알림 소리 여부</string>
+    <string name="notification_sound_selection">알림 소리 선택</string>
+    <string name="notification_vibration_switch">알림 진동 여부</string>
+    <string name="notification_wakeup_switch">화면 켜짐 여부</string>
+    <string name="minute">분</string>
+    <string name="hour">시간</string>
+    <string name="day">일</string>
+    <string name="week">주</string>
 </resources>

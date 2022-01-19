@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment;
 
 import com.lifedawn.capstoneapp.databinding.FragmentAddFriendBinding;
 
-public class AddFriendFragment extends Fragment {
+public class FindFriendFragment extends Fragment {
 	private FragmentAddFriendBinding binding;
 	
 	@Override
