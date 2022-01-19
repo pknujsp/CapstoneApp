@@ -99,4 +99,8 @@ dependencies {
 
     // optional - Test helpers for LiveData
     testImplementation "androidx.arch.core:core-testing:$arch_version"
+
+    implementation 'org.jsoup:jsoup:1.14.3'
+
+    implementation 'com.naver.maps:map-sdk:3.13.0'
 }
