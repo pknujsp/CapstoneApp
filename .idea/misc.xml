@@ -4,10 +4,19 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/activity_main.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/fragment_abstract_naver_map.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/fragment_calendar.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/fragment_default_notificaiton_settings.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/fragment_edit_promise.xml" value="0.25" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/fragment_find_friend.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/fragment_fixed_promise.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/fragment_friends.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/fragment_invitation_friend.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/fragment_main_transaction.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/fragment_notifications.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/fragment_profile.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/fragment_promise_transaction.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/fragment_received_invitation.xml" value="0.36614583333333334" />
       </map>
     </option>
   </component>
