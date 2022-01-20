@@ -41,4 +41,5 @@
     <string name="placeName">장소명</string>
     <string name="notification_basic_setting">알림 기본 설정</string>
     <string name="notification_screen_switch">화면 켜짐 여부</string>
+    <string name="notification_default_settings">알림 기본 설정</string>
 </resources>
