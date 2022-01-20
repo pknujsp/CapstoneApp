@@ -27,7 +27,8 @@
                     android:id="@+id/titleEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/title_hint" />
+                    android:hint="@string/title_hint"
+                    android:minHeight="48dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -45,7 +46,8 @@
                     android:layout_gravity="right"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
-                    android:text="2022/01/20 13:10" />
+                    android:text="2022/01/20 13:10"
+                    tools:ignore="TouchTargetSizeCheck" />
 
 
                 <TextView
@@ -66,7 +68,8 @@
                     android:ems="10"
                     android:gravity="start|top"
                     android:inputType="textMultiLine"
-                    android:lines="3" />
+                    android:lines="3"
+                    tools:ignore="SpeakableTextPresentCheck" />
 
                 <TextView
                     android:layout_width="wrap_content"
