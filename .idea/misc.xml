@@ -8,6 +8,8 @@
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/drawable/ic_baseline_arrow_downward_24.xml" value="0.38229166666666664" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/drawable/ic_baseline_arrow_upward_24.xml" value="0.38229166666666664" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/drawable/ic_launcher_background.xml" value="0.38229166666666664" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/drawable/map_button_rect.xml" value="0.38229166666666664" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/drawable/map_view_background.xml" value="0.38229166666666664" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/activity_main.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/fragment_abstract_naver_map.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/fragment_app_settings.xml" value="0.36614583333333334" />
@@ -31,6 +33,8 @@
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/fragment_search_result_place_list.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/item_view_friend.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/item_view_notification.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/item_view_simpleprofile.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/map_buttons_view.xml" value="0.36614583333333334" />
       </map>
     </option>
   </component>
