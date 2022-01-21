@@ -47,4 +47,6 @@
     <string name="invitee">초대자</string>
     <string name="refusal">거절</string>
     <string name="acceptance">확정</string>
+    <string name="friendsname">친구 이름</string>
+    <string name="remove">삭제</string>
 </resources>
