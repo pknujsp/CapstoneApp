@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="map_header_bar_height">48dp</dimen>
+    <dimen name="map_header_bar_top_margin">32dp</dimen>
+    <dimen name="map_header_bar_top_padding">32dp</dimen>
+    <dimen name="corner_radius">16dp</dimen>
+
+    <dimen name="map_button_size">36dp</dimen>
+    <dimen name="button_rectangle_radius">24dp</dimen>
+</resources>

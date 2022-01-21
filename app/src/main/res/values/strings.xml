@@ -44,4 +44,5 @@
     <string name="notification_default_settings">알림 기본 설정</string>
     <string name="friendsname">친구 이름</string>
     <string name="remove">삭제</string>
+    <string name="search_address_or_place">주소 또는 장소검색</string>
 </resources>

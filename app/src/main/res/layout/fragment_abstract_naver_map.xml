@@ -13,6 +13,54 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <LinearLayout
+            android:id="@+id/header_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/map_header_bar_top_padding">
+
+            <TextView
+                android:id="@+id/header_fragment_container"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/map_header_bar_height"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="28dp"
+                android:layout_marginRight="28dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/map_view_background"
+                android:clickable="true"
+                android:clipToPadding="false"
+                android:elevation="4dp"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:paddingLeft="24dp"
+                android:text="@string/search_address_or_place"
+                android:minHeight="@dimen/map_header_bar_height" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:background="@android:color/transparent"
+            android:clickable="false"
+            android:focusable="false"
+            android:gravity="bottom"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/naver_map_buttons_layout"
+                layout="@layout/map_buttons_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
+
 
     </FrameLayout>
 </layout>
