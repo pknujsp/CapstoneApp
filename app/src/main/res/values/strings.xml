@@ -42,4 +42,9 @@
     <string name="notification_basic_setting">알림 기본 설정</string>
     <string name="notification_screen_switch">화면 켜짐 여부</string>
     <string name="notification_default_settings">알림 기본 설정</string>
+    <string name="edit">수정</string>
+    <string name="promise_location">약속 장소</string>
+    <string name="invitee">초대자</string>
+    <string name="refusal">거절</string>
+    <string name="acceptance">확정</string>
 </resources>
