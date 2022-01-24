@@ -1,5 +1,6 @@
 package com.lifedawn.capstoneapp;
 
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -9,8 +10,11 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.preference.PreferenceManager;
 
 import com.lifedawn.capstoneapp.databinding.ActivityMainBinding;
+import com.lifedawn.capstoneapp.intro.IntroFragment;
 
 import java.security.MessageDigest;
 
@@ -21,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+		
+		init();
 	}
 	
 	private void getAppKeyHash() {
@@ -39,5 +45,19 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 	
+	private void init() {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		
+		boolean appInit = sharedPreferences.getBoolean("appInit", false);
+		
+		if (appInit) {
+			//maintransactionfragment
+		} else {
+			//intro
+			IntroFragment introFragment = new IntroFragment();
+			FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+			fragmentTransaction.add(binding.fragmentContainerView.getId(), introFragment, IntroFragment.class.getName()).commit();
+		}
+	}
 	
 }
