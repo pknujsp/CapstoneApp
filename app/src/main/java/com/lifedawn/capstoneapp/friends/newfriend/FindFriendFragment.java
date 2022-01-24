@@ -7,10 +7,10 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 
-import com.lifedawn.capstoneapp.databinding.FragmentAddFriendBinding;
+import com.lifedawn.capstoneapp.databinding.FragmentFindFriendBinding;
 
 public class FindFriendFragment extends Fragment {
-	private FragmentAddFriendBinding binding;
+	private FragmentFindFriendBinding binding;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -19,7 +19,7 @@ public class FindFriendFragment extends Fragment {
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		binding = FragmentAddFriendBinding.inflate(inflater);
+		binding = FragmentFindFriendBinding.inflate(inflater);
 		return binding.getRoot();
 	}
 }

@@ -18,17 +18,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal" />
-
-            <com.zerodsoft.calendarplatform.etc.ViewPagerIndicator
-                android:id="@+id/viewpager_indicator"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center_horizontal"
-                android:layout_marginBottom="24dp"
-                android:gravity="center"
-                app:IndicatorSelectedDotDrawable="@drawable/selected_dot_indicator"
-                app:IndicatorUnselectedDotDrawable="@drawable/unselected_dot_indicator" />
-
+            
         </FrameLayout>
 
 
