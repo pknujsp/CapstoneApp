@@ -23,12 +23,19 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
 import com.lifedawn.capstoneapp.databinding.FragmentIntroBinding;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 public class IntroFragment extends Fragment {
@@ -41,6 +48,7 @@ public class IntroFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		
 		googleAccountCredential = GoogleAccountCredential.usingOAuth2(getContext(), Arrays.asList(CREDENTIAL_SCOPES))
+				.setBackOff(new ExponentialBackOff());
 	}
 	
 	@Override
@@ -68,12 +76,27 @@ public class IntroFragment extends Fragment {
 		binding.startWithoutGoogleBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
+
 			
 			}
 		});
 		
 	}
-	
+
+	private void requestGoogleCalendar(){
+		HttpTransport httpTransport = new NetHttpTransport();
+		JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+
+		Calendar calendar = new Calendar.Builder(httpTransport,jsonFactory,googleAccountCredential)
+				.setApplicationName("promise").build();
+
+		try {
+			calendar.calendarList().list().execute();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private final ActivityResultLauncher<Intent> googleSignIntentActivityResultLauncher = registerForActivityResult(
 			new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
 				@Override
@@ -83,6 +106,9 @@ public class IntroFragment extends Fragment {
 						GoogleSignInAccount account = task.getResult(ApiException.class);
 						Account loginAccount = account.getAccount();
 						GoogleAccountUtil.connectNewGoogleAccount(getContext(), loginAccount);
+						googleAccountCredential.setSelectedAccountName(loginAccount.name);
+
+
 					} catch (ApiException e) {
 						e.printStackTrace();
 					}
