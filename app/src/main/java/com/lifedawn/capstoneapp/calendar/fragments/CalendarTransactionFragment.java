@@ -1,4 +1,4 @@
-package com.lifedawn.capstoneapp.promise;
+package com.lifedawn.capstoneapp.calendar.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,12 +9,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.lifedawn.capstoneapp.databinding.FragmentPromiseTransactionBinding;
+import com.lifedawn.capstoneapp.databinding.FragmentCalendarTransactionBinding;
 
-import org.jetbrains.annotations.NotNull;
-
-public class PromiseTransactionFragment extends Fragment {
-	private FragmentPromiseTransactionBinding binding;
+public class CalendarTransactionFragment extends Fragment {
+	private FragmentCalendarTransactionBinding binding;
+	
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -23,12 +22,12 @@ public class PromiseTransactionFragment extends Fragment {
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		binding = FragmentPromiseTransactionBinding.inflate(inflater);
+		binding = FragmentCalendarTransactionBinding.inflate(inflater);
 		return binding.getRoot();
 	}
 	
 	@Override
-	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 	}
 }

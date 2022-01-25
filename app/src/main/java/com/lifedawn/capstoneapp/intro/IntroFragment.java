@@ -1,5 +1,7 @@
 package com.lifedawn.capstoneapp.intro;
 
+import android.accounts.Account;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,10 +10,19 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.PreferenceManager;
 
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
+import com.lifedawn.capstoneapp.common.Constant;
+import com.lifedawn.capstoneapp.common.SharedPreferenceConstant;
+import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentIntroBinding;
+import com.lifedawn.capstoneapp.main.MainTransactionFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -19,12 +30,12 @@ public class IntroFragment extends Fragment {
 	private FragmentIntroBinding binding;
 	private GoogleAccountUtil googleAccountUtil;
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
-	
+	private AccountViewModel accountViewModel;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+		accountViewModel = new ViewModelProvider(requireActivity()).get(AccountViewModel.class);
 		googleAccountUtil = GoogleAccountUtil.getInstance(getContext());
 		googleAccountLifeCycleObserver = new GoogleAccountLifeCycleObserver(requireActivity().getActivityResultRegistry(),
 				requireActivity());
@@ -44,14 +55,25 @@ public class IntroFragment extends Fragment {
 		binding.loginGoogleBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				googleAccountUtil.signIn(googleAccountLifeCycleObserver);
+				accountViewModel.signIn(googleAccountLifeCycleObserver, new GoogleAccountUtil.OnSignCallback() {
+					@Override
+					public void onSignInSuccessful(Account signInAccount, GoogleAccountCredential googleAccountCredential) {
+						startMainFragment(Constant.ACCOUNT_GOOGLE);
+						accountViewModel.setSignInGoogleAccount(signInAccount);
+					}
+					
+					@Override
+					public void onSignOutSuccessful(Account signOutAccount) {
+					
+					}
+				});
 			}
 		});
 		
 		binding.startWithoutGoogleBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-			
+				startMainFragment(Constant.ACCOUNT_LOCAL_WITHOUT_GOOGLE);
 			}
 		});
 		
@@ -63,5 +85,13 @@ public class IntroFragment extends Fragment {
 		super.onDestroy();
 	}
 	
-	
+	private void startMainFragment(Constant usingAccountType) {
+		accountViewModel.setUsingAccountType(usingAccountType);
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+		sharedPreferences.edit().putBoolean(SharedPreferenceConstant.APP_INIT.name(), true).commit();
+		
+		MainTransactionFragment mainTransactionFragment = new MainTransactionFragment();
+		FragmentTransaction fragmentTransaction = getParentFragmentManager().beginTransaction();
+		fragmentTransaction.replace(R.id.fragmentContainerView, mainTransactionFragment, MainTransactionFragment.class.getName()).commit();
+	}
 }

@@ -51,22 +51,18 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/logoutBtn"
+            android:id="@+id/signOutBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
             android:text="@string/logout_google"
-            android:textAlignment="viewStart"
-            android:textColor="@color/black" />
+            android:textAlignment="viewStart" />
 
         <Button
-            android:id="@+id/loginBtn"
+            android:id="@+id/signInBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
             android:text="@string/login_google"
-            android:textAlignment="viewStart"
-            android:textColor="@color/black" />
+            android:textAlignment="viewStart" />
 
         <Button
             android:id="@+id/appSettingsBtn"

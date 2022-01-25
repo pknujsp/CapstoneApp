@@ -50,4 +50,11 @@
     <string name="friendsname">친구 이름</string>
     <string name="remove">삭제</string>
     <string name="search_address_or_place">주소 또는 장소검색</string>
+    <string name="denied_access_to_calendar">캘린더 접근이 거부되었습니다</string>
+    <string name="main_page">메인</string>
+    <string name="friend">친구</string>
+    <string name="friend_page">친구</string>
+    <string name="calendar_page">캘린더</string>
+    <string name="local">로컬</string>
+    <string name="signout_successful">구글 로그아웃됨</string>
 </resources>

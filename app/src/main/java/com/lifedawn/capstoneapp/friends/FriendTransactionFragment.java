@@ -1,4 +1,4 @@
-package com.lifedawn.capstoneapp.promise;
+package com.lifedawn.capstoneapp.friends;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,26 +9,25 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.lifedawn.capstoneapp.databinding.FragmentPromiseTransactionBinding;
+import com.lifedawn.capstoneapp.databinding.FragmentFriendTransactionBinding;
 
-import org.jetbrains.annotations.NotNull;
-
-public class PromiseTransactionFragment extends Fragment {
-	private FragmentPromiseTransactionBinding binding;
+public class FriendTransactionFragment extends Fragment {
+	private FragmentFriendTransactionBinding binding;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		binding = FragmentPromiseTransactionBinding.inflate(inflater);
+		binding = FragmentFriendTransactionBinding.inflate(inflater);
 		return binding.getRoot();
 	}
 	
 	@Override
-	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 	}
 }

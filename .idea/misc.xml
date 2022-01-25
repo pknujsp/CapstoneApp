@@ -36,12 +36,20 @@
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/item_view_simpleprofile.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/map_buttons_view.xml" value="0.36614583333333334" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/activity_main.xml" value="0.1381340579710145" />
+        <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_calendar.xml" value="0.14583333333333334" />
+        <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_calendar_transaction.xml" value="0.20307017543859648" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_find_friend.xml" value="0.1381340579710145" />
+        <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_friend_transaction.xml" value="0.20307017543859648" />
+        <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_friends.xml" value="0.14583333333333334" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_intro.xml" value="0.264" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_location_search_result.xml" value="0.1381340579710145" />
-        <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_main_transaction.xml" value="0.1381340579710145" />
+        <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_main_transaction.xml" value="0.4" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_notifications.xml" value="0.1381340579710145" />
+        <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_profile.xml" value="0.264" />
+        <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_promise_transaction.xml" value="0.14583333333333334" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/item_view_friend.xml" value="0.20307017543859648" />
+        <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/item_view_simpleprofile.xml" value="0.20307017543859648" />
+        <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/menu/main_bottom_navigation.xml" value="0.20307017543859648" />
       </map>
     </option>
   </component>
