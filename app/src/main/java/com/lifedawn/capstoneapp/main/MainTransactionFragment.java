@@ -19,7 +19,6 @@ import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.ProfileFragment;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
 import com.lifedawn.capstoneapp.calendar.fragments.CalendarTransactionFragment;
-import com.lifedawn.capstoneapp.common.Constant;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentMainTransactionBinding;
 import com.lifedawn.capstoneapp.friends.FriendTransactionFragment;
@@ -103,23 +102,22 @@ public class MainTransactionFragment extends Fragment {
 		final GoogleSignInAccount lastSignInAccount = accountViewModel.lastSignInAccount();
 		if (lastSignInAccount == null) {
 			//계정이 없거나 로그아웃된 상태
-			accountViewModel.setUsingAccountType(Constant.ACCOUNT_LOCAL_WITHOUT_GOOGLE);
 			onSignOut();
 			init();
 		} else {
-			//로그인이 되어있는 상태
+			//로그인을 이전에 하였던 경우
 			GoogleAccountUtil googleAccountUtil = GoogleAccountUtil.getInstance(getContext());
 			final Account connectedAccount = googleAccountUtil.getConnectedGoogleAccount();
 			
 			if (connectedAccount.name.equals(lastSignInAccount.getAccount().name)) {
 				//같은 계정 -> 로그인 성공
-				accountViewModel.setUsingAccountType(Constant.ACCOUNT_GOOGLE);
 				onSignIn(connectedAccount);
 				init();
 			} else {
 				//다른 계정 -> 로그인 실패
 			}
 		}
+		
 		
 	}
 	

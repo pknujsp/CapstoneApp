@@ -18,7 +18,6 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
-import com.lifedawn.capstoneapp.common.Constant;
 import com.lifedawn.capstoneapp.common.SharedPreferenceConstant;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentIntroBinding;
@@ -58,8 +57,7 @@ public class IntroFragment extends Fragment {
 				accountViewModel.signIn(googleAccountLifeCycleObserver, new GoogleAccountUtil.OnSignCallback() {
 					@Override
 					public void onSignInSuccessful(Account signInAccount, GoogleAccountCredential googleAccountCredential) {
-						startMainFragment(Constant.ACCOUNT_GOOGLE);
-						accountViewModel.setSignInGoogleAccount(signInAccount);
+					
 					}
 					
 					@Override
@@ -73,7 +71,7 @@ public class IntroFragment extends Fragment {
 		binding.startWithoutGoogleBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				startMainFragment(Constant.ACCOUNT_LOCAL_WITHOUT_GOOGLE);
+				startMainFragment();
 			}
 		});
 		
@@ -85,8 +83,7 @@ public class IntroFragment extends Fragment {
 		super.onDestroy();
 	}
 	
-	private void startMainFragment(Constant usingAccountType) {
-		accountViewModel.setUsingAccountType(usingAccountType);
+	private void startMainFragment() {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 		sharedPreferences.edit().putBoolean(SharedPreferenceConstant.APP_INIT.name(), true).commit();
 		

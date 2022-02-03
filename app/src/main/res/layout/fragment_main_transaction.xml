@@ -18,9 +18,9 @@
                 android:id="@+id/simpleProfileView"
                 layout="@layout/item_view_simpleprofile"
                 android:layout_width="200dp"
-                android:layout_margin="4dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right" />
+                android:layout_gravity="right"
+                android:layout_margin="4dp" />
 
 
         </FrameLayout>

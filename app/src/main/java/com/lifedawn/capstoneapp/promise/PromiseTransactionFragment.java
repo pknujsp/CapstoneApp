@@ -8,10 +8,19 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.lifedawn.capstoneapp.databinding.FragmentPromiseTransactionBinding;
+import com.lifedawn.capstoneapp.promise.fixedpromise.FixedPromiseFragment;
+import com.lifedawn.capstoneapp.promise.mypromise.MyPromiseFragment;
+import com.lifedawn.capstoneapp.promise.receivedinvitation.ReceivedInvitationFragment;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PromiseTransactionFragment extends Fragment {
 	private FragmentPromiseTransactionBinding binding;
@@ -30,5 +39,39 @@ public class PromiseTransactionFragment extends Fragment {
 	@Override
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		
+		ViewPagerAdapter adapter = new ViewPagerAdapter(this);
+		adapter.addFragment(new FixedPromiseFragment());
+		adapter.addFragment(new MyPromiseFragment());
+		adapter.addFragment(new ReceivedInvitationFragment());
+		binding.viewPager.setAdapter(adapter);
+		new TabLayoutMediator(binding.tabLayout, binding.viewPager, new TabLayoutMediator.TabConfigurationStrategy() {
+			@Override
+			public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+			}
+		}).attach();
+	}
+	
+	private static class ViewPagerAdapter extends FragmentStateAdapter {
+		List<Fragment> fragmentList = new ArrayList<>();
+		
+		public void addFragment(Fragment fragment) {
+			fragmentList.add(fragment);
+		}
+		
+		public ViewPagerAdapter(@NonNull Fragment fragment) {
+			super(fragment);
+		}
+		
+		@NonNull
+		@Override
+		public Fragment createFragment(int position) {
+			return fragmentList.get(position);
+		}
+		
+		@Override
+		public int getItemCount() {
+			return fragmentList.size();
+		}
 	}
 }

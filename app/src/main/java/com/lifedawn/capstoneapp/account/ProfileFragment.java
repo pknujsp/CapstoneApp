@@ -10,13 +10,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
-import com.lifedawn.capstoneapp.common.Constant;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentProfileBinding;
 
@@ -55,13 +55,11 @@ public class ProfileFragment extends DialogFragment {
 				accountViewModel.signOut(account, new GoogleAccountUtil.OnSignCallback() {
 					@Override
 					public void onSignInSuccessful(Account signInAccount, GoogleAccountCredential googleAccountCredential) {
-						Toast.makeText(getContext(), R.string.signout_successful, Toast.LENGTH_SHORT).show();
-						accountViewModel.setUsingAccountType(Constant.ACCOUNT_LOCAL_WITHOUT_GOOGLE);
+					
 					}
 					
 					@Override
 					public void onSignOutSuccessful(Account signOutAccount) {
-					
 					}
 				});
 			}
@@ -73,7 +71,6 @@ public class ProfileFragment extends DialogFragment {
 				accountViewModel.signIn(googleAccountLifeCycleObserver, new GoogleAccountUtil.OnSignCallback() {
 					@Override
 					public void onSignInSuccessful(Account signInAccount, GoogleAccountCredential googleAccountCredential) {
-						accountViewModel.setUsingAccountType(Constant.ACCOUNT_GOOGLE);
 					}
 					
 					@Override
@@ -84,6 +81,26 @@ public class ProfileFragment extends DialogFragment {
 			}
 		});
 		
+		accountViewModel.getSignInLiveData().observe(getViewLifecycleOwner(), new Observer<Account>() {
+			@Override
+			public void onChanged(Account account) {
+				if (account == null) {
+				} else {
+					Toast.makeText(getContext(), R.string.signin_successful, Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+		
+		accountViewModel.getSignOutLiveData().observe(getViewLifecycleOwner(), new Observer<Account>() {
+			@Override
+			public void onChanged(Account account) {
+				if (account == null) {
+				
+				} else {
+					Toast.makeText(getContext(), R.string.signout_successful, Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
 		
 	}
 	
