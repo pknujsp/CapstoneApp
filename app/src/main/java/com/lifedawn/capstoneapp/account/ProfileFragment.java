@@ -83,6 +83,8 @@ public class ProfileFragment extends DialogFragment {
 				});
 			}
 		});
+		
+		
 	}
 	
 	@Override
