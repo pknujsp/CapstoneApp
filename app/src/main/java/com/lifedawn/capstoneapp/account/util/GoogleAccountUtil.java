@@ -26,6 +26,7 @@ import java.util.Arrays;
 public class GoogleAccountUtil {
 	private static GoogleAccountUtil instance;
 	private final String[] CREDENTIAL_SCOPES = {CalendarScopes.CALENDAR};
+	private GoogleAccountCredential googleAccountCredential;
 	
 	private Context context;
 	
@@ -34,6 +35,10 @@ public class GoogleAccountUtil {
 			instance = new GoogleAccountUtil(context);
 		}
 		return instance;
+	}
+	
+	public GoogleAccountCredential getGoogleAccountCredential() {
+		return googleAccountCredential;
 	}
 	
 	public GoogleAccountUtil(Context context) {
@@ -94,8 +99,8 @@ public class GoogleAccountUtil {
 					GoogleSignInAccount account = task.getResult(ApiException.class);
 					Account signInAccount = account.getAccount();
 					
-					GoogleAccountCredential googleAccountCredential = GoogleAccountCredential.usingOAuth2(context,
-							Arrays.asList(CREDENTIAL_SCOPES)).setBackOff(new ExponentialBackOff());
+					googleAccountCredential = GoogleAccountCredential.usingOAuth2(context, Arrays.asList(CREDENTIAL_SCOPES)).setBackOff(
+							new ExponentialBackOff());
 					googleAccountCredential.setSelectedAccount(signInAccount);
 					
 					connectNewGoogleAccount(signInAccount);

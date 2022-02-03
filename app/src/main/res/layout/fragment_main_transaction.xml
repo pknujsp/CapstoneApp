@@ -22,7 +22,6 @@
                 android:layout_gravity="right"
                 android:layout_margin="4dp" />
 
-
         </FrameLayout>
 
         <androidx.fragment.app.FragmentContainerView

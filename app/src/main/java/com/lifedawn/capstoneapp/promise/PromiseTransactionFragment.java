@@ -12,6 +12,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.databinding.FragmentPromiseTransactionBinding;
 import com.lifedawn.capstoneapp.promise.fixedpromise.FixedPromiseFragment;
 import com.lifedawn.capstoneapp.promise.mypromise.MyPromiseFragment;
@@ -48,6 +49,16 @@ public class PromiseTransactionFragment extends Fragment {
 		new TabLayoutMediator(binding.tabLayout, binding.viewPager, new TabLayoutMediator.TabConfigurationStrategy() {
 			@Override
 			public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+				switch (position){
+					case 0:
+						tab.setText(R.string.fixed_promise);
+						break;
+					case 1:
+						tab.setText(R.string.my_promise);
+						break;
+					default:
+						tab.setText(R.string.received_invitation);
+				}
 			}
 		}).attach();
 	}

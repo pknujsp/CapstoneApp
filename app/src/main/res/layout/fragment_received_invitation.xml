@@ -24,6 +24,6 @@
             app:backgroundTint="@color/design_default_color_primary"
             app:tint="@color/white" />
 
-
     </FrameLayout>
+
 </layout>
