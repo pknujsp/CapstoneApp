@@ -61,4 +61,6 @@
     <string name="add">추가</string>
     <string name="input_name">이름을 입력</string>
     <string name="existing_Value">이미 존재하는 값 입니다</string>
+    <string name="remind_before">전에 알림</string>
+    <string name="use_reminder">알림 사용</string>
 </resources>

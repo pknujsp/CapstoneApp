@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.lifedawn.capstoneapp.databinding.FragmentAbstractNaverMapBinding;
+import com.naver.maps.map.NaverMapSdk;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -19,7 +20,7 @@ public abstract class AbstractNaverMapFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 	}
 	
 	@Override
