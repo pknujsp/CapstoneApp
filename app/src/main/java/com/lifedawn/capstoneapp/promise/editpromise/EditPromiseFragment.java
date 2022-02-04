@@ -1,66 +1,70 @@
 package com.lifedawn.capstoneapp.promise.editpromise;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.lifedawn.capstoneapp.R;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link EditPromiseFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class EditPromiseFragment extends Fragment {
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventAttendee;
+import com.google.api.services.calendar.model.EventDateTime;
+import com.lifedawn.capstoneapp.promise.abstractfragment.AbstractPromiseFragment;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+import java.time.ZonedDateTime;
+import java.util.List;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class EditPromiseFragment extends AbstractPromiseFragment {
+    private Event editEvent;
 
-    public EditPromiseFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment EditPromiseFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static EditPromiseFragment newInstance(String param1, String param2) {
-        EditPromiseFragment fragment = new EditPromiseFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public void setEditEvent(Event editEvent) {
+        this.editEvent = editEvent;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            Bundle bundle = getArguments();
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_edit_promise, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        init();
+    }
+
+    private void init() {
+        binding.titleEditText.setText(editEvent.getSummary());
+        ZonedDateTime startDateTime = ZonedDateTime.parse(editEvent.getStart().toString());
+
+        binding.dateTime.setText(startDateTime.format(START_DATETIME_FORMATTER));
+        binding.descriptionEditText.setText(editEvent.getDescription());
+
+        //초대받은 사람들
+        initAttendeesView(editEvent.getAttendees());
+
+        //장소
+        final String location = editEvent.getLocation();
+
+        //알림
+        Event.Reminders reminders = editEvent.getReminders();
+        if (reminders != null) {
+            initRemindersView(reminders.getOverrides());
+        }
+
+        //계정 로컬인지, 구글 계정인지
+        
+    }
+
+
 }
