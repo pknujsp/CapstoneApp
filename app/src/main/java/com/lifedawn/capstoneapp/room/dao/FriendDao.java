@@ -26,4 +26,7 @@ public interface FriendDao {
 	
 	@Query("DELETE FROM friends_table WHERE id = :id")
 	void delete(int id);
+	
+	@Query("SELECT EXISTS (SELECT * FROM friends_table WHERE email = :email) AS SUCCESS")
+	int contains(String email);
 }

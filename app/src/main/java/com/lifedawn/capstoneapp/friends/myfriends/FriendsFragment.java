@@ -29,10 +29,24 @@ import java.util.List;
 public class FriendsFragment extends Fragment {
 	private FragmentFriendsBinding binding;
 	private FriendViewModel friendViewModel;
+	private Boolean fabVisible;
+	private Boolean backAfterItemClick;
+	private OnClickFriendItemListener onClickFriendItemListener;
+	
+	
+	public void setOnClickFriendItemListener(OnClickFriendItemListener onClickFriendItemListener) {
+		this.onClickFriendItemListener = onClickFriendItemListener;
+	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		if (getArguments() != null) {
+			Bundle bundle = getArguments();
+			fabVisible = bundle.getBoolean("fabVisible", false);
+			backAfterItemClick = bundle.getBoolean("backAfterItemClick", true);
+		}
 	}
 	
 	@Override
@@ -47,7 +61,9 @@ public class FriendsFragment extends Fragment {
 		
 		friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
 		
-		
+		if (fabVisible != null && !fabVisible) {
+			binding.floatingActionBtn.setVisibility(View.GONE);
+		}
 		binding.floatingActionBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -70,6 +86,14 @@ public class FriendsFragment extends Fragment {
 				});
 				
 				adapter.notifyItemRemoved(position);
+			}
+			
+			@Override
+			public void onClickedFriend(FriendDto friend, int position) {
+				if (backAfterItemClick) {
+					onClickFriendItemListener.onClickedFriend(friend, position);
+					getParentFragmentManager().popBackStackImmediate();
+				}
 			}
 		});
 		binding.recyclerView.setAdapter(adapter);
@@ -142,7 +166,14 @@ public class FriendsFragment extends Fragment {
 				binding.removeBtn.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						onClickFriendItemListener.onClickedRemove(friends.get(getAdapterPosition()), getAdapterPosition());
+						onClickFriendItemListener.onClickedRemove(friends.get(getBindingAdapterPosition()), getBindingAdapterPosition());
+					}
+				});
+				
+				binding.getRoot().setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						onClickFriendItemListener.onClickedFriend(friends.get(getBindingAdapterPosition()), getBindingAdapterPosition());
 					}
 				});
 				

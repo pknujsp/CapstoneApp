@@ -1,32 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:layout_margin="4dp"
-    app:cardElevation="4dp"
-    android:layout_height="wrap_content">
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    app:cardElevation="4dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingLeft="16dp"
-        android:paddingRight="16dp"
         android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        >
+        android:paddingRight="16dp"
+        android:paddingBottom="8dp">
 
 
-   <TextView
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:layout_centerVertical="true"
-       android:id="@+id/friend"
-       android:textSize="16sp"
-       android:textColor="@color/black"
-       android:fontFamily="sans-serif-light"
-       android:layout_toLeftOf="@id/removeBtn"
-       android:text="@string/friendsname"
-       android:layout_alignParentLeft="true"/>
+        <TextView
+            android:id="@+id/friend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/removeBtn"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/friendsname"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/removeBtn"

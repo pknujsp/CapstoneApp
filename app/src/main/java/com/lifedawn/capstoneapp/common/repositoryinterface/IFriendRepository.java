@@ -15,4 +15,6 @@ public interface IFriendRepository {
 	void update(FriendDto friendDto, OnDbQueryCallback<FriendDto> callback);
 	
 	void delete(int id, OnDbQueryCallback<Boolean> callback);
+	
+	void contains(String email, OnDbQueryCallback<Boolean> callback);
 }

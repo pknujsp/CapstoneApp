@@ -58,4 +58,7 @@
     <string name="local">로컬</string>
     <string name="signout_successful">구글 로그아웃됨</string>
     <string name="signin_successful">구글 로그인 되었습니다</string>
+    <string name="add">추가</string>
+    <string name="input_name">이름을 입력</string>
+    <string name="existing_Value">이미 존재하는 값 입니다</string>
 </resources>

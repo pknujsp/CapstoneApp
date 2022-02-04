@@ -75,4 +75,14 @@ public class FriendRepository implements IFriendRepository {
 			}
 		});
 	}
+	
+	@Override
+	public void contains(String email, OnDbQueryCallback<Boolean> callback) {
+		executorService.execute(new Runnable() {
+			@Override
+			public void run() {
+				callback.onResult(friendDao.contains(email) == 1);
+			}
+		});
+	}
 }

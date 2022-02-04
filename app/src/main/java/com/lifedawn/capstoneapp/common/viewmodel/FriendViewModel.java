@@ -44,4 +44,9 @@ public class FriendViewModel extends AndroidViewModel implements IFriendReposito
 	public void delete(int id, OnDbQueryCallback<Boolean> callback) {
 		friendRepository.delete(id, callback);
 	}
+	
+	@Override
+	public void contains(String email, OnDbQueryCallback<Boolean> callback) {
+		friendRepository.contains(email, callback);
+	}
 }
