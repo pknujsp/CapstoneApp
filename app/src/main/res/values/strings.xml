@@ -63,4 +63,5 @@
     <string name="existing_Value">이미 존재하는 값 입니다</string>
     <string name="remind_before">전에 알림</string>
     <string name="use_reminder">알림 사용</string>
+    <string name="description_hint">내용 입력</string>
 </resources>

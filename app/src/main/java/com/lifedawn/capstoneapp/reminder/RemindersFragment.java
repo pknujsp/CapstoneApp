@@ -1,10 +1,8 @@
 package com.lifedawn.capstoneapp.reminder;
 
 import android.annotation.SuppressLint;
-import android.content.ContentValues;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.CalendarContract;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -16,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.api.client.util.GenericData;
 import com.google.api.services.calendar.model.EventReminder;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.ReminderUtil;
@@ -28,7 +25,6 @@ import java.io.Serializable;
 public class RemindersFragment extends Fragment {
     private FragmentRemindersBinding binding;
     private OnEventReminderResultListener onEventReminderResultListener;
-
 
     private Handler repeatUpdateHandler = new Handler();
     private boolean cIncrement = false;
