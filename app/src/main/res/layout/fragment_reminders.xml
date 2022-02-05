@@ -97,56 +97,15 @@
                         android:id="@+id/customLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
                         android:orientation="vertical">
 
-                        <androidx.appcompat.widget.SwitchCompat
-                            android:id="@+id/notificationSoundSwitch"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/notification_sound_switch" />
-
-                        <LinearLayout
-                            android:id="@+id/notificationSoundLayout"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginBottom="4dp"
-                                android:text="@string/notification_sound_selection"
-                                android:textColor="@color/black" />
-
-                            <TextView
-                                android:id="@+id/notificationSoundName"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginLeft="16dp"
-                                android:background="?attr/selectableItemBackground"
-                                android:clickable="true"
-                                android:text="알림소리명"
-                                android:textColor="@color/black" />
-
-                        </LinearLayout>
-
-                        <androidx.appcompat.widget.SwitchCompat
-                            android:id="@+id/notificationVibrationSwitch"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/notification_vibration_switch" />
-
-                        <androidx.appcompat.widget.SwitchCompat
-                            android:id="@+id/notificationWakeUpSwitch"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/notification_wakeup_switch" />
 
                         <LinearLayout
                             android:id="@+id/reminder_selector"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
+
                             android:orientation="horizontal"
                             android:visibility="visible">
 

@@ -12,9 +12,11 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.api.services.calendar.model.EventAttendee;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickFriendItemListener;
+import com.lifedawn.capstoneapp.common.interfaces.OnFragmentCallback;
 import com.lifedawn.capstoneapp.databinding.FragmentInvitationFriendBinding;
 import com.lifedawn.capstoneapp.databinding.ItemViewFriendBinding;
 import com.lifedawn.capstoneapp.friends.AddFriendDialogFragment;
@@ -27,7 +29,16 @@ import java.util.List;
 public class InvitationFriendFragment extends Fragment {
 	private FragmentInvitationFriendBinding binding;
 	private RecyclerViewAdapter adapter;
-	private List<FriendDto> friends = new ArrayList<>();
+	private ArrayList<EventAttendee> eventAttendees = new ArrayList<>();
+	private OnFragmentCallback<ArrayList<EventAttendee>> onFragmentCallback;
+	
+	public void setOnFragmentCallback(OnFragmentCallback<ArrayList<EventAttendee>> onFragmentCallback) {
+		this.onFragmentCallback = onFragmentCallback;
+	}
+	
+	public void setEventAttendees(ArrayList<EventAttendee> eventAttendees) {
+		this.eventAttendees = eventAttendees;
+	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -36,7 +47,6 @@ public class InvitationFriendFragment extends Fragment {
 		if (getArguments() != null) {
 			Bundle bundle = getArguments();
 			
-			friends = bundle.getParcelableArrayList("friends");
 		}
 	}
 	
@@ -62,7 +72,8 @@ public class InvitationFriendFragment extends Fragment {
 					
 					@Override
 					public void onClickedFriend(FriendDto friend, int position) {
-						friends.add(friend);
+						EventAttendee eventAttendee = new EventAttendee();
+						eventAttendee.setOrganizer(false).setEmail(friend.getEmail());
 						adapter.notifyDataSetChanged();
 					}
 				});
@@ -88,7 +99,9 @@ public class InvitationFriendFragment extends Fragment {
 							getActivity().runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									friends.add(friendDto);
+									EventAttendee eventAttendee = new EventAttendee();
+									eventAttendee.setOrganizer(false).setEmail(friendDto.getEmail());
+									eventAttendees.add(eventAttendee);
 									adapter.notifyDataSetChanged();
 								}
 							});
@@ -102,18 +115,19 @@ public class InvitationFriendFragment extends Fragment {
 		
 		binding.friendsList.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 		binding.friendsList.addItemDecoration(new RecyclerViewItemDecoration(getContext()));
+		
 		adapter = new RecyclerViewAdapter();
-		adapter.setFriends(friends);
-		adapter.setOnClickFriendItemListener(new OnClickFriendItemListener() {
+		adapter.setEventAttendeeList(eventAttendees);
+		adapter.setOnClickEventAttendeeItemListener(new OnClickEventAttendeeItemListener() {
 			@Override
-			public void onClickedRemove(FriendDto friend, int position) {
-				friends.remove(position);
+			public void onClickedRemove(EventAttendee eventAttendee, int position) {
+				eventAttendees.remove(position);
 				adapter.notifyDataSetChanged();
 			}
 			
 			@Override
-			public void onClickedFriend(FriendDto friend, int position) {
-			
+			public void onClickedFriend(EventAttendee eventAttendee, int position) {
+				//친구 정보 다이얼로그로 표시
 			}
 		});
 		
@@ -122,27 +136,22 @@ public class InvitationFriendFragment extends Fragment {
 	
 	@Override
 	public void onDestroy() {
+		if (onFragmentCallback != null) {
+			onFragmentCallback.onResult(eventAttendees);
+		}
 		super.onDestroy();
 	}
 	
 	private class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-		OnClickFriendItemListener onClickFriendItemListener;
-		List<FriendDto> friends;
+		OnClickEventAttendeeItemListener onClickEventAttendeeItemListener;
+		List<EventAttendee> eventAttendeeList;
 		
-		public void setFriends(List<FriendDto> friends) {
-			this.friends = friends;
+		public void setEventAttendeeList(List<EventAttendee> eventAttendeeList) {
+			this.eventAttendeeList = eventAttendeeList;
 		}
 		
-		public void addFriend(FriendDto friend) {
-			this.friends.add(friend);
-		}
-		
-		public List<FriendDto> getFriends() {
-			return friends;
-		}
-		
-		public void setOnClickFriendItemListener(OnClickFriendItemListener onClickFriendItemListener) {
-			this.onClickFriendItemListener = onClickFriendItemListener;
+		public void setOnClickEventAttendeeItemListener(OnClickEventAttendeeItemListener onClickEventAttendeeItemListener) {
+			this.onClickEventAttendeeItemListener = onClickEventAttendeeItemListener;
 		}
 		
 		@NonNull
@@ -164,7 +173,7 @@ public class InvitationFriendFragment extends Fragment {
 		
 		@Override
 		public int getItemCount() {
-			return friends.size();
+			return eventAttendeeList.size();
 		}
 		
 		private class ViewHolder extends RecyclerView.ViewHolder {
@@ -184,18 +193,26 @@ public class InvitationFriendFragment extends Fragment {
 				binding.removeBtn.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						onClickFriendItemListener.onClickedRemove(friends.get(getBindingAdapterPosition()), getBindingAdapterPosition());
+						onClickEventAttendeeItemListener.onClickedRemove(eventAttendeeList.get(getBindingAdapterPosition()),
+								getBindingAdapterPosition());
 					}
 				});
 				
 				binding.getRoot().setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						onClickFriendItemListener.onClickedFriend(friends.get(getBindingAdapterPosition()), getBindingAdapterPosition());
+						onClickEventAttendeeItemListener.onClickedFriend(eventAttendeeList.get(getBindingAdapterPosition()),
+								getBindingAdapterPosition());
 					}
 				});
 				
 			}
 		}
+	}
+	
+	public interface OnClickEventAttendeeItemListener {
+		void onClickedRemove(EventAttendee eventAttendee, int position);
+		
+		void onClickedFriend(EventAttendee eventAttendee, int position);
 	}
 }

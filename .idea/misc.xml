@@ -52,6 +52,8 @@
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/map_buttons_view.xml" value="1.0" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/menu/main_bottom_navigation.xml" value="0.2046875" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/activity_main.xml" value="0.1381340579710145" />
+        <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/event_attendee_chip.xml" value="0.20307017543859648" />
+        <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/event_reminder_chip.xml" value="0.20307017543859648" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_calendar.xml" value="0.14583333333333334" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_calendar_transaction.xml" value="0.20307017543859648" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_default_notificaiton_settings.xml" value="0.13949275362318841" />
@@ -68,6 +70,7 @@
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_profile.xml" value="0.264" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_promise_transaction.xml" value="0.264" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_received_invitation.xml" value="0.1431159420289855" />
+        <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_reminders.xml" value="0.20307017543859648" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/item_view_friend.xml" value="0.20307017543859648" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/item_view_promise.xml" value="0.264" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/item_view_simpleprofile.xml" value="0.20307017543859648" />

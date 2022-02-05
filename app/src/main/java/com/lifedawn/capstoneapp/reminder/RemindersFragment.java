@@ -42,8 +42,11 @@ public class RemindersFragment extends Fragment {
     public enum RequestType implements Serializable {
         EDIT, ADD
     }
-
-
+    
+    public void setOnEventReminderResultListener(OnEventReminderResultListener onEventReminderResultListener) {
+        this.onEventReminderResultListener = onEventReminderResultListener;
+    }
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

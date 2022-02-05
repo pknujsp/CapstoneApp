@@ -64,4 +64,8 @@
     <string name="remind_before">전에 알림</string>
     <string name="use_reminder">알림 사용</string>
     <string name="description_hint">내용 입력</string>
+    <string name="addReminder">알림 추가</string>
+    <string name="promiseTime">약속 시각</string>
+    <string name="promiseDate">약속 날짜</string>
+    <string name="save">저장</string>
 </resources>
