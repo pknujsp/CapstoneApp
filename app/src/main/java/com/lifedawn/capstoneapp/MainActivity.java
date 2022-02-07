@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.FragmentTransaction;
@@ -26,11 +27,21 @@ public class MainActivity extends AppCompatActivity {
 	private ActivityMainBinding binding;
 	private AccountViewModel accountViewModel;
 	
+	private final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+		@Override
+		public void handleOnBackPressed() {
+			if (!getSupportFragmentManager().popBackStackImmediate()) {
+				finish();
+			}
+		}
+	};
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 		accountViewModel = new ViewModelProvider(this).get(AccountViewModel.class);
+		
 		init();
 	}
 	
@@ -57,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 		
 		if (appInit) {
+			getOnBackPressedDispatcher().addCallback(onBackPressedCallback);
+			
 			//maintransactionfragment
 			MainTransactionFragment mainTransactionFragment = new MainTransactionFragment();
 			fragmentTransaction.add(binding.fragmentContainerView.getId(), mainTransactionFragment,

@@ -69,6 +69,11 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
     }
     
     @Override
+    protected void onClickedMap() {
+    
+    }
+    
+    @Override
     protected void onClickedInviteFriendChip() {
     
     }

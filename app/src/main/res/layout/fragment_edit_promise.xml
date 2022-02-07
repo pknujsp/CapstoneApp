@@ -10,8 +10,8 @@
         <androidx.core.widget.NestedScrollView
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
-            android:layout_above="@id/saveBtn"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_above="@id/saveBtn">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -132,6 +132,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="right"
                         android:layout_marginBottom="4dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
                         android:text="@string/placeName" />
 
 
@@ -196,12 +198,11 @@
         </androidx.core.widget.NestedScrollView>
 
         <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/save"
             android:id="@+id/saveBtn"
             style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            />
+            android:text="@string/save" />
     </RelativeLayout>
 </layout>

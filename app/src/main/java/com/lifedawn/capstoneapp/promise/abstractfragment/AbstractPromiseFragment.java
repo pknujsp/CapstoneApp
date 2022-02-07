@@ -127,6 +127,13 @@ public abstract class AbstractPromiseFragment extends Fragment {
 				onClickedAccount();
 			}
 		});
+		
+		binding.placeName.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onClickedMap();
+			}
+		});
 	}
 	
 	protected void initAttendeesView(List<EventAttendee> attendeeList) {
@@ -215,6 +222,8 @@ public abstract class AbstractPromiseFragment extends Fragment {
 	protected abstract LocalTime onClickedTime();
 	
 	protected abstract void onClickedAccount();
+	
+	protected abstract void onClickedMap();
 	
 	protected abstract void onClickedInviteFriendChip();
 	

@@ -14,6 +14,8 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.databinding.FragmentPromiseTransactionBinding;
+import com.lifedawn.capstoneapp.main.MainTransactionFragment;
+import com.lifedawn.capstoneapp.promise.addpromise.AddPromiseFragment;
 import com.lifedawn.capstoneapp.promise.fixedpromise.FixedPromiseFragment;
 import com.lifedawn.capstoneapp.promise.mypromise.MyPromiseFragment;
 import com.lifedawn.capstoneapp.promise.receivedinvitation.ReceivedInvitationFragment;
@@ -49,7 +51,7 @@ public class PromiseTransactionFragment extends Fragment {
 		new TabLayoutMediator(binding.tabLayout, binding.viewPager, new TabLayoutMediator.TabConfigurationStrategy() {
 			@Override
 			public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-				switch (position){
+				switch (position) {
 					case 0:
 						tab.setText(R.string.fixed_promise);
 						break;
@@ -61,6 +63,17 @@ public class PromiseTransactionFragment extends Fragment {
 				}
 			}
 		}).attach();
+		
+		binding.floatingActionBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				AddPromiseFragment addPromiseFragment = new AddPromiseFragment();
+				getParentFragment().getParentFragmentManager().beginTransaction().hide(
+						getParentFragment().getParentFragmentManager().findFragmentByTag(MainTransactionFragment.class.getName())).add(
+						R.id.fragmentContainerView, addPromiseFragment, AddPromiseFragment.class.getName()).addToBackStack(
+						AddPromiseFragment.class.getName()).commit();
+			}
+		});
 	}
 	
 	private static class ViewPagerAdapter extends FragmentStateAdapter {
