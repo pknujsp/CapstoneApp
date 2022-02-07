@@ -11,15 +11,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.SharedPreferenceConstant;
+import com.lifedawn.capstoneapp.common.util.FusedLocation;
 import com.lifedawn.capstoneapp.common.util.LocationLifeCycleObserver;
 import com.lifedawn.capstoneapp.databinding.FragmentAbstractNaverMapBinding;
 import com.naver.maps.geometry.LatLng;
@@ -45,6 +46,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 	protected MapFragment mapFragment;
 	protected FusedLocationSource fusedLocationSource;
 	protected LocationLifeCycleObserver locationLifeCycleObserver;
+	protected FusedLocation fusedLocation;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 		
 		locationLifeCycleObserver = new LocationLifeCycleObserver(requireActivity().getActivityResultRegistry(), requireActivity());
 		getLifecycle().addObserver(locationLifeCycleObserver);
+		fusedLocation = FusedLocation.getInstance(getContext());
 	}
 	
 	@Override
@@ -84,9 +87,19 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 				if (naverMap.getLocationTrackingMode() == LocationTrackingMode.None) {
 					//check permissions
 					
-					if (ContextCompat.checkSelfPermission(getContext(),
-							Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-							getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+					if (!fusedLocation.isOnGps()) {
+						fusedLocation.onDisabledGps(getActivity(), locationLifeCycleObserver, new ActivityResultCallback<ActivityResult>() {
+							@Override
+							public void onActivityResult(ActivityResult result) {
+								if (fusedLocation.isOnGps()) {
+									binding.naverMapButtonsLayout.gpsButton.callOnClick();
+								}
+							}
+						});
+						return;
+					}
+					
+					if (fusedLocation.checkDefaultPermissions()) {
 						naverMap.setLocationSource(fusedLocationSource);
 						naverMap.setLocationTrackingMode(LocationTrackingMode.NoFollow);
 					} else {
@@ -98,8 +111,9 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 									public void onActivityResult(Map<String, Boolean> result) {
 										if (!result.containsValue(false)) {
 											fusedLocationSource.onRequestPermissionsResult(REQUEST_CODE_LOCATION,
-													new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-													new int[]{PackageManager.PERMISSION_GRANTED});
+													new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+															Manifest.permission.ACCESS_COARSE_LOCATION},
+													new int[]{PackageManager.PERMISSION_GRANTED, PackageManager.PERMISSION_GRANTED});
 											naverMap.setLocationSource(fusedLocationSource);
 											naverMap.setLocationTrackingMode(LocationTrackingMode.NoFollow);
 										} else {
@@ -112,6 +126,8 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 				}
 			}
 		});
+		
+		loadMap();
 	}
 	
 	@Override
