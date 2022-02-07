@@ -21,11 +21,11 @@ import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
 import com.lifedawn.capstoneapp.common.SharedPreferenceConstant;
-import com.lifedawn.capstoneapp.databinding.FragmentDefaultNotificaitonSettingsBinding;
+import com.lifedawn.capstoneapp.databinding.FragmentDefaultNotificationSettingsBinding;
 
 
-public class DefaultNotificaitonSettingsFragment extends Fragment {
-    private FragmentDefaultNotificaitonSettingsBinding binding;
+public class DefaultNotificationSettingsFragment extends Fragment {
+    private FragmentDefaultNotificationSettingsBinding binding;
     private boolean initializing = true;
 
     @Override
@@ -36,7 +36,7 @@ public class DefaultNotificaitonSettingsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentDefaultNotificaitonSettingsBinding.inflate(inflater);
+        binding = FragmentDefaultNotificationSettingsBinding.inflate(inflater);
         return binding.getRoot();
     }
 
