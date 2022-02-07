@@ -42,13 +42,6 @@ public class MyPromiseFragment extends Fragment {
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		
-		binding.floatingActionBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-			
-			}
-		});
-		
 		binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 		binding.recyclerView.addItemDecoration(new RecyclerViewItemDecoration(getContext()));
 		

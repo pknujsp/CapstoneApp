@@ -21,6 +21,9 @@ public class FriendDto implements Serializable, Parcelable {
 	@ColumnInfo(name = "name")
 	private String name;
 	
+	public FriendDto() {
+	}
+	
 	protected FriendDto(Parcel in) {
 		id = in.readInt();
 		email = in.readString();

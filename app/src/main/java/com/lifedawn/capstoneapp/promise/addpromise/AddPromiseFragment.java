@@ -14,6 +14,7 @@ import com.google.api.services.calendar.model.EventReminder;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.interfaces.OnFragmentCallback;
 import com.lifedawn.capstoneapp.friends.invitation.InvitationFriendFragment;
+import com.lifedawn.capstoneapp.map.PromiseNaverMapFragment;
 import com.lifedawn.capstoneapp.promise.abstractfragment.AbstractPromiseFragment;
 import com.lifedawn.capstoneapp.reminder.RemindersFragment;
 
@@ -152,4 +153,13 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 	protected void onClickedAccount() {
 	
 	}
+	
+	@Override
+	protected void onClickedMap() {
+		PromiseNaverMapFragment promiseNaverMapFragment = new PromiseNaverMapFragment();
+		getParentFragmentManager().beginTransaction().hide(AddPromiseFragment.this).add(R.id.fragmentContainerView,
+				promiseNaverMapFragment, PromiseNaverMapFragment.class.getName()).addToBackStack(
+				PromiseNaverMapFragment.class.getName()).commit();
+	}
+	
 }
