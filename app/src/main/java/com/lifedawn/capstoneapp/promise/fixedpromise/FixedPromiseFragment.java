@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.api.services.calendar.model.Event;
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.common.RecyclerViewItemDecoration;
+import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
 import com.lifedawn.capstoneapp.databinding.FragmentFixedPromiseBinding;
 import com.lifedawn.capstoneapp.databinding.ItemViewPromiseBinding;

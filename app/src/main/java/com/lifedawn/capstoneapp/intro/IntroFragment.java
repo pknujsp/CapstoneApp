@@ -18,7 +18,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
-import com.lifedawn.capstoneapp.common.SharedPreferenceConstant;
+import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentIntroBinding;
 import com.lifedawn.capstoneapp.main.MainTransactionFragment;

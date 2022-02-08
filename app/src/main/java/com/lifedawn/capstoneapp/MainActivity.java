@@ -15,7 +15,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
-import com.lifedawn.capstoneapp.common.SharedPreferenceConstant;
+import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.databinding.ActivityMainBinding;
 import com.lifedawn.capstoneapp.intro.IntroFragment;

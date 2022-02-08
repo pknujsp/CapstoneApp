@@ -20,7 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
-import com.lifedawn.capstoneapp.common.SharedPreferenceConstant;
+import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
 import com.lifedawn.capstoneapp.databinding.FragmentDefaultNotificationSettingsBinding;
 
 

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.common.RecyclerViewItemDecoration;
+import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickFriendItemListener;
 import com.lifedawn.capstoneapp.common.interfaces.OnDbQueryCallback;
 import com.lifedawn.capstoneapp.common.viewmodel.FriendViewModel;

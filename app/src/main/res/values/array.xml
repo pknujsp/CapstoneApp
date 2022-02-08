@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="map_search_result_sort_spinner">
+        <item>거리 순서</item>
+        <item>정확도 순서</item>
+    </string-array>
+</resources>

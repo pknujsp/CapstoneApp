@@ -1,64 +1,157 @@
 package com.lifedawn.capstoneapp.kakao.search.searchresult;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.paging.PagedList;
+import androidx.paging.PagedListAdapter;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.lifedawn.capstoneapp.R;
+import com.lifedawn.capstoneapp.common.interfaces.OnClickedListItemListener;
+import com.lifedawn.capstoneapp.databinding.AddressRecyclerViewItemBinding;
+import com.lifedawn.capstoneapp.databinding.FragmentLocationSearchResultBinding;
+import com.lifedawn.capstoneapp.kakao.search.LocalParameterUtil;
+import com.lifedawn.capstoneapp.kakao.search.callback.AddressItemCallback;
+import com.lifedawn.capstoneapp.kakao.search.viewmodel.AddressViewModel;
+import com.lifedawn.capstoneapp.map.MapViewModel;
+import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
+import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.address.AddressResponse;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SearchResultAddressListFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class SearchResultAddressListFragment extends Fragment {
+	private FragmentLocationSearchResultBinding binding;
+	private final String QUERY;
+	private final OnClickedListItemListener<AddressResponse.Documents> addressResponseDocumentsOnClickedListItem;
 	
-	// TODO: Rename parameter arguments, choose names that match
-	// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-	private static final String ARG_PARAM1 = "param1";
-	private static final String ARG_PARAM2 = "param2";
+	private AddressViewModel addressViewModel;
+	private AddressesAdapter adapter;
+	private MapViewModel mapViewModel;
 	
-	// TODO: Rename and change types of parameters
-	private String mParam1;
-	private String mParam2;
-	
-	public SearchResultAddressListFragment() {
-		// Required empty public constructor
-	}
-	
-	/**
-	 * Use this factory method to create a new instance of
-	 * this fragment using the provided parameters.
-	 *
-	 * @param param1 Parameter 1.
-	 * @param param2 Parameter 2.
-	 * @return A new instance of fragment SearchResultAddressListFragment.
-	 */
-	// TODO: Rename and change types and number of parameters
-	public static SearchResultAddressListFragment newInstance(String param1, String param2) {
-		SearchResultAddressListFragment fragment = new SearchResultAddressListFragment();
-		Bundle args = new Bundle();
-		args.putString(ARG_PARAM1, param1);
-		args.putString(ARG_PARAM2, param2);
-		fragment.setArguments(args);
-		return fragment;
+	public SearchResultAddressListFragment(String query,
+			OnClickedListItemListener<AddressResponse.Documents> addressResponseDocumentsOnClickedListItem) {
+		this.QUERY = query;
+		this.addressResponseDocumentsOnClickedListItem = addressResponseDocumentsOnClickedListItem;
 	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (getArguments() != null) {
-			mParam1 = getArguments().getString(ARG_PARAM1);
-			mParam2 = getArguments().getString(ARG_PARAM2);
-		}
+		
+		mapViewModel = new ViewModelProvider(getActivity()).get(MapViewModel.class);
+		
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		// Inflate the layout for this fragment
-		return inflater.inflate(R.layout.fragment_search_result_address_list, container, false);
+		binding = FragmentLocationSearchResultBinding.inflate(inflater);
+		return binding.getRoot();
+	}
+	
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		
+		binding.mapSearchResultHeader.setVisibility(View.GONE);
+		binding.searchResultType.setText(getString(R.string.result_address));
+		
+		binding.searchResultRecyclerview.setLayoutManager(new LinearLayoutManager(view.getContext(), RecyclerView.VERTICAL, false));
+		binding.searchResultRecyclerview.addItemDecoration(new DividerItemDecoration(view.getContext(), DividerItemDecoration.VERTICAL));
+		addressViewModel = new ViewModelProvider(this).get(AddressViewModel.class);
+		
+		adapter = new AddressesAdapter(getContext(), addressResponseDocumentsOnClickedListItem);
+		adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+			@Override
+			public void onItemRangeInserted(int positionStart, int itemCount) {
+				super.onItemRangeInserted(positionStart, itemCount);
+				
+			}
+		});
+		binding.searchResultRecyclerview.setAdapter(adapter);
+		LocalApiPlaceParameter parameter = LocalParameterUtil.getAddressParameter(QUERY, LocalApiPlaceParameter.DEFAULT_SIZE,
+				LocalApiPlaceParameter.DEFAULT_PAGE);
+		
+		addressViewModel.init(parameter);
+		addressViewModel.getPagedListMutableLiveData().observe(getViewLifecycleOwner(),
+				new Observer<PagedList<AddressResponse.Documents>>() {
+					@Override
+					public void onChanged(PagedList<AddressResponse.Documents> addressResponseDocuments) {
+						adapter.submitList(addressResponseDocuments);
+					}
+				});
+	}
+	
+	
+	private static class AddressesAdapter extends PagedListAdapter<AddressResponse.Documents, AddressesAdapter.ItemViewHolder> {
+		private final android.content.Context context;
+		private final OnClickedListItemListener<AddressResponse.Documents> onClickedListItem;
+		
+		public AddressesAdapter(Context context, OnClickedListItemListener<AddressResponse.Documents> onClickedListItem) {
+			super(new AddressItemCallback());
+			this.context = context;
+			this.onClickedListItem = onClickedListItem;
+		}
+		
+		
+		private class ItemViewHolder extends RecyclerView.ViewHolder {
+			private AddressRecyclerViewItemBinding binding;
+			
+			public ItemViewHolder(View view) {
+				super(view);
+				binding = AddressRecyclerViewItemBinding.bind(view);
+			}
+			
+			public void bind() {
+				AddressResponse.Documents item = getItem(getBindingAdapterPosition());
+				binding.addressLayout.addressName.setText(item.getAddressName());
+				binding.addressLayout.addressIndex.setText(String.valueOf(getBindingAdapterPosition() + 1));
+				
+				if (item.getAddressResponseRoadAddress() != null) {
+					binding.addressLayout.anotherAddressType.setText(context.getString(R.string.road_addr));
+					binding.addressLayout.anotherAddressName.setText(item.getAddressResponseRoadAddress().getAddressName());
+				} else if (item.getAddressResponseAddress() != null) {
+					binding.addressLayout.anotherAddressType.setText(context.getString(R.string.region_addr));
+					binding.addressLayout.anotherAddressName.setText(item.getAddressResponseAddress().getAddressName());
+				}
+				
+				itemView.getRootView().setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						onClickedListItem.onClicked(getItem(getBindingAdapterPosition()));
+					}
+				});
+			}
+		}
+		
+		
+		@NonNull
+		@Override
+		public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+			return new ItemViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.address_recycler_view_item, parent, false));
+		}
+		
+		@Override
+		public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
+			holder.bind();
+		}
+		
+		@Override
+		public void submitList(@Nullable PagedList<AddressResponse.Documents> pagedList) {
+			super.submitList(pagedList);
+		}
+		
+		@Override
+		public void submitList(@Nullable PagedList<AddressResponse.Documents> pagedList, @Nullable Runnable commitCallback) {
+			super.submitList(pagedList, commitCallback);
+		}
 	}
 }

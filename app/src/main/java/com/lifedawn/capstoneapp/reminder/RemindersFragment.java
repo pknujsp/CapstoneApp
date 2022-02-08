@@ -16,7 +16,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.api.services.calendar.model.EventReminder;
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.common.ReminderUtil;
+import com.lifedawn.capstoneapp.common.util.ReminderUtil;
 import com.lifedawn.capstoneapp.databinding.FragmentRemindersBinding;
 
 import java.io.Serializable;

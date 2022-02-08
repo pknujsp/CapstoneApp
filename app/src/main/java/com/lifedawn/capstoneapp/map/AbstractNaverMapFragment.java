@@ -16,10 +16,11 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.common.SharedPreferenceConstant;
+import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
 import com.lifedawn.capstoneapp.common.util.FusedLocation;
 import com.lifedawn.capstoneapp.common.util.LocationLifeCycleObserver;
 import com.lifedawn.capstoneapp.databinding.FragmentAbstractNaverMapBinding;
@@ -47,6 +48,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 	protected FusedLocationSource fusedLocationSource;
 	protected LocationLifeCycleObserver locationLifeCycleObserver;
 	protected FusedLocation fusedLocation;
+	protected MapViewModel mapViewModel;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,13 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 		locationLifeCycleObserver = new LocationLifeCycleObserver(requireActivity().getActivityResultRegistry(), requireActivity());
 		getLifecycle().addObserver(locationLifeCycleObserver);
 		fusedLocation = FusedLocation.getInstance(getContext());
+		mapViewModel = new ViewModelProvider(getActivity()).get(MapViewModel.class);
+		mapViewModel.setiMapPoint(new MapViewModel.IMapPoint() {
+			@Override
+			public LatLng getCenterPoint() {
+				return naverMap.getContentBounds().getCenter();
+			}
+		});
 	}
 	
 	@Override

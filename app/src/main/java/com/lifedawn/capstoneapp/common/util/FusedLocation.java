@@ -202,6 +202,10 @@ public class FusedLocation {
 		return GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS;
 	}
 	
+	public void cancel() {
+	
+	}
+	
 	public interface MyLocationCallback {
 		enum Fail {
 			DISABLED_GPS, DENIED_LOCATION_PERMISSIONS, FAILED_FIND_LOCATION, DENIED_ACCESS_BACKGROUND_LOCATION_PERMISSION, TIME_OUT

@@ -19,8 +19,8 @@ import com.google.android.material.timepicker.TimeFormat;
 import com.google.api.services.calendar.model.EventAttendee;
 import com.google.api.services.calendar.model.EventReminder;
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.common.Constant;
-import com.lifedawn.capstoneapp.common.ReminderUtil;
+import com.lifedawn.capstoneapp.common.constants.Constant;
+import com.lifedawn.capstoneapp.common.util.ReminderUtil;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentEditPromiseBinding;
 

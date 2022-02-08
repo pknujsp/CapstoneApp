@@ -1,8 +1,7 @@
-package com.lifedawn.capstoneapp.common;
+package com.lifedawn.capstoneapp.common.util;
 
 import android.content.Context;
 
-import com.google.api.services.calendar.model.EventReminder;
 import com.lifedawn.capstoneapp.R;
 
 public class ReminderUtil {
