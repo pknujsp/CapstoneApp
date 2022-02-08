@@ -102,7 +102,7 @@ dependencies {
 
     implementation 'org.jsoup:jsoup:1.14.3'
 
-    implementation 'com.naver.maps:map-sdk:3.13.0'
+    implementation 'com.naver.maps:map-sdk:3.14.0'
 
     implementation('com.google.api-client:google-api-client-android:1.33.1') {
         exclude group: 'org.apache.httpcomponents'
