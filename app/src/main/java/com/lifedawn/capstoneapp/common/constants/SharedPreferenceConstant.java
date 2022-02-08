@@ -1,4 +1,4 @@
-package com.lifedawn.capstoneapp.common;
+package com.lifedawn.capstoneapp.common.constants;
 
 public enum SharedPreferenceConstant {
 	APP_INIT("APP_INIT"), REMINDER_SOUND_ON_OFF("REMINDER_SOUND_ON_OFF"), REMINDER_SOUND_URI("REMINDER_SOUND_URI"), REMINDER_VIBRATION(

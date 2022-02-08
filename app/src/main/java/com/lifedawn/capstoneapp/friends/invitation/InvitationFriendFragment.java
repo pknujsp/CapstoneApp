@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.api.services.calendar.model.EventAttendee;
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.common.RecyclerViewItemDecoration;
+import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickFriendItemListener;
 import com.lifedawn.capstoneapp.common.interfaces.OnFragmentCallback;
 import com.lifedawn.capstoneapp.databinding.FragmentInvitationFriendBinding;

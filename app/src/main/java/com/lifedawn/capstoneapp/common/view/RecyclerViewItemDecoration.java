@@ -1,4 +1,4 @@
-package com.lifedawn.capstoneapp.common;
+package com.lifedawn.capstoneapp.common.view;
 
 import android.content.Context;
 import android.graphics.Rect;
