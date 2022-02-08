@@ -1,9 +1,11 @@
 package com.lifedawn.capstoneapp.account.util;
 
 import android.accounts.Account;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -18,8 +20,15 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
+import com.lifedawn.capstoneapp.R;
+import com.lifedawn.capstoneapp.main.MyApplication;
 
 import java.util.Arrays;
 
@@ -144,11 +153,13 @@ public class GoogleAccountUtil {
 				
 			}
 		});
+
+
 		
 		
 	}
-	
-	 */
+	*/
+
 	
 	public interface OnSignCallback {
 		void onSignInSuccessful(Account signInAccount, GoogleAccountCredential googleAccountCredential);

@@ -25,7 +25,7 @@
             android:layout_width="18dp"
             android:layout_height="18dp"
             android:layout_marginRight="8dp"
-            android:src="@color/blue" />
+            android:src="@drawable/profile" />
 
         <TextView
             android:id="@+id/profileName"

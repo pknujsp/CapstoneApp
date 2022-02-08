@@ -4,14 +4,17 @@
     <item
         android:id="@+id/mainPage"
         android:enabled="true"
-        android:title="@string/main_page" />
+        android:title="@string/main_page"
+        android:icon="@drawable/home_on"/>
     <item
         android:id="@+id/friendPage"
         android:enabled="true"
-        android:title="@string/friend_page" />
+        android:title="@string/friend_page"
+        android:icon="@drawable/friends"/>
     <item
         android:id="@+id/calendarPage"
         android:enabled="true"
-        android:title="@string/calendar_page" />
+        android:title="@string/calendar_page"
+        android:icon="@drawable/calendar"/>
 
 </menu>

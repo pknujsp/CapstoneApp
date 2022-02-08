@@ -25,6 +25,7 @@ import com.lifedawn.capstoneapp.databinding.FragmentCalendarBinding;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -39,6 +40,7 @@ import kotlin.jvm.functions.Function1;
 public class CalendarFragment extends Fragment {
 	private FragmentCalendarBinding binding;
 	private final DayOfWeek FIRST_DAY_OF_WEEK = WeekFields.of(Locale.getDefault()).getFirstDayOfWeek();
+
 	YearMonth currentMonth = YearMonth.now(ZoneId.systemDefault());
 	YearMonth firstMonth = currentMonth.minusMonths(10);
 	YearMonth lastMonth = currentMonth.plusMonths(10);
@@ -62,7 +64,7 @@ public class CalendarFragment extends Fragment {
 		binding.calendarView.setMonthHeaderBinder(new MonthHeaderFooterBinder<MonthHeaderViewContainer>() {
 			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy M");
 			ZonedDateTime zonedDateTime = ZonedDateTime.now();
-			DayOfWeek[] dayOfWeeks = new DayOfWeek[]{DayOfWeek.SUNDAY, DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
+			final DayOfWeek[] dayOfWeeks = new DayOfWeek[]{DayOfWeek.SUNDAY, DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
 					DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY};
 			
 			@NonNull
@@ -101,14 +103,20 @@ public class CalendarFragment extends Fragment {
 				viewContainer.binding.calendarDayText.setText(String.valueOf(calendarDay.getDate().getDayOfMonth()));
 				if (calendarDay.getOwner() == DayOwner.THIS_MONTH) {
 					viewContainer.binding.calendarDayText.setTextColor(Color.BLACK);
+					viewContainer.binding.promiseCount.setTextColor(Color.BLUE);
 				} else {
 					viewContainer.binding.calendarDayText.setTextColor(Color.LTGRAY);
+					viewContainer.binding.promiseCount.setTextColor(Color.BLUE);
 				}
+
+
 				
 				viewContainer.binding.calendarDayText.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						Toast.makeText(getContext(), String.valueOf(calendarDay.getDate().getDayOfMonth()), Toast.LENGTH_SHORT).show();
+						//Toast.makeText(getContext(), String.valueOf(promiseCount()), Toast.LENGTH_SHORT).show();
+
 					}
 				});
 			}
@@ -136,6 +144,7 @@ public class CalendarFragment extends Fragment {
 		public DayViewContainer(@NonNull View view) {
 			super(view);
 			binding = CalendarDayLayoutBinding.bind(view);
+
 		}
 		
 	}
@@ -149,5 +158,5 @@ public class CalendarFragment extends Fragment {
 		}
 	}
 	
-	
+
 }
