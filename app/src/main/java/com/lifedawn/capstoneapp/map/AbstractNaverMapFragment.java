@@ -1,30 +1,58 @@
 package com.lifedawn.capstoneapp.map;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.PointF;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.AttributeSet;
+import android.util.TypedValue;
+import android.util.Xml;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.lifedawn.capstoneapp.R;
+import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
+import com.lifedawn.capstoneapp.common.interfaces.OnClickedListItemListener;
 import com.lifedawn.capstoneapp.common.util.FusedLocation;
 import com.lifedawn.capstoneapp.common.util.LocationLifeCycleObserver;
 import com.lifedawn.capstoneapp.databinding.FragmentAbstractNaverMapBinding;
+import com.lifedawn.capstoneapp.kakao.SearchFragment;
+import com.lifedawn.capstoneapp.kakao.search.searchresult.LocationSearchResultMainFragment;
+import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAbstractAdapter;
+import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAdapter;
+import com.lifedawn.capstoneapp.map.interfaces.BottomSheetController;
+import com.lifedawn.capstoneapp.map.interfaces.IMapData;
+import com.lifedawn.capstoneapp.map.interfaces.MarkerOnClickListener;
+import com.lifedawn.capstoneapp.map.interfaces.OnClickedBottomSheetListener;
+import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
+import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.address.AddressResponse;
+import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.place.PlaceResponse;
 import com.naver.maps.geometry.LatLng;
+import com.naver.maps.geometry.LatLngBounds;
+import com.naver.maps.map.CameraAnimation;
 import com.naver.maps.map.CameraPosition;
 import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.LocationTrackingMode;
@@ -33,15 +61,36 @@ import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.NaverMapOptions;
 import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.overlay.LocationOverlay;
+import com.naver.maps.map.overlay.Marker;
+import com.naver.maps.map.overlay.Overlay;
+import com.naver.maps.map.util.CameraUtils;
 import com.naver.maps.map.util.FusedLocationSource;
+import com.naver.maps.map.util.MarkerIcons;
 
 import org.jetbrains.annotations.NotNull;
+import org.xmlpull.v1.XmlPullParser;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-public abstract class AbstractNaverMapFragment extends Fragment implements OnMapReadyCallback, NaverMap.OnMapClickListener, NaverMap.OnCameraIdleListener, CameraUpdate.FinishCallback, NaverMap.OnLocationChangeListener, NaverMap.OnMapLongClickListener {
+public abstract class AbstractNaverMapFragment extends Fragment implements OnMapReadyCallback, NaverMap.OnMapClickListener, NaverMap.OnCameraIdleListener, CameraUpdate.FinishCallback, NaverMap.OnLocationChangeListener, NaverMap.OnMapLongClickListener, MarkerOnClickListener, BottomSheetController, IMapData, OnClickedBottomSheetListener {
 	private static final int PERMISSION_REQUEST_CODE = 1;
 	private static final int REQUEST_CODE_LOCATION = 2;
+	protected final Map<MarkerType, List<Marker>> MARKERS_MAP = new HashMap<>();
+	protected final Map<MarkerType, LocationItemViewPagerAbstractAdapter> VIEW_PAGER_ADAPTER_MAP = new HashMap<>();
+	protected final Map<BottomSheetType, BottomSheetBehavior> bottomSheetBehaviorMap = new HashMap<>();
+	protected final Map<BottomSheetType, Fragment> bottomSheetFragmentMap = new HashMap<>();
+	protected final Map<BottomSheetType, LinearLayout> bottomSheetViewMap = new HashMap<>();
+	
+	protected Integer DEFAULT_HEIGHT_OF_BOTTOMSHEET;
+	protected Integer HIGH_HEIGHT_OF_BOTTOMSHEET;
+	protected Integer MAX_HEIGHT_OF_BOTTOMSHEET;
+	protected Integer MEDIUM_HEIGHT_OF_BOTTOMSHEET;
+	protected Integer SMALL_HEIGHT_OF_BOTTOMSHEET;
+	
 	protected FragmentAbstractNaverMapBinding binding;
 	protected NaverMap naverMap;
 	protected MapFragment mapFragment;
@@ -50,9 +99,54 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 	protected FusedLocation fusedLocation;
 	protected MapViewModel mapViewModel;
 	
+	protected Integer markerWidth;
+	protected Integer markerHeight;
+	
+	private ViewPager2 locationItemBottomSheetViewPager;
+	
+	private int placeBottomSheetSelectBtnVisibility = View.GONE;
+	private int placeBottomSheetUnSelectBtnVisibility = View.GONE;
+	
+	private final FragmentManager.OnBackStackChangedListener onBackStackChangedListener = new FragmentManager.OnBackStackChangedListener() {
+		@Override
+		public void onBackStackChanged() {
+			FragmentManager fragmentManager = getChildFragmentManager();
+			
+			if (fragmentManager.getBackStackEntryCount() > 0) {
+				FragmentManager.BackStackEntry topBackStackEntry = fragmentManager.getBackStackEntryAt(
+						fragmentManager.getBackStackEntryCount() - 1);
+				
+			}
+		}
+	};
+	
+	protected final FragmentManager.FragmentLifecycleCallbacks fragmentLifecycleCallbacks = new FragmentManager.FragmentLifecycleCallbacks() {
+		@Override
+		public void onFragmentAttached(@NonNull @NotNull FragmentManager fm, @NonNull @NotNull Fragment f,
+				@NonNull @NotNull Context context) {
+			super.onFragmentAttached(fm, f, context);
+		}
+		
+		@Override
+		public void onFragmentCreated(@NonNull @NotNull FragmentManager fm, @NonNull @NotNull Fragment f,
+				@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+			super.onFragmentCreated(fm, f, savedInstanceState);
+			
+		}
+		
+		@Override
+		public void onFragmentDestroyed(@NonNull @NotNull FragmentManager fm, @NonNull @NotNull Fragment f) {
+			super.onFragmentDestroyed(fm, f);
+		}
+		
+	};
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		getChildFragmentManager().registerFragmentLifecycleCallbacks(fragmentLifecycleCallbacks, false);
+		getChildFragmentManager().addOnBackStackChangedListener(onBackStackChangedListener);
 		
 		locationLifeCycleObserver = new LocationLifeCycleObserver(requireActivity().getActivityResultRegistry(), requireActivity());
 		getLifecycle().addObserver(locationLifeCycleObserver);
@@ -64,6 +158,12 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 				return naverMap.getContentBounds().getCenter();
 			}
 		});
+		mapViewModel.setiMapData(this);
+		mapViewModel.setBottomSheetController(this);
+		mapViewModel.setMarkerOnClickListener(this);
+		
+		markerWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, getResources().getDisplayMetrics());
+		markerHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 32f, getResources().getDisplayMetrics());
 	}
 	
 	@Override
@@ -76,6 +176,8 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		
+		setLocationItemsBottomSheet();
+		setLocationSearchBottomSheet();
 		binding.naverMapButtonsLayout.zoomInButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -136,6 +238,60 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 			}
 		});
 		
+		binding.naverMapFragmentRootLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+			@Override
+			public void onGlobalLayout() {
+				//search bottom sheet 크기 조정
+				final int headerBarHeight = binding.headerLayout.getHeight();
+				final int headerBarTopMargin = (int) getResources().getDimension(R.dimen.map_header_bar_top_margin);
+				final int headerBarMargin = (int) (headerBarTopMargin * 1.5f);
+				final int fullHeight = binding.naverMapFragmentRootLayout.getHeight();
+				
+				final int margin32 = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 32f, getResources().getDisplayMetrics());
+				
+				DEFAULT_HEIGHT_OF_BOTTOMSHEET = fullHeight - (int) getResources().getDimension(
+						R.dimen.map_header_bar_height) - headerBarMargin;
+				HIGH_HEIGHT_OF_BOTTOMSHEET = fullHeight - margin32;
+				
+				final int searchBottomSheetHeight = binding.naverMapFragmentRootLayout.getHeight() - headerBarHeight - headerBarMargin;
+				
+				LinearLayout locationSearchBottomSheet = bottomSheetViewMap.get(BottomSheetType.SEARCH_LOCATION);
+				
+				locationSearchBottomSheet.getLayoutParams().height = searchBottomSheetHeight;
+				locationSearchBottomSheet.requestLayout();
+				
+				BottomSheetBehavior locationSearchBottomSheetBehavior = bottomSheetBehaviorMap.get(BottomSheetType.SEARCH_LOCATION);
+				locationSearchBottomSheetBehavior.onLayoutChild(binding.naverMapFragmentRootLayout, locationSearchBottomSheet,
+						ViewCompat.LAYOUT_DIRECTION_LTR);
+				
+				binding.naverMapFragmentRootLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+			}
+		});
+		
+		binding.headerFragmentContainer.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				
+				//expand search location bottomsheet
+				collapseAllExpandedBottomSheets();
+				
+				FragmentManager childFragmentManager = getChildFragmentManager();
+				int backStackCount = childFragmentManager.getBackStackEntryCount();
+				for (int count = 0; count < backStackCount; count++) {
+					childFragmentManager.popBackStack();
+				}
+				
+				final String tag = SearchFragment.class.getName();
+				SearchFragment searchFragment = new SearchFragment();
+				
+				childFragmentManager.beginTransaction().replace(binding.locationSearchBottomSheet.searchFragmentContainer.getId(),
+						searchFragment, tag).addToBackStack(tag).commit();
+				
+				setStateOfBottomSheet(BottomSheetType.SEARCH_LOCATION, BottomSheetBehavior.STATE_EXPANDED);
+			}
+		});
+		
+		
 		loadMap();
 	}
 	
@@ -152,6 +308,24 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 		}
 		super.onDestroy();
 	}
+	
+	protected final void onClickedBottomNav() {
+		if (getStateOfBottomSheet(BottomSheetType.LOCATION_ITEM) == BottomSheetBehavior.STATE_EXPANDED) {
+			setStateOfBottomSheet(BottomSheetType.LOCATION_ITEM, BottomSheetBehavior.STATE_COLLAPSED);
+		}
+	}
+	
+	private void setLocationSearchBottomSheet() {
+		LinearLayout locationSearchBottomSheet = binding.locationSearchBottomSheet.locationSearchBottomsheet;
+		
+		BottomSheetBehavior locationSearchBottomSheetBehavior = BottomSheetBehavior.from(locationSearchBottomSheet);
+		locationSearchBottomSheetBehavior.setDraggable(false);
+		locationSearchBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+		
+		bottomSheetViewMap.put(BottomSheetType.SEARCH_LOCATION, locationSearchBottomSheet);
+		bottomSheetBehaviorMap.put(BottomSheetType.SEARCH_LOCATION, locationSearchBottomSheetBehavior);
+	}
+	
 	
 	protected void loadMap() {
 		if (mapFragment == null) {
@@ -221,5 +395,537 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 	@Override
 	public void onMapLongClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
 	
+	}
+	
+	protected void createPlaceMarker(MarkerType markerType, PlaceResponse.Documents item) {
+		Marker marker = new Marker();
+		marker.setWidth(markerWidth);
+		marker.setHeight(markerHeight);
+		marker.setPosition(new LatLng(Double.parseDouble(item.getY()), Double.parseDouble(item.getX())));
+		marker.setMap(naverMap);
+		marker.setCaptionText(item.getPlaceName());
+		marker.setOnClickListener(MARKET_ON_CLICK_LISTENER);
+		if (markerType == MarkerType.RESTAURANT) {
+			marker.setIcon(MarkerIcons.BLUE);
+		}
+		
+		MarkerHolder markerHolder = new MarkerHolder(item, markerType);
+		marker.setTag(markerHolder);
+		MARKERS_MAP.get(markerType).add(marker);
+	}
+	
+	protected void createAddressMarker(MarkerType markerType, AddressResponse.Documents item) {
+		Marker marker = new Marker();
+		marker.setWidth(markerWidth);
+		marker.setHeight(markerHeight);
+		marker.setPosition(new LatLng(Double.parseDouble(item.getY()), Double.parseDouble(item.getX())));
+		marker.setMap(naverMap);
+		marker.setCaptionText(item.getAddressName());
+		marker.setOnClickListener(MARKET_ON_CLICK_LISTENER);
+		
+		MarkerHolder markerHolder = new MarkerHolder(item, markerType);
+		marker.setTag(markerHolder);
+		MARKERS_MAP.get(markerType).add(marker);
+	}
+	
+	
+	protected void onClickedMarkerByTouch(Marker marker) {
+		//poiitem을 직접 선택한 경우 호출
+		CameraUpdate cameraUpdate = CameraUpdate.scrollTo(marker.getPosition());
+		cameraUpdate.animate(CameraAnimation.Easing, 160);
+		naverMap.moveCamera(cameraUpdate);
+		
+		MarkerHolder markerHolder = (MarkerHolder) marker.getTag();
+		LocationItemViewPagerAbstractAdapter adapter = VIEW_PAGER_ADAPTER_MAP.get(markerHolder.markerType);
+		int itemPosition = 0;
+		
+		if (markerHolder.markerType == MarkerType.LONG_CLICKED_MAP) {
+			itemPosition = 0;
+		} else {
+			itemPosition = ((LocationItemViewPagerAdapter) adapter).getItemPosition(markerHolder.kakaoLocalDocument);
+		}
+		//선택된 마커의 아이템 리스트내 위치 파악 후 뷰 페이저 이동
+		locationItemBottomSheetViewPager.setTag(markerHolder.markerType);
+		locationItemBottomSheetViewPager.setAdapter(adapter);
+		locationItemBottomSheetViewPager.setCurrentItem(itemPosition, false);
+		
+		setStateOfBottomSheet(BottomSheetType.LOCATION_ITEM, BottomSheetBehavior.STATE_EXPANDED);
+	}
+	
+	protected final OnClickedListItemListener<PlaceResponse.Documents> ON_CLICK_PLACE_ITEM_IN_LIST_LISTENER = new OnClickedListItemListener<PlaceResponse.Documents>() {
+		@Override
+		public void onClicked(PlaceResponse.Documents e) {
+		
+		}
+	};
+	
+	protected final OnClickedListItemListener<AddressResponse.Documents> ON_CLICK_ADDRESS_ITEM_IN_LIST_LISTENER = new OnClickedListItemListener<AddressResponse.Documents>() {
+		@Override
+		public void onClicked(AddressResponse.Documents e) {
+		
+		}
+	};
+	
+	protected final Overlay.OnClickListener MARKET_ON_CLICK_LISTENER = new Overlay.OnClickListener() {
+		@Override
+		public boolean onClick(@NonNull Overlay overlay) {
+			onClickedMarkerByTouch((Marker) overlay);
+			return true;
+		}
+	};
+	
+	public void onPageSelectedLocationItemBottomSheetViewPager(int position, MarkerType markerType) {
+		switch (markerType) {
+			
+			case SEARCH_RESULT_ADDRESS:
+				LocationSearchResultMainFragment locationSearchResultFragmentForAddress = (LocationSearchResultMainFragment) getChildFragmentManager().findFragmentByTag(
+						LocationSearchResultMainFragment.class.getName());
+				locationSearchResultFragmentForAddress.loadExtraListData(new RecyclerView.AdapterDataObserver() {
+					@Override
+					public void onItemRangeInserted(int positionStart, int itemCount) {
+						super.onItemRangeInserted(positionStart, itemCount);
+					}
+				});
+				return;
+			
+			case SEARCH_RESULT_PLACE:
+				LocationSearchResultMainFragment locationSearchResultFragmentForPlace = (LocationSearchResultMainFragment) getChildFragmentManager().findFragmentByTag(
+						LocationSearchResultMainFragment.class.getName());
+				locationSearchResultFragmentForPlace.loadExtraListData(new RecyclerView.AdapterDataObserver() {
+					@Override
+					public void onItemRangeInserted(int positionStart, int itemCount) {
+						super.onItemRangeInserted(positionStart, itemCount);
+					}
+				});
+				return;
+			
+		}
+	}
+	
+	protected void setLocationItemsBottomSheet() {
+		LinearLayout locationItemBottomSheet = binding.placeslistBottomSheet.placesBottomsheet;
+		locationItemBottomSheetViewPager = (ViewPager2) locationItemBottomSheet.findViewById(R.id.place_items_viewpager);
+		
+		locationItemBottomSheetViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+			MarkerType markerType;
+			
+			@Override
+			public void onPageSelected(int position) {
+				super.onPageSelected(position);
+				if (getStateOfBottomSheet(BottomSheetType.LOCATION_ITEM) == BottomSheetBehavior.STATE_EXPANDED) {
+					markerType = (MarkerType) locationItemBottomSheetViewPager.getTag();
+					onPOIItemSelectedByBottomSheet(position, markerType);
+					
+					if (position == VIEW_PAGER_ADAPTER_MAP.get(markerType).getItemCount() - 1) {
+						onPageSelectedLocationItemBottomSheetViewPager(position, markerType);
+					} else {
+					}
+					
+				}
+			}
+		});
+		locationItemBottomSheetViewPager.setOffscreenPageLimit(2);
+		
+		BottomSheetBehavior locationItemBottomSheetBehavior = BottomSheetBehavior.from(locationItemBottomSheet);
+		locationItemBottomSheetBehavior.setDraggable(false);
+		locationItemBottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+			float differenceY;
+			
+			@Override
+			public void onStateChanged(@NonNull View bottomSheet, int newState) {
+			
+			}
+			
+			@Override
+			public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+				//expanded일때 offset == 1.0, collapsed일때 offset == 0.0
+				//offset에 따라서 버튼들이 이동하고, 지도의 좌표가 변경되어야 한다.
+				differenceY = bottomSheet.getHeight();
+				
+				float translationValue = -differenceY * slideOffset;
+				binding.naverMapButtonsLayout.getRoot().animate().translationY(translationValue);
+			}
+		});
+		
+		bottomSheetViewMap.put(BottomSheetType.LOCATION_ITEM, locationItemBottomSheet);
+		bottomSheetBehaviorMap.put(BottomSheetType.LOCATION_ITEM, locationItemBottomSheetBehavior);
+	}
+	
+	public void setPlaceBottomSheetSelectBtnVisibility(int placeBottomSheetSelectBtnVisibility) {
+		this.placeBottomSheetSelectBtnVisibility = placeBottomSheetSelectBtnVisibility;
+	}
+	
+	public void setPlaceBottomSheetUnSelectBtnVisibility(int placeBottomSheetUnSelectBtnVisibility) {
+		this.placeBottomSheetUnSelectBtnVisibility = placeBottomSheetUnSelectBtnVisibility;
+	}
+	
+	
+	@Override
+	public void createMarkers(@NotNull List<? extends KakaoLocalDocument> kakaoLocalDocuments, @NotNull MarkerType markerType) {
+		if (!MARKERS_MAP.containsKey(markerType)) {
+			MARKERS_MAP.put(markerType, new ArrayList<>());
+		} else {
+			removeMarkers(markerType);
+		}
+		LocationItemViewPagerAbstractAdapter adapter = null;
+		
+		adapter = new LocationItemViewPagerAdapter(getContext(), markerType);
+		adapter.setVisibleSelectBtn(placeBottomSheetSelectBtnVisibility);
+		adapter.setVisibleUnSelectBtn(placeBottomSheetUnSelectBtnVisibility);
+		((LocationItemViewPagerAdapter) adapter).setLocalDocumentsList(kakaoLocalDocuments);
+		
+		adapter.notifyDataSetChanged();
+		
+		adapter.setOnClickedBottomSheetListener(this);
+		adapter.setOnClickedBottomSheetListener(this);
+		VIEW_PAGER_ADAPTER_MAP.put(markerType, adapter);
+		
+		if (!kakaoLocalDocuments.isEmpty()) {
+			if (kakaoLocalDocuments.get(0) instanceof PlaceResponse.Documents) {
+				List<PlaceResponse.Documents> placeDocuments = (List<PlaceResponse.Documents>) kakaoLocalDocuments;
+				
+				for (PlaceResponse.Documents document : placeDocuments) {
+					createPlaceMarker(markerType, document);
+				}
+			} else if (kakaoLocalDocuments.get(0) instanceof AddressResponse.Documents) {
+				List<AddressResponse.Documents> addressDocuments = (List<AddressResponse.Documents>) kakaoLocalDocuments;
+				
+				for (AddressResponse.Documents document : addressDocuments) {
+					createAddressMarker(markerType, document);
+				}
+			}
+		}
+	}
+	
+	@Override
+	public void addExtraMarkers(@NotNull List<? extends KakaoLocalDocument> kakaoLocalDocuments, @NotNull MarkerType markerType) {
+		if (!kakaoLocalDocuments.isEmpty()) {
+			LocationItemViewPagerAdapter adapter = (LocationItemViewPagerAdapter) VIEW_PAGER_ADAPTER_MAP.get(markerType);
+			final int LAST_INDEX = adapter.getItemsCount() - 1;
+			
+			List<KakaoLocalDocument> currentList = adapter.getLocalDocumentsList();
+			List<? extends KakaoLocalDocument> subList = (List<? extends KakaoLocalDocument>) kakaoLocalDocuments.subList(LAST_INDEX + 1,
+					kakaoLocalDocuments.size());
+			currentList.addAll(subList);
+			
+			if (kakaoLocalDocuments.get(0) instanceof PlaceResponse.Documents) {
+				List<PlaceResponse.Documents> placeDocuments = (List<PlaceResponse.Documents>) subList;
+				
+				for (PlaceResponse.Documents document : placeDocuments) {
+					createPlaceMarker(markerType, document);
+				}
+			} else if (kakaoLocalDocuments.get(0) instanceof AddressResponse.Documents) {
+				List<AddressResponse.Documents> addressDocuments = (List<AddressResponse.Documents>) subList;
+				
+				for (AddressResponse.Documents document : addressDocuments) {
+					createAddressMarker(markerType, document);
+				}
+			}
+			adapter.notifyDataSetChanged();
+		}
+	}
+	
+	@Override
+	public void removeMarker(MarkerType markerType, int index) {
+		if (MARKERS_MAP.containsKey(markerType)) {
+			MARKERS_MAP.get(markerType).get(index).setMap(null);
+			MARKERS_MAP.get(markerType).remove(index);
+		}
+	}
+	
+	@Override
+	public void removeMarkers(MarkerType... markerTypes) {
+		for (MarkerType markerType : markerTypes) {
+			if (MARKERS_MAP.containsKey(markerType)) {
+				List<Marker> markerList = MARKERS_MAP.get(markerType);
+				for (Marker marker : markerList) {
+					marker.setMap(null);
+				}
+				
+				markerList.clear();
+			}
+		}
+	}
+	
+	
+	@Override
+	public void removeAllMarkers() {
+		Set<MarkerType> keySet = MARKERS_MAP.keySet();
+		for (MarkerType markerType : keySet) {
+			List<Marker> markerList = MARKERS_MAP.get(markerType);
+			for (Marker marker : markerList) {
+				marker.setMap(null);
+			}
+			
+			markerList.clear();
+		}
+	}
+	
+	
+	@Override
+	public void showMarkers(MarkerType... markerTypes) {
+		List<LatLng> latLngList = new ArrayList<>();
+		
+		for (MarkerType markerType : markerTypes) {
+			List<Marker> markerList = MARKERS_MAP.get(markerType);
+			
+			for (Marker marker : markerList) {
+				latLngList.add(marker.getPosition());
+			}
+		}
+		
+		if (!latLngList.isEmpty()) {
+			LatLngBounds latLngBounds = LatLngBounds.from(latLngList);
+			
+			int padding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16f, getResources().getDisplayMetrics());
+			double fittableZoom = CameraUtils.getFittableZoom(naverMap, latLngBounds, padding);
+			if (fittableZoom >= 16) {
+				fittableZoom = 16;
+			}
+			
+			CameraUpdate cameraUpdate = CameraUpdate.scrollAndZoomTo(latLngBounds.getCenter(), fittableZoom);
+			naverMap.moveCamera(cameraUpdate);
+		}
+	}
+	
+	@Override
+	public void deselectMarker() {
+		setStateOfBottomSheet(BottomSheetType.LOCATION_ITEM, BottomSheetBehavior.STATE_COLLAPSED);
+	}
+	
+	public LocationDto getSelectedLocationDto() {
+		// 선택된 poiitem의 리스트내 인덱스를 가져온다.
+		// 인덱스로 아이템을 가져온다.
+		MarkerType selectedMarkerType = (MarkerType) locationItemBottomSheetViewPager.getTag();
+		int currentViewPagerPosition = locationItemBottomSheetViewPager.getCurrentItem();
+		KakaoLocalDocument kakaoLocalDocument = VIEW_PAGER_ADAPTER_MAP.get(selectedMarkerType).getLocalItem(currentViewPagerPosition);
+		
+		LocationDto location = new LocationDto();
+		
+		// 주소인지 장소인지를 구분한다.
+		if (kakaoLocalDocument instanceof PlaceResponse.Documents) {
+			PlaceResponse.Documents placeDocuments = (PlaceResponse.Documents) kakaoLocalDocument;
+			location.setPlaceId(placeDocuments.getId());
+			location.setPlaceName(placeDocuments.getPlaceName());
+			location.setAddressName(placeDocuments.getAddressName());
+			location.setRoadAddressName(placeDocuments.getRoadAddressName());
+			location.setLatitude(placeDocuments.getY());
+			location.setLongitude(placeDocuments.getX());
+			location.setLocationType(Constant.PLACE);
+		} else if (kakaoLocalDocument instanceof AddressResponse.Documents) {
+			AddressResponse.Documents addressDocuments = (AddressResponse.Documents) kakaoLocalDocument;
+			
+			location.setAddressName(addressDocuments.getAddressName());
+			location.setLatitude(addressDocuments.getY());
+			location.setLongitude(addressDocuments.getX());
+			location.setLocationType(Constant.ADDRESS);
+			
+			if (addressDocuments.getAddressResponseRoadAddress() != null) {
+				location.setRoadAddressName(addressDocuments.getAddressResponseRoadAddress().getAddressName());
+			}
+		}
+		return location;
+	}
+	
+	@Override
+	public void onPOIItemSelectedByList(KakaoLocalDocument kakaoLocalDocument, MarkerType markerType) {
+		//bottomsheet가 아닌 list에서 아이템을 선택한 경우 호출
+		//adapter -> poiitem생성 -> select poiitem -> bottomsheet열고 정보 표시
+		List<Marker> markerList = MARKERS_MAP.get(markerType);
+		MarkerHolder markerHolder = null;
+		Marker selectedMarker = null;
+		
+		LocationItemViewPagerAbstractAdapter adapter = VIEW_PAGER_ADAPTER_MAP.get(markerType);
+		final int position = adapter.getLocalItemPosition(kakaoLocalDocument);
+		
+		if (kakaoLocalDocument instanceof PlaceResponse.Documents) {
+			String placeId = ((PlaceResponse.Documents) kakaoLocalDocument).getId();
+			for (Marker marker : markerList) {
+				markerHolder = (MarkerHolder) marker.getTag();
+				if (((PlaceResponse.Documents) markerHolder.kakaoLocalDocument).getId().equals(placeId)) {
+					selectedMarker = marker;
+					break;
+				}
+			}
+		} else if (kakaoLocalDocument instanceof AddressResponse.Documents) {
+			String addressName = ((AddressResponse.Documents) kakaoLocalDocument).getAddressName();
+			for (Marker marker : markerList) {
+				markerHolder = (MarkerHolder) marker.getTag();
+				if (((AddressResponse.Documents) markerHolder.kakaoLocalDocument).getAddressName().equals(addressName)) {
+					selectedMarker = marker;
+					break;
+				}
+				
+			}
+		}
+		
+		CameraUpdate cameraUpdate = CameraUpdate.scrollTo(selectedMarker.getPosition());
+		cameraUpdate.animate(CameraAnimation.Easing, 150);
+		naverMap.moveCamera(cameraUpdate);
+		
+		//선택된 마커의 아이템 리스트내 위치 파악 후 뷰 페이저 이동
+		locationItemBottomSheetViewPager.setTag(markerType);
+		locationItemBottomSheetViewPager.setAdapter(adapter);
+		locationItemBottomSheetViewPager.setCurrentItem(position, false);
+		
+		setStateOfBottomSheet(BottomSheetType.LOCATION_ITEM, BottomSheetBehavior.STATE_EXPANDED);
+	}
+	
+	
+	LatLng lastTarget = new LatLng(0, 0);
+	
+	@Override
+	public void onPOIItemSelectedByBottomSheet(int position, MarkerType markerType) {
+		//bottomsheet에서 스크롤 하는 경우 호출
+		LatLng target = null;
+		
+		
+		LocationItemViewPagerAbstractAdapter adapter = (LocationItemViewPagerAbstractAdapter) locationItemBottomSheetViewPager.getAdapter();
+		KakaoLocalDocument kakaoLocalDocument = adapter.getLocalItem(position);
+		
+		if (kakaoLocalDocument instanceof PlaceResponse.Documents) {
+			target = new LatLng(Double.parseDouble(((PlaceResponse.Documents) kakaoLocalDocument).getY()),
+					Double.parseDouble(((PlaceResponse.Documents) kakaoLocalDocument).getX()));
+		} else if (kakaoLocalDocument instanceof AddressResponse.Documents) {
+			target = new LatLng(Double.parseDouble(((AddressResponse.Documents) kakaoLocalDocument).getY()),
+					Double.parseDouble(((AddressResponse.Documents) kakaoLocalDocument).getX()));
+		}
+		
+		
+		if (!lastTarget.equals(target)) {
+			CameraUpdate cameraUpdate = CameraUpdate.scrollTo(target);
+			cameraUpdate.animate(CameraAnimation.Easing, 150);
+			naverMap.moveCamera(cameraUpdate);
+		}
+		
+		if (target == null) {
+			target = new LatLng(0, 0);
+		}
+		lastTarget = target;
+	}
+	
+	
+	@Override
+	public BottomSheetBehavior getBottomSheetBehavior(BottomSheetType bottomSheetType) {
+		return bottomSheetBehaviorMap.get(bottomSheetType);
+	}
+	
+	
+	protected void setHeightOfBottomSheetForSpecificFragment(BottomSheetType bottomSheetType, int height) {
+		bottomSheetViewMap.get(bottomSheetType).getLayoutParams().height = height;
+		bottomSheetViewMap.get(bottomSheetType).requestLayout();
+		
+		bottomSheetBehaviorMap.get(bottomSheetType).onLayoutChild(binding.naverMapFragmentRootLayout,
+				bottomSheetViewMap.get(bottomSheetType), ViewCompat.LAYOUT_DIRECTION_LTR);
+	}
+	
+	protected void setHeightOfBottomSheet(int height, LinearLayout bottomSheetView, BottomSheetBehavior bottomSheetBehavior) {
+		bottomSheetView.getLayoutParams().height = height;
+		bottomSheetView.requestLayout();
+		bottomSheetBehavior.onLayoutChild(binding.naverMapFragmentRootLayout, bottomSheetView, ViewCompat.LAYOUT_DIRECTION_LTR);
+	}
+	
+	@Override
+	public List<BottomSheetBehavior> getBottomSheetBehaviorOfExpanded(BottomSheetBehavior currentBottomSheetBehavior) {
+		Set<BottomSheetType> keySet = bottomSheetBehaviorMap.keySet();
+		List<BottomSheetBehavior> bottomSheetBehaviors = new ArrayList<>();
+		
+		for (BottomSheetType bottomSheetType : keySet) {
+			if (bottomSheetBehaviorMap.get(bottomSheetType).getState() == BottomSheetBehavior.STATE_EXPANDED) {
+				
+				if (currentBottomSheetBehavior != null) {
+					if (!bottomSheetBehaviorMap.get(bottomSheetType).equals(currentBottomSheetBehavior)) {
+						bottomSheetBehaviors.add(bottomSheetBehaviorMap.get(bottomSheetType));
+					}
+				}
+			}
+		}
+		return bottomSheetBehaviors;
+	}
+	
+	@Override
+	public void collapseAllExpandedBottomSheets() {
+		Set<BottomSheetType> keySet = bottomSheetBehaviorMap.keySet();
+		
+		for (BottomSheetType bottomSheetType : keySet) {
+			if (getStateOfBottomSheet(bottomSheetType) == BottomSheetBehavior.STATE_EXPANDED) {
+				setStateOfBottomSheet(bottomSheetType, BottomSheetBehavior.STATE_COLLAPSED);
+			}
+		}
+	}
+	
+	@Override
+	public void setStateOfBottomSheet(BottomSheetType bottomSheetType, int state) {
+		bottomSheetBehaviorMap.get(bottomSheetType).setState(state);
+	}
+	
+	@Override
+	public int getStateOfBottomSheet(BottomSheetType bottomSheetType) {
+		return bottomSheetBehaviorMap.get(bottomSheetType).getState();
+	}
+	
+	
+	@Override
+	public void showMarkers(MarkerType markerType, boolean isShow) {
+		if (MARKERS_MAP.containsKey(markerType)) {
+			List<Marker> markers = MARKERS_MAP.get(markerType);
+			for (Marker marker : markers) {
+				marker.setMap(isShow ? naverMap : null);
+			}
+		}
+	}
+	
+	protected final Object[] createBottomSheet(int fragmentContainerViewId) {
+		XmlPullParser parser = getResources().getXml(R.xml.persistent_bottom_sheet_default_attrs);
+		try {
+			parser.next();
+			parser.nextTag();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		AttributeSet attr = Xml.asAttributeSet(parser);
+		LinearLayout bottomSheetView = new LinearLayout(getContext(), attr);
+		
+		CoordinatorLayout.LayoutParams layoutParams = new CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+				ViewGroup.LayoutParams.MATCH_PARENT);
+		layoutParams.setBehavior(new BottomSheetBehavior());
+		bottomSheetView.setLayoutParams(layoutParams);
+		bottomSheetView.setClickable(true);
+		bottomSheetView.setOrientation(LinearLayout.VERTICAL);
+		
+		binding.naverMapFragmentRootLayout.addView(bottomSheetView);
+		
+		//fragmentcontainerview 추가
+		FragmentContainerView fragmentContainerView = new FragmentContainerView(getContext());
+		fragmentContainerView.setId(fragmentContainerViewId);
+		fragmentContainerView.setLayoutParams(
+				new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+		bottomSheetView.addView(fragmentContainerView);
+		
+		BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView);
+		bottomSheetBehavior.setDraggable(false);
+		bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+		bottomSheetBehavior.setHideable(false);
+		bottomSheetBehavior.setPeekHeight(0);
+		
+		return new Object[]{bottomSheetView, bottomSheetBehavior};
+	}
+	
+	
+	protected static class MarkerHolder {
+		final KakaoLocalDocument kakaoLocalDocument;
+		final MarkerType markerType;
+		
+		public MarkerHolder(MarkerType markerType) {
+			this.kakaoLocalDocument = null;
+			this.markerType = markerType;
+		}
+		
+		public MarkerHolder(KakaoLocalDocument kakaoLocalDocument, MarkerType markerType) {
+			this.kakaoLocalDocument = kakaoLocalDocument;
+			this.markerType = markerType;
+		}
+		
 	}
 }

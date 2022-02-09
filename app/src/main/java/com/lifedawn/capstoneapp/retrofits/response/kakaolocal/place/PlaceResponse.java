@@ -2,6 +2,7 @@ package com.lifedawn.capstoneapp.retrofits.response.kakaolocal.place;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalResponse;
 
 import java.util.List;
@@ -119,7 +120,7 @@ public class PlaceResponse extends KakaoLocalResponse {
 		}
 	}
 	
-	public static class Documents {
+	public static class Documents extends KakaoLocalDocument {
 		@SerializedName("id")
 		@Expose
 		private String id;

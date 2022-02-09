@@ -5,10 +5,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
-import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -20,13 +22,23 @@ import com.lifedawn.capstoneapp.databinding.FragmentSearchBinding;
 import com.lifedawn.capstoneapp.kakao.search.searchresult.LocationSearchResultMainFragment;
 import com.lifedawn.capstoneapp.room.dto.SearchHistoryDto;
 
-public class SearchFragment extends DialogFragment implements SearchHistoryFragment.OnClickedHistoryItemListener {
+public class SearchFragment extends Fragment implements SearchHistoryFragment.OnClickedHistoryItemListener {
 	private FragmentSearchBinding binding;
 	private SearchHistoryViewModel searchHistoryViewModel;
+	
+	private final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+		@Override
+		public void handleOnBackPressed() {
+			if (!getChildFragmentManager().popBackStackImmediate()) {
+				getParentFragmentManager().popBackStack();
+			}
+		}
+	};
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		getActivity().getOnBackPressedDispatcher().addCallback(onBackPressedCallback);
 	}
 	
 	@Override
@@ -44,8 +56,8 @@ public class SearchFragment extends DialogFragment implements SearchHistoryFragm
 		searchHistoryFragment.setOnClickedHistoryItemListener(this);
 		searchHistoryFragment.setArguments(bundle);
 		
-		getChildFragmentManager().beginTransaction().add(binding.fragmentContainerView.getId(), searchHistoryFragment,
-				SearchHistoryFragment.class.getName()).addToBackStack(SearchHistoryFragment.class.getName()).commit();
+		getChildFragmentManager().beginTransaction().replace(binding.fragmentContainerView.getId(), searchHistoryFragment,
+				SearchHistoryFragment.class.getName()).commit();
 		
 		searchHistoryViewModel = new ViewModelProvider(requireActivity()).get(SearchHistoryViewModel.class);
 		
@@ -79,6 +91,13 @@ public class SearchFragment extends DialogFragment implements SearchHistoryFragm
 		});
 	}
 	
+	@Override
+	public void onDestroy() {
+		onBackPressedCallback.remove();
+		super.onDestroy();
+	}
+	
+	
 	private void search(String query) {
 		//검색 진행
 		LocationSearchResultMainFragment locationSearchResultMainFragment = new LocationSearchResultMainFragment();
@@ -86,6 +105,11 @@ public class SearchFragment extends DialogFragment implements SearchHistoryFragm
 		bundle.putString("query", query);
 		locationSearchResultMainFragment.setArguments(bundle);
 		
+		FragmentManager fragmentManager = getChildFragmentManager();
+		
+		if (fragmentManager.findFragmentByTag(LocationSearchResultMainFragment.class.getName()) != null) {
+			fragmentManager.popBackStackImmediate();
+		}
 		FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
 		fragmentTransaction.hide(getChildFragmentManager().findFragmentByTag(SearchHistoryFragment.class.getName())).add(
 				binding.fragmentContainerView.getId(), locationSearchResultMainFragment,

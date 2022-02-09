@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lifedawn.capstoneapp.R;
+import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickedListItemListener;
 import com.lifedawn.capstoneapp.databinding.AddressRecyclerViewItemBinding;
 import com.lifedawn.capstoneapp.databinding.FragmentLocationSearchResultBinding;
@@ -25,10 +26,13 @@ import com.lifedawn.capstoneapp.kakao.search.LocalParameterUtil;
 import com.lifedawn.capstoneapp.kakao.search.callback.AddressItemCallback;
 import com.lifedawn.capstoneapp.kakao.search.viewmodel.AddressViewModel;
 import com.lifedawn.capstoneapp.map.MapViewModel;
+import com.lifedawn.capstoneapp.map.MarkerType;
+import com.lifedawn.capstoneapp.map.interfaces.IMapData;
+import com.lifedawn.capstoneapp.map.interfaces.OnExtraListDataListener;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.address.AddressResponse;
 
-public class SearchResultAddressListFragment extends Fragment {
+public class SearchResultAddressListFragment extends Fragment implements OnExtraListDataListener<Constant> {
 	private FragmentLocationSearchResultBinding binding;
 	private final String QUERY;
 	private final OnClickedListItemListener<AddressResponse.Documents> addressResponseDocumentsOnClickedListItem;
@@ -36,6 +40,7 @@ public class SearchResultAddressListFragment extends Fragment {
 	private AddressViewModel addressViewModel;
 	private AddressesAdapter adapter;
 	private MapViewModel mapViewModel;
+	private IMapData iMapData;
 	
 	public SearchResultAddressListFragment(String query,
 			OnClickedListItemListener<AddressResponse.Documents> addressResponseDocumentsOnClickedListItem) {
@@ -48,7 +53,7 @@ public class SearchResultAddressListFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		
 		mapViewModel = new ViewModelProvider(getActivity()).get(MapViewModel.class);
-		
+		iMapData = mapViewModel.getiMapData();
 	}
 	
 	@Override
@@ -74,6 +79,13 @@ public class SearchResultAddressListFragment extends Fragment {
 			public void onItemRangeInserted(int positionStart, int itemCount) {
 				super.onItemRangeInserted(positionStart, itemCount);
 				
+				if (positionStart > 0) {
+					iMapData.addExtraMarkers(adapter.getCurrentList().snapshot(), MarkerType.SEARCH_RESULT_ADDRESS);
+				} else {
+					if (itemCount > 0) {
+						iMapData.createMarkers(adapter.getCurrentList().snapshot(), MarkerType.SEARCH_RESULT_ADDRESS);
+					}
+				}
 			}
 		});
 		binding.searchResultRecyclerview.setAdapter(adapter);
@@ -88,6 +100,24 @@ public class SearchResultAddressListFragment extends Fragment {
 						adapter.submitList(addressResponseDocuments);
 					}
 				});
+	}
+	
+	@Override
+	public void loadExtraListData(Constant e, RecyclerView.AdapterDataObserver adapterDataObserver) {
+	
+	}
+	
+	@Override
+	public void loadExtraListData(RecyclerView.AdapterDataObserver adapterDataObserver) {
+		adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+			@Override
+			public void onItemRangeInserted(int positionStart, int itemCount) {
+				super.onItemRangeInserted(positionStart, itemCount);
+				adapterDataObserver.onItemRangeInserted(positionStart, itemCount);
+				adapter.unregisterAdapterDataObserver(this);
+			}
+		});
+		binding.searchResultRecyclerview.scrollBy(0, 10000);
 	}
 	
 	

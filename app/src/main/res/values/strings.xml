@@ -80,4 +80,6 @@
     <string name="road_addr">도로명</string>
     <string name="region_addr">지번</string>
     <string name="result_address">주소</string>
+    <string name="cancel_location">위치 취소</string>
+    <string name="select">선택</string>
 </resources>

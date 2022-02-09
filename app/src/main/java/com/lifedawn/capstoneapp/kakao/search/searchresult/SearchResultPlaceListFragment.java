@@ -24,19 +24,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.lifedawn.capstoneapp.R;
+import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickedListItemListener;
 import com.lifedawn.capstoneapp.common.util.FusedLocation;
 import com.lifedawn.capstoneapp.databinding.FragmentLocationSearchResultBinding;
 import com.lifedawn.capstoneapp.databinding.PlaceRecyclerViewItemBinding;
 import com.lifedawn.capstoneapp.kakao.search.LocalParameterUtil;
 import com.lifedawn.capstoneapp.kakao.search.callback.PlaceItemCallback;
+import com.lifedawn.capstoneapp.kakao.search.util.MapUtil;
 import com.lifedawn.capstoneapp.kakao.search.viewmodel.PlacesViewModel;
 import com.lifedawn.capstoneapp.map.MapViewModel;
+import com.lifedawn.capstoneapp.map.MarkerType;
+import com.lifedawn.capstoneapp.map.interfaces.IMapData;
+import com.lifedawn.capstoneapp.map.interfaces.OnExtraListDataListener;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.place.PlaceResponse;
 import com.naver.maps.geometry.LatLng;
 
-public class SearchResultPlaceListFragment extends Fragment {
+public class SearchResultPlaceListFragment extends Fragment implements OnExtraListDataListener<Constant> {
 	private final String QUERY;
 	private final OnClickedListItemListener<PlaceResponse.Documents> placeDocumentsOnClickedListItem;
 	
@@ -52,6 +57,7 @@ public class SearchResultPlaceListFragment extends Fragment {
 	private Location currentLocation;
 	private FusedLocation fusedLocation;
 	private MapViewModel mapViewModel;
+	private IMapData iMapData;
 	
 	public SearchResultPlaceListFragment(String query, OnClickedListItemListener<PlaceResponse.Documents> placeDocumentsOnClickedListItem) {
 		this.QUERY = query;
@@ -64,6 +70,7 @@ public class SearchResultPlaceListFragment extends Fragment {
 		fusedLocation = FusedLocation.getInstance(getContext());
 		
 		mapViewModel = new ViewModelProvider(getActivity()).get(MapViewModel.class);
+		iMapData = mapViewModel.getiMapData();
 	}
 	
 	@Nullable
@@ -184,6 +191,13 @@ public class SearchResultPlaceListFragment extends Fragment {
 			@Override
 			public void onItemRangeInserted(int positionStart, int itemCount) {
 				super.onItemRangeInserted(positionStart, itemCount);
+				if (positionStart > 0) {
+					iMapData.addExtraMarkers(adapter.getCurrentList().snapshot(), MarkerType.SEARCH_RESULT_PLACE);
+				} else {
+					if (itemCount > 0) {
+						iMapData.createMarkers(adapter.getCurrentList().snapshot(), MarkerType.SEARCH_RESULT_PLACE);
+					}
+				}
 			}
 		});
 		binding.searchResultRecyclerview.setAdapter(adapter);
@@ -200,6 +214,24 @@ public class SearchResultPlaceListFragment extends Fragment {
 				adapter.submitList(placeDocuments);
 			}
 		});
+	}
+	
+	@Override
+	public void loadExtraListData(Constant e, RecyclerView.AdapterDataObserver adapterDataObserver) {
+	
+	}
+	
+	@Override
+	public void loadExtraListData(RecyclerView.AdapterDataObserver adapterDataObserver) {
+		adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+			@Override
+			public void onItemRangeInserted(int positionStart, int itemCount) {
+				super.onItemRangeInserted(positionStart, itemCount);
+				adapterDataObserver.onItemRangeInserted(positionStart, itemCount);
+				adapter.unregisterAdapterDataObserver(this);
+			}
+		});
+		binding.searchResultRecyclerview.scrollBy(0, 10000);
 	}
 	
 	
@@ -228,7 +260,7 @@ public class SearchResultPlaceListFragment extends Fragment {
 				binding.placeIndex.setText(String.valueOf(getBindingAdapterPosition() + 1));
 				binding.placeCategory.setText(item.getCategoryName());
 				binding.placeAddressName.setText(item.getAddressName());
-				//binding.placeDistance.setText(LocationUtil.convertMeterToKm(item.getDistance()));
+				binding.placeDistance.setText(MapUtil.convertMeterToKm(Double.parseDouble(item.getDistance())));
 				
 				itemView.getRootView().setOnClickListener(new View.OnClickListener() {
 					@Override

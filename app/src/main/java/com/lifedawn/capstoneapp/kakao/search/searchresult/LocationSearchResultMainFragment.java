@@ -9,15 +9,25 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.HttpCallback;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickedListItemListener;
 import com.lifedawn.capstoneapp.databinding.FragmentSearchResultMainBinding;
 import com.lifedawn.capstoneapp.kakao.search.LocalParameterUtil;
 import com.lifedawn.capstoneapp.kakao.search.SearchResultChecker;
+import com.lifedawn.capstoneapp.map.BottomSheetType;
+import com.lifedawn.capstoneapp.map.MapViewModel;
+import com.lifedawn.capstoneapp.map.MarkerType;
+import com.lifedawn.capstoneapp.map.interfaces.BottomSheetController;
+import com.lifedawn.capstoneapp.map.interfaces.IMapData;
+import com.lifedawn.capstoneapp.map.interfaces.MarkerOnClickListener;
+import com.lifedawn.capstoneapp.map.interfaces.OnExtraListDataListener;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalResponse;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.address.AddressResponse;
@@ -28,19 +38,31 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LocationSearchResultMainFragment extends Fragment {
+public class LocationSearchResultMainFragment extends Fragment implements OnExtraListDataListener<Constant> {
 	private FragmentSearchResultMainBinding binding;
 	
 	private SearchResultListAdapter searchResultListAdapter;
 	private String query;
+	private MapViewModel mapViewModel;
 	
 	private OnPageCallback onPageCallback;
+	private IMapData iMapData;
+	private BottomSheetController bottomSheetController;
+	private MarkerOnClickListener markerOnClickListener;
+	
+	private OnExtraListDataListener<Constant> placesOnExtraListDataListener;
+	private OnExtraListDataListener<Constant> addressesOnExtraListDataListener;
 	
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		query = getArguments().getString("query");
+		
+		mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
+		iMapData = mapViewModel.getiMapData();
+		bottomSheetController = mapViewModel.getBottomSheetController();
+		markerOnClickListener = mapViewModel.getMarkerOnClickListener();
 	}
 	
 	@Override
@@ -61,6 +83,24 @@ public class LocationSearchResultMainFragment extends Fragment {
 		searchLocation();
 	}
 	
+	
+	@Override
+	public void loadExtraListData(Constant e, RecyclerView.AdapterDataObserver adapterDataObserver) {
+	
+	}
+	
+	@Override
+	public void loadExtraListData(RecyclerView.AdapterDataObserver adapterDataObserver) {
+		Constant currentResultType = getCurrentListType();
+		
+		if (currentResultType == Constant.ADDRESS) {
+			addressesOnExtraListDataListener.loadExtraListData(adapterDataObserver);
+		} else {
+			placesOnExtraListDataListener.loadExtraListData(adapterDataObserver);
+		}
+		
+	}
+	
 	public void searchLocation() {
 		final LocalApiPlaceParameter addressParameter = LocalParameterUtil.getAddressParameter(query, "1",
 				LocalApiPlaceParameter.DEFAULT_PAGE);
@@ -75,23 +115,41 @@ public class LocationSearchResultMainFragment extends Fragment {
 				for (KakaoLocalResponse kakaoLocalResponse : resultList) {
 					
 					if (kakaoLocalResponse instanceof PlaceResponse) {
-						SearchResultPlaceListFragment searchResultPlaceListFragment = new SearchResultPlaceListFragment(query,
-								new OnClickedListItemListener<PlaceResponse.Documents>() {
-									@Override
-									public void onClicked(PlaceResponse.Documents e) {
-									
-									}
-								});
-						fragments.add(searchResultPlaceListFragment);
+						PlaceResponse placeResponse = (PlaceResponse) kakaoLocalResponse;
+						if (!placeResponse.getPlaceDocuments().isEmpty()) {
+							SearchResultPlaceListFragment searchResultPlaceListFragment = new SearchResultPlaceListFragment(query,
+									new OnClickedListItemListener<PlaceResponse.Documents>() {
+										@Override
+										public void onClicked(PlaceResponse.Documents e) {
+											iMapData.showMarkers(MarkerType.SEARCH_RESULT_PLACE);
+											markerOnClickListener.onPOIItemSelectedByList(e, MarkerType.SEARCH_RESULT_PLACE);
+											bottomSheetController.setStateOfBottomSheet(BottomSheetType.SEARCH_LOCATION,
+													BottomSheetBehavior.STATE_COLLAPSED);
+											showMap();
+										}
+									});
+							placesOnExtraListDataListener = searchResultPlaceListFragment;
+							fragments.add(searchResultPlaceListFragment);
+						}
+						
 					} else if (kakaoLocalResponse instanceof AddressResponse) {
-						SearchResultAddressListFragment addressesListFragment = new SearchResultAddressListFragment(query,
-								new OnClickedListItemListener<AddressResponse.Documents>() {
-									@Override
-									public void onClicked(AddressResponse.Documents e) {
-									
-									}
-								});
-						fragments.add(addressesListFragment);
+						AddressResponse addressResponse = (AddressResponse) kakaoLocalResponse;
+						if (!addressResponse.getDocumentsList().isEmpty()) {
+							SearchResultAddressListFragment addressesListFragment = new SearchResultAddressListFragment(query,
+									new OnClickedListItemListener<AddressResponse.Documents>() {
+										@Override
+										public void onClicked(AddressResponse.Documents e) {
+											iMapData.showMarkers(MarkerType.SEARCH_RESULT_ADDRESS);
+											markerOnClickListener.onPOIItemSelectedByList(e, MarkerType.SEARCH_RESULT_ADDRESS);
+											bottomSheetController.setStateOfBottomSheet(BottomSheetType.SEARCH_LOCATION,
+													BottomSheetBehavior.STATE_COLLAPSED);
+											showMap();
+										}
+									});
+							addressesOnExtraListDataListener = addressesListFragment;
+							fragments.add(addressesListFragment);
+						}
+						
 					}
 				}
 				
@@ -122,7 +180,23 @@ public class LocationSearchResultMainFragment extends Fragment {
 	
 	@Override
 	public void onDestroy() {
+		iMapData.removeMarkers(MarkerType.SEARCH_RESULT_ADDRESS, MarkerType.SEARCH_RESULT_PLACE);
 		super.onDestroy();
+	}
+	
+	private void showMap() {
+		bottomSheetController.setStateOfBottomSheet(BottomSheetType.SEARCH_LOCATION, BottomSheetBehavior.STATE_COLLAPSED);
+	}
+	
+	@Override
+	public void onHiddenChanged(boolean hidden) {
+		super.onHiddenChanged(hidden);
+		if (hidden) {
+			bottomSheetController.setStateOfBottomSheet(BottomSheetType.SEARCH_LOCATION, BottomSheetBehavior.STATE_COLLAPSED);
+		} else {
+			bottomSheetController.setStateOfBottomSheet(BottomSheetType.LOCATION_ITEM, BottomSheetBehavior.STATE_COLLAPSED);
+			bottomSheetController.setStateOfBottomSheet(BottomSheetType.SEARCH_LOCATION, BottomSheetBehavior.STATE_EXPANDED);
+		}
 	}
 	
 	
@@ -137,7 +211,7 @@ public class LocationSearchResultMainFragment extends Fragment {
 		}
 	}
 	
-	class OnPageCallback extends ViewPager2.OnPageChangeCallback {
+	private static class OnPageCallback extends ViewPager2.OnPageChangeCallback {
 		public int lastPosition = 0;
 		
 		@Override

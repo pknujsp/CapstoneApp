@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.lifedawn.capstoneapp.kakao.SearchFragment;
+import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.NaverMap;
 
@@ -30,14 +30,7 @@ public class PromiseNaverMapFragment extends AbstractNaverMapFragment {
 	@Override
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		
-		binding.headerFragmentContainer.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				SearchFragment searchFragment = new SearchFragment();
-				searchFragment.show(getChildFragmentManager(), SearchFragment.class.getName());
-			}
-		});
+	
 	}
 	
 	@Override
@@ -78,5 +71,10 @@ public class PromiseNaverMapFragment extends AbstractNaverMapFragment {
 	@Override
 	public void onMapLongClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
 		super.onMapLongClick(pointF, latLng);
+	}
+	
+	@Override
+	public void onClickedPlaceBottomSheet(KakaoLocalDocument kakaoLocalDocument) {
+	
 	}
 }
