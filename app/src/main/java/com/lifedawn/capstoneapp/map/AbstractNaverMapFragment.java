@@ -294,8 +294,9 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 				}
 				
 				final String tag = SearchHistoryFragment.class.getName();
-				Bundle bundle = new Bundle();
+				final Bundle bundle = new Bundle();
 				bundle.putSerializable(BundleConstant.SEARCH_HISTORY_TYPE.name(), SearchHistoryDto.SearchHistoryType.MAP);
+				
 				SearchHistoryFragment searchHistoryFragment = new SearchHistoryFragment();
 				searchHistoryFragment.setOnClickedHistoryItemListener(
 						(SearchHistoryFragment.OnClickedHistoryItemListener) childFragmentManager.findFragmentByTag(

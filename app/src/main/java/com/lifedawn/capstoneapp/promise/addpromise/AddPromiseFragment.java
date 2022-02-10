@@ -9,7 +9,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
+import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.EventReminder;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.interfaces.OnFragmentCallback;
@@ -20,6 +23,7 @@ import com.lifedawn.capstoneapp.reminder.RemindersFragment;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
@@ -52,7 +56,28 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 			@Override
 			public void onClick(View v) {
 				//값이 제대로 입력되었는지 확인후 저장
+				Event event = new Event();
+				event.setSummary(binding.titleEditText.getText().toString()).setLocation("위도,경도,장소명,주소명").setDescription(
+						binding.descriptionEditText.getText().toString());
 				
+				final DateTime dateTime = getStartDateTime();
+				EventDateTime start = new EventDateTime();
+				EventDateTime end = new EventDateTime();
+				start.setDateTime(dateTime).setTimeZone(ZoneId.systemDefault().getId());
+				end.setDateTime(dateTime).setTimeZone(ZoneId.systemDefault().getId());
+				
+				event.setStart(start).setEnd(end);
+				
+				//반복 없음
+				
+				//알림
+				
+				//참석자
+				
+				//캘린더ID 지정
+				
+				
+				Event savedEvent = null;
 			}
 		});
 	}
@@ -125,6 +150,38 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 		if (remove) {
 			newRemindersList.remove(index - 1);
 			initRemindersView(newRemindersList);
+		} else {
+			Bundle bundle = new Bundle();
+			bundle.putInt("previousMinutes", eventReminder.getMinutes());
+			bundle.putSerializable("requestCode", RemindersFragment.RequestType.EDIT);
+			
+			RemindersFragment eventReminderFragment = new RemindersFragment();
+			eventReminderFragment.setOnEventReminderResultListener(new RemindersFragment.OnEventReminderResultListener() {
+				@Override
+				public void onResultModifiedReminder(EventReminder reminder, int previousMinutes) {
+					newRemindersList.add(reminder);
+					initRemindersView(newRemindersList);
+				}
+				
+				@Override
+				public void onResultAddedReminder(EventReminder reminder) {
+				
+				}
+				
+				@Override
+				public void onResultRemovedReminder(int previousMinutes) {
+					for (int i = 0; i < newRemindersList.size(); i++) {
+						if (newRemindersList.get(i).getMinutes() == previousMinutes) {
+							newRemindersList.remove(i);
+							break;
+						}
+					}
+					initRemindersView(newRemindersList);
+				}
+			});
+			eventReminderFragment.setArguments(bundle);
+			getParentFragmentManager().beginTransaction().hide(AddPromiseFragment.this).add(R.id.fragmentContainerView,
+					eventReminderFragment, RemindersFragment.class.getName()).addToBackStack(RemindersFragment.class.getName()).commit();
 		}
 	}
 	

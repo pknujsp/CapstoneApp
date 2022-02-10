@@ -16,6 +16,7 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.EventAttendee;
 import com.google.api.services.calendar.model.EventReminder;
 import com.lifedawn.capstoneapp.R;
@@ -27,6 +28,8 @@ import com.lifedawn.capstoneapp.databinding.FragmentEditPromiseBinding;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -211,6 +214,14 @@ public abstract class AbstractPromiseFragment extends Fragment {
 			}
 		}
 		return false;
+	}
+	
+	protected DateTime getStartDateTime() {
+		LocalDate localDate = (LocalDate) binding.date.getTag();
+		LocalTime localTime = (LocalTime) binding.time.getTag();
+		
+		ZonedDateTime zonedDateTime = ZonedDateTime.of(localDate, localTime, ZoneId.systemDefault());
+		return DateTime.parseRfc3339(zonedDateTime.toString());
 	}
 	
 	protected abstract void onResultDate(LocalDate date);
