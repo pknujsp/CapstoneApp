@@ -122,43 +122,7 @@ public class GoogleAccountUtil {
 		});
 		
 	}
-	
-	/*
-	private void test(GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver) {
-		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					final HttpTransport httpTransport = new NetHttpTransport();
-					final JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-					
-					Calendar calendarService = new Calendar.Builder(httpTransport, jsonFactory, googleAccountCredential).setApplicationName(
-							"promise").build();
-				} catch (Exception e) {
-					if (e instanceof UserRecoverableAuthIOException) {
-						googleAccountLifeCycleObserver.launchUserRecoverableAuthIntent(((UserRecoverableAuthIOException) e).getIntent(),
-								new ActivityResultCallback<ActivityResult>() {
-									@Override
-									public void onActivityResult(ActivityResult result) {
-										if (result.getResultCode() == Activity.RESULT_OK) {
-											test(googleAccountLifeCycleObserver);
-										} else {
-											Toast.makeText(context, R.string.denied_access_to_calendar, Toast.LENGTH_SHORT).show();
-										}
-										
-									}
-								});
-					}
-				}
-				
-			}
-		});
 
-
-		
-		
-	}
-	*/
 
 	
 	public interface OnSignCallback {

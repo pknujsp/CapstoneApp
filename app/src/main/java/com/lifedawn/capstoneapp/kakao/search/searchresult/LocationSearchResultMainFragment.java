@@ -82,12 +82,13 @@ public class LocationSearchResultMainFragment extends Fragment implements OnExtr
 		
 		searchLocation();
 	}
-	
-	
+
 	@Override
 	public void loadExtraListData(Constant e, RecyclerView.AdapterDataObserver adapterDataObserver) {
-	
+
 	}
+
+
 	
 	@Override
 	public void loadExtraListData(RecyclerView.AdapterDataObserver adapterDataObserver) {

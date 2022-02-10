@@ -515,12 +515,13 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 				if (getStateOfBottomSheet(BottomSheetType.LOCATION_ITEM) == BottomSheetBehavior.STATE_EXPANDED) {
 					markerType = (MarkerType) locationItemBottomSheetViewPager.getTag();
 					onPOIItemSelectedByBottomSheet(position, markerType);
-					
-					if (position == VIEW_PAGER_ADAPTER_MAP.get(markerType).getItemCount() - 1) {
+
+
+					if (position == VIEW_PAGER_ADAPTER_MAP.get(markerType).getItemCount()) {
 						onPageSelectedLocationItemBottomSheetViewPager(position, markerType);
-					} else {
+					} else{
+
 					}
-					
 				}
 			}
 		});
@@ -550,7 +551,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 		bottomSheetViewMap.put(BottomSheetType.LOCATION_ITEM, locationItemBottomSheet);
 		bottomSheetBehaviorMap.put(BottomSheetType.LOCATION_ITEM, locationItemBottomSheetBehavior);
 	}
-	
+
 	public void setPlaceBottomSheetSelectBtnVisibility(int placeBottomSheetSelectBtnVisibility) {
 		this.placeBottomSheetSelectBtnVisibility = placeBottomSheetSelectBtnVisibility;
 	}
@@ -726,7 +727,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 		}
 		return location;
 	}
-	
+	//POI => point of interest
 	@Override
 	public void onPOIItemSelectedByList(KakaoLocalDocument kakaoLocalDocument, MarkerType markerType) {
 		//bottomsheet가 아닌 list에서 아이템을 선택한 경우 호출

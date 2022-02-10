@@ -3,6 +3,8 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidStudio/platforms/android-31/data/res/layout/simple_spinner_dropdown_item.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudio/platforms/android-31/data/res/layout/simple_spinner_item.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.38229166666666664" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/drawable/ic_baseline_add_24.xml" value="0.38229166666666664" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/drawable/ic_baseline_arrow_downward_24.xml" value="0.38229166666666664" />
@@ -36,21 +38,28 @@
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/item_view_simpleprofile.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/layout/map_buttons_view.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/activity_main.xml" value="0.2046875" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/address_item_view.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/address_recycler_view_item.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/bottom_sheet_location_search.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/event_attendee_chip.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/event_notification_chip.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_abstract_naver_map.xml" value="1.0" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_app_settings.xml" value="0.2046875" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_default_notificaiton_settings.xml" value="0.22" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_edit_promise.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_find_friend.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_friend_transaction.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_intro.xml" value="0.2046875" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_invitation_friend.xml" value="0.2046875" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_location_search_result.xml" value="0.2046875" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_notifications.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_profile.xml" value="0.25" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_reminders.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_search_place.xml" value="0.2046875" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_search_result_address_list.xml" value="0.2046875" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_search_result_place_list.xml" value="0.2046875" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/map_buttons_view.xml" value="1.0" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/place_recycler_view_item.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/menu/main_bottom_navigation.xml" value="0.2046875" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/drawable/bottomsheet_background.xml" value="0.2111111111111111" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/drawable/map_view_background.xml" value="0.21666666666666667" />
