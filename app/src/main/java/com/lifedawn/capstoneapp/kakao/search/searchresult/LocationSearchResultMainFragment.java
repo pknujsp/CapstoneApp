@@ -53,7 +53,6 @@ public class LocationSearchResultMainFragment extends Fragment implements OnExtr
 	private OnExtraListDataListener<Constant> placesOnExtraListDataListener;
 	private OnExtraListDataListener<Constant> addressesOnExtraListDataListener;
 	
-	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -63,6 +62,7 @@ public class LocationSearchResultMainFragment extends Fragment implements OnExtr
 		iMapData = mapViewModel.getiMapData();
 		bottomSheetController = mapViewModel.getBottomSheetController();
 		markerOnClickListener = mapViewModel.getMarkerOnClickListener();
+	
 	}
 	
 	@Override
@@ -176,17 +176,19 @@ public class LocationSearchResultMainFragment extends Fragment implements OnExtr
 				});
 			}
 		});
-		
 	}
 	
 	@Override
 	public void onDestroy() {
 		iMapData.removeMarkers(MarkerType.SEARCH_RESULT_ADDRESS, MarkerType.SEARCH_RESULT_PLACE);
+
 		super.onDestroy();
 	}
 	
 	private void showMap() {
 		bottomSheetController.setStateOfBottomSheet(BottomSheetType.SEARCH_LOCATION, BottomSheetBehavior.STATE_COLLAPSED);
+		getParentFragmentManager().beginTransaction().hide(this).addToBackStack(
+				LocationSearchResultMainFragment.class.getName() + "hide").commit();
 	}
 	
 	@Override

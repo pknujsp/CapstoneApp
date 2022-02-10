@@ -82,4 +82,7 @@
     <string name="result_address">주소</string>
     <string name="cancel_location">위치 취소</string>
     <string name="select">선택</string>
+    <string name="selected_location_in_event">약속 장소</string>
+    <string name="address">주소</string>
+    <string name="message_click_marker_to_delete">클릭하면 삭제</string>
 </resources>

@@ -14,6 +14,11 @@
     app:layout_behavior="@string/bottom_sheet_behavior">
 
     <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/search_bar_fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/search_fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

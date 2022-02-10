@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
@@ -14,50 +13,32 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.lifedawn.capstoneapp.common.constants.BundleConstant;
+import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.interfaces.OnDbQueryCallback;
 import com.lifedawn.capstoneapp.common.view.SearchHistoryFragment;
 import com.lifedawn.capstoneapp.common.viewmodel.SearchHistoryViewModel;
-import com.lifedawn.capstoneapp.databinding.FragmentSearchBinding;
+import com.lifedawn.capstoneapp.databinding.FragmentSearchBarBinding;
 import com.lifedawn.capstoneapp.kakao.search.searchresult.LocationSearchResultMainFragment;
 import com.lifedawn.capstoneapp.room.dto.SearchHistoryDto;
 
-public class SearchFragment extends Fragment implements SearchHistoryFragment.OnClickedHistoryItemListener {
-	private FragmentSearchBinding binding;
+public class SearchBarFragment extends Fragment implements SearchHistoryFragment.OnClickedHistoryItemListener {
+	private FragmentSearchBarBinding binding;
 	private SearchHistoryViewModel searchHistoryViewModel;
-	
-	private final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
-		@Override
-		public void handleOnBackPressed() {
-			if (!getChildFragmentManager().popBackStackImmediate()) {
-				getParentFragmentManager().popBackStack();
-			}
-		}
-	};
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getActivity().getOnBackPressedDispatcher().addCallback(onBackPressedCallback);
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		binding = FragmentSearchBinding.inflate(inflater);
+		binding = FragmentSearchBarBinding.inflate(inflater);
 		return binding.getRoot();
 	}
 	
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		Bundle bundle = new Bundle();
-		bundle.putSerializable(BundleConstant.SEARCH_HISTORY_TYPE.name(), SearchHistoryDto.SearchHistoryType.MAP);
-		SearchHistoryFragment searchHistoryFragment = new SearchHistoryFragment();
-		searchHistoryFragment.setOnClickedHistoryItemListener(this);
-		searchHistoryFragment.setArguments(bundle);
-		
-		getChildFragmentManager().beginTransaction().replace(binding.fragmentContainerView.getId(), searchHistoryFragment,
-				SearchHistoryFragment.class.getName()).commit();
 		
 		searchHistoryViewModel = new ViewModelProvider(requireActivity()).get(SearchHistoryViewModel.class);
 		
@@ -93,7 +74,6 @@ public class SearchFragment extends Fragment implements SearchHistoryFragment.On
 	
 	@Override
 	public void onDestroy() {
-		onBackPressedCallback.remove();
 		super.onDestroy();
 	}
 	
@@ -110,14 +90,15 @@ public class SearchFragment extends Fragment implements SearchHistoryFragment.On
 		if (fragmentManager.findFragmentByTag(LocationSearchResultMainFragment.class.getName()) != null) {
 			fragmentManager.popBackStackImmediate();
 		}
-		FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-		fragmentTransaction.hide(getChildFragmentManager().findFragmentByTag(SearchHistoryFragment.class.getName())).add(
-				binding.fragmentContainerView.getId(), locationSearchResultMainFragment,
+		FragmentTransaction fragmentTransaction = getParentFragmentManager().beginTransaction();
+		fragmentTransaction.hide(getParentFragmentManager().findFragmentByTag(SearchHistoryFragment.class.getName())).add(
+				R.id.search_fragment_container, locationSearchResultMainFragment,
 				LocationSearchResultMainFragment.class.getName()).addToBackStack(LocationSearchResultMainFragment.class.getName()).commit();
 	}
 	
 	@Override
 	public void onClickedValue(SearchHistoryDto searchHistoryDto, int position) {
+		binding.searchView.setQuery(searchHistoryDto.getValue(), false);
 		search(searchHistoryDto.getValue());
 	}
 	
