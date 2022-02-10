@@ -17,6 +17,7 @@ import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
@@ -33,13 +34,15 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.lifedawn.capstoneapp.R;
+import com.lifedawn.capstoneapp.common.constants.BundleConstant;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickedListItemListener;
 import com.lifedawn.capstoneapp.common.util.FusedLocation;
 import com.lifedawn.capstoneapp.common.util.LocationLifeCycleObserver;
+import com.lifedawn.capstoneapp.common.view.SearchHistoryFragment;
 import com.lifedawn.capstoneapp.databinding.FragmentAbstractNaverMapBinding;
-import com.lifedawn.capstoneapp.kakao.SearchFragment;
+import com.lifedawn.capstoneapp.kakao.SearchBarFragment;
 import com.lifedawn.capstoneapp.kakao.search.searchresult.LocationSearchResultMainFragment;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAbstractAdapter;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAdapter;
@@ -50,6 +53,7 @@ import com.lifedawn.capstoneapp.map.interfaces.OnClickedBottomSheetListener;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.address.AddressResponse;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.place.PlaceResponse;
+import com.lifedawn.capstoneapp.room.dto.SearchHistoryDto;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.geometry.LatLngBounds;
 import com.naver.maps.map.CameraAnimation;
@@ -107,24 +111,25 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 	private int placeBottomSheetSelectBtnVisibility = View.GONE;
 	private int placeBottomSheetUnSelectBtnVisibility = View.GONE;
 	
-	private final FragmentManager.OnBackStackChangedListener onBackStackChangedListener = new FragmentManager.OnBackStackChangedListener() {
+	
+	protected final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
 		@Override
-		public void onBackStackChanged() {
-			FragmentManager fragmentManager = getChildFragmentManager();
-			
-			if (fragmentManager.getBackStackEntryCount() > 0) {
-				FragmentManager.BackStackEntry topBackStackEntry = fragmentManager.getBackStackEntryAt(
-						fragmentManager.getBackStackEntryCount() - 1);
-				
+		public void handleOnBackPressed() {
+			if (!getChildFragmentManager().popBackStackImmediate()) {
+				getParentFragmentManager().popBackStackImmediate();
 			}
 		}
 	};
+	
 	
 	protected final FragmentManager.FragmentLifecycleCallbacks fragmentLifecycleCallbacks = new FragmentManager.FragmentLifecycleCallbacks() {
 		@Override
 		public void onFragmentAttached(@NonNull @NotNull FragmentManager fm, @NonNull @NotNull Fragment f,
 				@NonNull @NotNull Context context) {
 			super.onFragmentAttached(fm, f, context);
+			if (f instanceof SearchHistoryFragment) {
+				binding.headerFragmentContainer.setVisibility(View.GONE);
+			}
 		}
 		
 		@Override
@@ -137,6 +142,13 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 		@Override
 		public void onFragmentDestroyed(@NonNull @NotNull FragmentManager fm, @NonNull @NotNull Fragment f) {
 			super.onFragmentDestroyed(fm, f);
+			if (f instanceof SearchHistoryFragment) {
+				setStateOfBottomSheet(BottomSheetType.SEARCH_LOCATION, BottomSheetBehavior.STATE_COLLAPSED);
+				binding.headerFragmentContainer.setVisibility(View.VISIBLE);
+				
+			} else if (f instanceof LocationSearchResultMainFragment) {
+				removeMarkers(MarkerType.SEARCH_RESULT_ADDRESS, MarkerType.SEARCH_RESULT_PLACE);
+			}
 		}
 		
 	};
@@ -145,8 +157,8 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		getChildFragmentManager().registerFragmentLifecycleCallbacks(fragmentLifecycleCallbacks, false);
-		getChildFragmentManager().addOnBackStackChangedListener(onBackStackChangedListener);
+		getChildFragmentManager().registerFragmentLifecycleCallbacks(fragmentLifecycleCallbacks, true);
+		getActivity().getOnBackPressedDispatcher().addCallback(onBackPressedCallback);
 		
 		locationLifeCycleObserver = new LocationLifeCycleObserver(requireActivity().getActivityResultRegistry(), requireActivity());
 		getLifecycle().addObserver(locationLifeCycleObserver);
@@ -271,26 +283,31 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 		binding.headerFragmentContainer.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				
 				//expand search location bottomsheet
 				collapseAllExpandedBottomSheets();
 				
 				FragmentManager childFragmentManager = getChildFragmentManager();
 				int backStackCount = childFragmentManager.getBackStackEntryCount();
+				
 				for (int count = 0; count < backStackCount; count++) {
 					childFragmentManager.popBackStack();
 				}
 				
-				final String tag = SearchFragment.class.getName();
-				SearchFragment searchFragment = new SearchFragment();
+				final String tag = SearchHistoryFragment.class.getName();
+				Bundle bundle = new Bundle();
+				bundle.putSerializable(BundleConstant.SEARCH_HISTORY_TYPE.name(), SearchHistoryDto.SearchHistoryType.MAP);
+				SearchHistoryFragment searchHistoryFragment = new SearchHistoryFragment();
+				searchHistoryFragment.setOnClickedHistoryItemListener(
+						(SearchHistoryFragment.OnClickedHistoryItemListener) childFragmentManager.findFragmentByTag(
+								SearchBarFragment.class.getName()));
+				searchHistoryFragment.setArguments(bundle);
 				
-				childFragmentManager.beginTransaction().replace(binding.locationSearchBottomSheet.searchFragmentContainer.getId(),
-						searchFragment, tag).addToBackStack(tag).commit();
+				childFragmentManager.beginTransaction().add(binding.locationSearchBottomSheet.searchFragmentContainer.getId(),
+						searchHistoryFragment, tag).addToBackStack(tag).commit();
 				
 				setStateOfBottomSheet(BottomSheetType.SEARCH_LOCATION, BottomSheetBehavior.STATE_EXPANDED);
 			}
 		});
-		
 		
 		loadMap();
 	}
@@ -306,6 +323,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 			editor.putString(SharedPreferenceConstant.LAST_LATITUDE.name(), String.valueOf(lastLatLng.latitude));
 			editor.apply();
 		}
+		onBackPressedCallback.remove();
 		super.onDestroy();
 	}
 	
@@ -320,10 +338,25 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 		
 		BottomSheetBehavior locationSearchBottomSheetBehavior = BottomSheetBehavior.from(locationSearchBottomSheet);
 		locationSearchBottomSheetBehavior.setDraggable(false);
+		locationSearchBottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+			@Override
+			public void onStateChanged(@NonNull View bottomSheet, int newState) {
+			
+			}
+			
+			@Override
+			public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+			
+			}
+		});
 		locationSearchBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 		
 		bottomSheetViewMap.put(BottomSheetType.SEARCH_LOCATION, locationSearchBottomSheet);
 		bottomSheetBehaviorMap.put(BottomSheetType.SEARCH_LOCATION, locationSearchBottomSheetBehavior);
+		
+		SearchBarFragment searchBarFragment = new SearchBarFragment();
+		getChildFragmentManager().beginTransaction().replace(binding.locationSearchBottomSheet.searchBarFragmentContainer.getId(),
+				searchBarFragment, SearchBarFragment.class.getName()).commit();
 	}
 	
 	
@@ -389,7 +422,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 	
 	@Override
 	public void onMapClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
-	
+		deselectMarker();
 	}
 	
 	@Override
@@ -475,6 +508,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 	};
 	
 	public void onPageSelectedLocationItemBottomSheetViewPager(int position, MarkerType markerType) {
+		
 		switch (markerType) {
 			
 			case SEARCH_RESULT_ADDRESS:
@@ -755,10 +789,8 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 					selectedMarker = marker;
 					break;
 				}
-				
 			}
 		}
-		
 		CameraUpdate cameraUpdate = CameraUpdate.scrollTo(selectedMarker.getPosition());
 		cameraUpdate.animate(CameraAnimation.Easing, 150);
 		naverMap.moveCamera(cameraUpdate);
@@ -778,7 +810,6 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 	public void onPOIItemSelectedByBottomSheet(int position, MarkerType markerType) {
 		//bottomsheet에서 스크롤 하는 경우 호출
 		LatLng target = null;
-		
 		
 		LocationItemViewPagerAbstractAdapter adapter = (LocationItemViewPagerAbstractAdapter) locationItemBottomSheetViewPager.getAdapter();
 		KakaoLocalDocument kakaoLocalDocument = adapter.getLocalItem(position);

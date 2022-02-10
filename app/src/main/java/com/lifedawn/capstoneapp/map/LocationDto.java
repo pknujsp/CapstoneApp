@@ -2,7 +2,9 @@ package com.lifedawn.capstoneapp.map;
 
 import com.lifedawn.capstoneapp.common.constants.Constant;
 
-public class LocationDto {
+import java.io.Serializable;
+
+public class LocationDto implements Serializable {
 	private long eventId;
 	
 	private String latitude;
