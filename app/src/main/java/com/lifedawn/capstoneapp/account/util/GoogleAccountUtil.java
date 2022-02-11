@@ -55,7 +55,7 @@ public class GoogleAccountUtil {
         return googleAccountCredential;
     }
 
-    public GoogleAccountUtil(Context context) {
+    private GoogleAccountUtil(Context context) {
         this.context = context;
     }
 

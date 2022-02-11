@@ -39,6 +39,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.TimeZone;
 
 public class AddPromiseFragment extends AbstractPromiseFragment {
     private ArrayList<EventAttendee> newEventAttendeeList = new ArrayList<>();
@@ -85,8 +86,8 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
                 final DateTime dateTime = getStartDateTime();
                 EventDateTime start = new EventDateTime();
                 EventDateTime end = new EventDateTime();
-                start.setDateTime(dateTime).setTimeZone(ZoneId.systemDefault().getId());
-                end.setDateTime(dateTime).setTimeZone(ZoneId.systemDefault().getId());
+                start.setDateTime(dateTime).setTimeZone(TimeZone.getDefault().getID());
+                end.setDateTime(dateTime).setTimeZone(TimeZone.getDefault().getID());
 
                 event.setStart(start).setEnd(end);
                 //반복 없음
