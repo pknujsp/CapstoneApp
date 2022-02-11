@@ -18,12 +18,22 @@ public class GoogleAccountLifeCycleObserver implements DefaultLifecycleObserver 
 
     private ActivityResultLauncher<Intent> googleSignIntentActivityResultLauncher;
     private ActivityResultLauncher<Intent> userRecoverableAuthIntentActivityResultLauncher;
-    private ActivityResultCallback<ActivityResult> googleSignIntentActivityResultCallback;
-    private ActivityResultCallback<ActivityResult> userRecoverableAuthIntentActivityResultCallback;
+    private ActivityResultCallback<ActivityResult> methodGoogleSignIntentActivityResultCallback;
+    private ActivityResultCallback<ActivityResult> methodUserRecoverableAuthIntentActivityResultCallback;
+    private ActivityResultCallback<ActivityResult> instanceGoogleSignIntentActivityResultCallback;
+    private ActivityResultCallback<ActivityResult> instanceUserRecoverableAuthIntentActivityResultCallback;
 
     public GoogleAccountLifeCycleObserver(ActivityResultRegistry resultRegistry, Activity activity) {
         this.resultRegistry = resultRegistry;
         this.activity = activity;
+    }
+
+    public void setInstanceUserRecoverableAuthIntentActivityResultCallback(ActivityResultCallback<ActivityResult> instanceUserRecoverableAuthIntentActivityResultCallback) {
+        this.instanceUserRecoverableAuthIntentActivityResultCallback = instanceUserRecoverableAuthIntentActivityResultCallback;
+    }
+
+    public void setInstanceGoogleSignIntentActivityResultCallback(ActivityResultCallback<ActivityResult> instanceGoogleSignIntentActivityResultCallback) {
+        this.instanceGoogleSignIntentActivityResultCallback = instanceGoogleSignIntentActivityResultCallback;
     }
 
     @Override
@@ -32,8 +42,12 @@ public class GoogleAccountLifeCycleObserver implements DefaultLifecycleObserver 
                 new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
                     @Override
                     public void onActivityResult(ActivityResult result) {
-                        if (googleSignIntentActivityResultCallback != null) {
-                            googleSignIntentActivityResultCallback.onActivityResult(result);
+                        if (methodGoogleSignIntentActivityResultCallback != null) {
+                            methodGoogleSignIntentActivityResultCallback.onActivityResult(result);
+                        }
+
+                        if (instanceGoogleSignIntentActivityResultCallback != null) {
+                            instanceGoogleSignIntentActivityResultCallback.onActivityResult(result);
                         }
 
                     }
@@ -43,8 +57,11 @@ public class GoogleAccountLifeCycleObserver implements DefaultLifecycleObserver 
                 new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
                     @Override
                     public void onActivityResult(ActivityResult result) {
-                        if (userRecoverableAuthIntentActivityResultCallback != null) {
-                            userRecoverableAuthIntentActivityResultCallback.onActivityResult(result);
+                        if (methodUserRecoverableAuthIntentActivityResultCallback != null) {
+                            methodUserRecoverableAuthIntentActivityResultCallback.onActivityResult(result);
+                        }
+                        if (instanceUserRecoverableAuthIntentActivityResultCallback != null) {
+                            instanceUserRecoverableAuthIntentActivityResultCallback.onActivityResult(result);
                         }
                     }
                 });
@@ -52,11 +69,11 @@ public class GoogleAccountLifeCycleObserver implements DefaultLifecycleObserver 
 
     public void launchGoogleSignInIntent(Intent intent, @NonNull ActivityResultCallback<ActivityResult> callback) {
         googleSignIntentActivityResultLauncher.launch(intent);
-        googleSignIntentActivityResultCallback = callback;
+        methodGoogleSignIntentActivityResultCallback = callback;
     }
 
     public void launchUserRecoverableAuthIntent(Intent intent, @NonNull ActivityResultCallback<ActivityResult> callback) {
         userRecoverableAuthIntentActivityResultLauncher.launch(intent);
-        userRecoverableAuthIntentActivityResultCallback = callback;
+        methodUserRecoverableAuthIntentActivityResultCallback = callback;
     }
 }

@@ -85,4 +85,6 @@
     <string name="selected_location_in_event">약속 장소</string>
     <string name="address">주소</string>
     <string name="message_click_marker_to_delete">클릭하면 삭제</string>
+    <string name="title_asking_to_change_location">위치 변경</string>
+    <string name="message_change_location">위치를 변경하시겠습니까?</string>
 </resources>

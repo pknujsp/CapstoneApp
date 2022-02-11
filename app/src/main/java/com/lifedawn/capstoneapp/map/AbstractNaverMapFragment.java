@@ -80,7 +80,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AbstractNaverMapFragment extends Fragment implements OnMapReadyCallback, NaverMap.OnMapClickListener, NaverMap.OnCameraIdleListener, CameraUpdate.FinishCallback, NaverMap.OnLocationChangeListener, NaverMap.OnMapLongClickListener, MarkerOnClickListener, BottomSheetController, IMapData, OnClickedBottomSheetListener {
+public abstract class AbstractNaverMapFragment extends Fragment implements LocationItemViewPagerAbstractAdapter.OnClickedLocationBtnListener,OnMapReadyCallback, NaverMap.OnMapClickListener, NaverMap.OnCameraIdleListener, CameraUpdate.FinishCallback, NaverMap.OnLocationChangeListener, NaverMap.OnMapLongClickListener, MarkerOnClickListener, BottomSheetController, IMapData, OnClickedBottomSheetListener {
 	private static final int PERMISSION_REQUEST_CODE = 1;
 	private static final int REQUEST_CODE_LOCATION = 2;
 	protected final Map<MarkerType, List<Marker>> MARKERS_MAP = new HashMap<>();
@@ -606,6 +606,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 		LocationItemViewPagerAbstractAdapter adapter = null;
 		
 		adapter = new LocationItemViewPagerAdapter(getContext(), markerType);
+		adapter.setOnClickedLocationBtnListener(this);
 		adapter.setVisibleSelectBtn(placeBottomSheetSelectBtnVisibility);
 		adapter.setVisibleUnSelectBtn(placeBottomSheetUnSelectBtnVisibility);
 		((LocationItemViewPagerAdapter) adapter).setLocalDocumentsList(kakaoLocalDocuments);
@@ -729,39 +730,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 		setStateOfBottomSheet(BottomSheetType.LOCATION_ITEM, BottomSheetBehavior.STATE_COLLAPSED);
 	}
 	
-	public LocationDto getSelectedLocationDto() {
-		// 선택된 poiitem의 리스트내 인덱스를 가져온다.
-		// 인덱스로 아이템을 가져온다.
-		MarkerType selectedMarkerType = (MarkerType) locationItemBottomSheetViewPager.getTag();
-		int currentViewPagerPosition = locationItemBottomSheetViewPager.getCurrentItem();
-		KakaoLocalDocument kakaoLocalDocument = VIEW_PAGER_ADAPTER_MAP.get(selectedMarkerType).getLocalItem(currentViewPagerPosition);
-		
-		LocationDto location = new LocationDto();
-		
-		// 주소인지 장소인지를 구분한다.
-		if (kakaoLocalDocument instanceof PlaceResponse.Documents) {
-			PlaceResponse.Documents placeDocuments = (PlaceResponse.Documents) kakaoLocalDocument;
-			location.setPlaceId(placeDocuments.getId());
-			location.setPlaceName(placeDocuments.getPlaceName());
-			location.setAddressName(placeDocuments.getAddressName());
-			location.setRoadAddressName(placeDocuments.getRoadAddressName());
-			location.setLatitude(placeDocuments.getY());
-			location.setLongitude(placeDocuments.getX());
-			location.setLocationType(Constant.PLACE);
-		} else if (kakaoLocalDocument instanceof AddressResponse.Documents) {
-			AddressResponse.Documents addressDocuments = (AddressResponse.Documents) kakaoLocalDocument;
-			
-			location.setAddressName(addressDocuments.getAddressName());
-			location.setLatitude(addressDocuments.getY());
-			location.setLongitude(addressDocuments.getX());
-			location.setLocationType(Constant.ADDRESS);
-			
-			if (addressDocuments.getAddressResponseRoadAddress() != null) {
-				location.setRoadAddressName(addressDocuments.getAddressResponseRoadAddress().getAddressName());
-			}
-		}
-		return location;
-	}
+
 	//POI => point of interest
 	@Override
 	public void onPOIItemSelectedByList(KakaoLocalDocument kakaoLocalDocument, MarkerType markerType) {
@@ -944,8 +913,12 @@ public abstract class AbstractNaverMapFragment extends Fragment implements OnMap
 		
 		return new Object[]{bottomSheetView, bottomSheetBehavior};
 	}
-	
-	
+
+	@Override
+	public void onSelected(KakaoLocalDocument kakaoLocalDocument, boolean remove) {
+
+	}
+
 	protected static class MarkerHolder {
 		final KakaoLocalDocument kakaoLocalDocument;
 		final MarkerType markerType;

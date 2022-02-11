@@ -27,7 +27,11 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Calendar;
+import com.google.api.services.calendar.model.CalendarListEntry;
 import com.lifedawn.capstoneapp.R;
+import com.lifedawn.capstoneapp.calendar.util.GoogleCalendarUtil;
+import com.lifedawn.capstoneapp.common.interfaces.OnHttpApiCallback;
 import com.lifedawn.capstoneapp.main.MyApplication;
 
 import java.util.Arrays;
@@ -96,16 +100,17 @@ public class GoogleAccountUtil {
     }
 
     public void signIn(GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver, OnSignCallback onSignCallback) {
+        GoogleSignInAccount lastSignInAccount = lastSignInAccount();
+
+        if (lastSignInAccount != null) {
+            setGoogleAccountCredential(lastSignInAccount.getAccount());
+            onSignCallback.onSignInSuccessful(lastSignInAccount.getAccount(), googleAccountCredential);
+            return;
+        }
         GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
         GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(context, googleSignInOptions);
-
-        GoogleSignInAccount googleSignInAccount = GoogleSignIn.getLastSignedInAccount(context);
-
-        if (googleSignInAccount != null && googleSignInAccount.getId() != null) {
-
-        }
         Intent intent = googleSignInClient.getSignInIntent();
 
         googleAccountLifeCycleObserver.launchGoogleSignInIntent(intent, new ActivityResultCallback<ActivityResult>() {
@@ -115,10 +120,8 @@ public class GoogleAccountUtil {
                 try {
                     GoogleSignInAccount account = task.getResult(ApiException.class);
                     Account signInAccount = account.getAccount();
+                    setGoogleAccountCredential(signInAccount);
 
-                    googleAccountCredential = GoogleAccountCredential.usingOAuth2(context, Arrays.asList(CREDENTIAL_SCOPES)).setBackOff(
-                            new ExponentialBackOff());
-                    googleAccountCredential.setSelectedAccount(signInAccount);
 
                     connectNewGoogleAccount(signInAccount);
                     onSignCallback.onSignInSuccessful(signInAccount, googleAccountCredential);
@@ -131,6 +134,12 @@ public class GoogleAccountUtil {
 
     }
 
+
+    public void setGoogleAccountCredential(Account account) {
+        googleAccountCredential = GoogleAccountCredential.usingOAuth2(context, Arrays.asList(CREDENTIAL_SCOPES)).setBackOff(
+                new ExponentialBackOff());
+        googleAccountCredential.setSelectedAccount(account);
+    }
 
     public interface OnSignCallback {
         void onSignInSuccessful(Account signInAccount, GoogleAccountCredential googleAccountCredential);

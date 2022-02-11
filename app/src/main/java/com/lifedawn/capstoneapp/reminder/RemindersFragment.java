@@ -74,9 +74,7 @@ public class RemindersFragment extends Fragment {
 		binding.radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
-				if (checkedId == R.id.customRadio) {
 					binding.customLayout.setVisibility(binding.customRadio.isChecked() ? View.VISIBLE : View.GONE);
-				}
 			}
 		});
 		

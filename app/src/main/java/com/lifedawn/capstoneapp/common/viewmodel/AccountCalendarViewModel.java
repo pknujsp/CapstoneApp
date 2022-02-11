@@ -10,24 +10,37 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.services.calendar.model.Calendar;
+import com.google.api.services.calendar.model.CalendarListEntry;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
+import com.lifedawn.capstoneapp.calendar.util.GoogleCalendarUtil;
 import com.lifedawn.capstoneapp.common.constants.Constant;
+import com.lifedawn.capstoneapp.common.interfaces.OnHttpApiCallback;
 import com.lifedawn.capstoneapp.common.repository.AccountRepository;
 import com.lifedawn.capstoneapp.common.repositoryinterface.IAccountRepository;
 
-public class AccountViewModel extends AndroidViewModel implements IAccountRepository {
+public class AccountCalendarViewModel extends AndroidViewModel implements IAccountRepository {
 	private Account signInGoogleAccount;
 	private Constant usingAccountType;
 	private AccountRepository accountRepository;
 	private MutableLiveData<Account> signInLiveData;
 	private MutableLiveData<Account> signOutLiveData;
-	
-	public AccountViewModel(@NonNull Application application) {
+	private String mainCalendarId;
+
+	public AccountCalendarViewModel(@NonNull Application application) {
 		super(application);
 		this.accountRepository = new AccountRepository(application);
 		signInLiveData = accountRepository.getSignInLiveData();
 		signOutLiveData = accountRepository.getSignOutLiveData();
+	}
+
+	public void setMainCalendarId(String mainCalendarId) {
+		this.mainCalendarId = mainCalendarId;
+	}
+
+	public String getMainCalendarId() {
+		return mainCalendarId;
 	}
 	
 	public LiveData<Account> getSignOutLiveData() {
@@ -73,6 +86,35 @@ public class AccountViewModel extends AndroidViewModel implements IAccountReposi
 				onSignCallback.onSignInSuccessful(signInAccount, googleAccountCredential);
 				setSignInGoogleAccount(signInAccount);
 				setUsingAccountType(Constant.ACCOUNT_GOOGLE);
+
+				GoogleCalendarUtil googleCalendarUtil = new GoogleCalendarUtil(googleAccountLifeCycleObserver);
+
+				googleCalendarUtil.existingPromiseCalendar(googleCalendarUtil.getCalendarService(googleAccountCredential),
+						new OnHttpApiCallback<CalendarListEntry>() {
+							@Override
+							public void onResultSuccessful(CalendarListEntry existing) {
+								if (existing == null) {
+									googleCalendarUtil.addPromiseCalendar(googleCalendarUtil.getCalendarService(googleAccountCredential), new OnHttpApiCallback<Calendar>() {
+										@Override
+										public void onResultSuccessful(Calendar e) {
+											setMainCalendarId(e.getId());
+										}
+
+										@Override
+										public void onResultFailed(Exception e) {
+
+										}
+									});
+								}else{
+									setMainCalendarId(existing.getId());
+								}
+							}
+
+							@Override
+							public void onResultFailed(Exception e) {
+
+							}
+						});
 			}
 			
 			@Override

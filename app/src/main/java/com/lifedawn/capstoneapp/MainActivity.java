@@ -16,7 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
-import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
+import com.lifedawn.capstoneapp.common.viewmodel.AccountCalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.ActivityMainBinding;
 import com.lifedawn.capstoneapp.intro.IntroFragment;
 import com.lifedawn.capstoneapp.main.MainTransactionFragment;
@@ -25,7 +25,7 @@ import java.security.MessageDigest;
 
 public class MainActivity extends AppCompatActivity {
 	private ActivityMainBinding binding;
-	private AccountViewModel accountViewModel;
+	private AccountCalendarViewModel accountCalendarViewModel;
 	
 	private final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
 		@Override
@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-		accountViewModel = new ViewModelProvider(this).get(AccountViewModel.class);
+		accountCalendarViewModel = new ViewModelProvider(this).get(AccountCalendarViewModel.class);
 		
 		init();
 	}

@@ -19,7 +19,7 @@ import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
-import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
+import com.lifedawn.capstoneapp.common.viewmodel.AccountCalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentIntroBinding;
 import com.lifedawn.capstoneapp.main.MainTransactionFragment;
 
@@ -29,12 +29,12 @@ public class IntroFragment extends Fragment {
 	private FragmentIntroBinding binding;
 	private GoogleAccountUtil googleAccountUtil;
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
-	private AccountViewModel accountViewModel;
+	private AccountCalendarViewModel accountCalendarViewModel;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		accountViewModel = new ViewModelProvider(requireActivity()).get(AccountViewModel.class);
+		accountCalendarViewModel = new ViewModelProvider(requireActivity()).get(AccountCalendarViewModel.class);
 		googleAccountUtil = GoogleAccountUtil.getInstance(getContext());
 		googleAccountLifeCycleObserver = new GoogleAccountLifeCycleObserver(requireActivity().getActivityResultRegistry(),
 				requireActivity());
@@ -54,10 +54,10 @@ public class IntroFragment extends Fragment {
 		binding.loginGoogleBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				accountViewModel.signIn(googleAccountLifeCycleObserver, new GoogleAccountUtil.OnSignCallback() {
+				accountCalendarViewModel.signIn(googleAccountLifeCycleObserver, new GoogleAccountUtil.OnSignCallback() {
 					@Override
 					public void onSignInSuccessful(Account signInAccount, GoogleAccountCredential googleAccountCredential) {
-					
+						startMainFragment();
 					}
 					
 					@Override
