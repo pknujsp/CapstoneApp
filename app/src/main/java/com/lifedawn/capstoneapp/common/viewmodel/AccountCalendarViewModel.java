@@ -26,19 +26,25 @@ public class AccountCalendarViewModel extends AndroidViewModel implements IAccou
 	private AccountRepository accountRepository;
 	private MutableLiveData<Account> signInLiveData;
 	private MutableLiveData<Account> signOutLiveData;
+	private MutableLiveData<String> mainCalendarIdLiveData = new MutableLiveData<>();
 	private String mainCalendarId;
-
+	
 	public AccountCalendarViewModel(@NonNull Application application) {
 		super(application);
 		this.accountRepository = new AccountRepository(application);
 		signInLiveData = accountRepository.getSignInLiveData();
 		signOutLiveData = accountRepository.getSignOutLiveData();
 	}
-
+	
+	public LiveData<String> getMainCalendarIdLiveData() {
+		return mainCalendarIdLiveData;
+	}
+	
 	public void setMainCalendarId(String mainCalendarId) {
 		this.mainCalendarId = mainCalendarId;
+		mainCalendarIdLiveData.postValue(mainCalendarId);
 	}
-
+	
 	public String getMainCalendarId() {
 		return mainCalendarId;
 	}
@@ -86,33 +92,34 @@ public class AccountCalendarViewModel extends AndroidViewModel implements IAccou
 				onSignCallback.onSignInSuccessful(signInAccount, googleAccountCredential);
 				setSignInGoogleAccount(signInAccount);
 				setUsingAccountType(Constant.ACCOUNT_GOOGLE);
-
+				
 				GoogleCalendarUtil googleCalendarUtil = new GoogleCalendarUtil(googleAccountLifeCycleObserver);
-
+				
 				googleCalendarUtil.existingPromiseCalendar(googleCalendarUtil.getCalendarService(googleAccountCredential),
 						new OnHttpApiCallback<CalendarListEntry>() {
 							@Override
 							public void onResultSuccessful(CalendarListEntry existing) {
 								if (existing == null) {
-									googleCalendarUtil.addPromiseCalendar(googleCalendarUtil.getCalendarService(googleAccountCredential), new OnHttpApiCallback<Calendar>() {
-										@Override
-										public void onResultSuccessful(Calendar e) {
-											setMainCalendarId(e.getId());
-										}
-
-										@Override
-										public void onResultFailed(Exception e) {
-
-										}
-									});
-								}else{
+									googleCalendarUtil.addPromiseCalendar(googleCalendarUtil.getCalendarService(googleAccountCredential),
+											new OnHttpApiCallback<Calendar>() {
+												@Override
+												public void onResultSuccessful(Calendar e) {
+													setMainCalendarId(e.getId());
+												}
+												
+												@Override
+												public void onResultFailed(Exception e) {
+												
+												}
+											});
+								} else {
 									setMainCalendarId(existing.getId());
 								}
 							}
-
+							
 							@Override
 							public void onResultFailed(Exception e) {
-
+							
 							}
 						});
 			}
