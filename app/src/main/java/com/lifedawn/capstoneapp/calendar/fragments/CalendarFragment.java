@@ -72,7 +72,7 @@ public class CalendarFragment extends Fragment {
 			public MonthHeaderViewContainer create(@NonNull View view) {
 				return new MonthHeaderViewContainer(view);
 			}
-			
+			// 달력 상단 바인딩
 			@Override
 			public void bind(@NonNull MonthHeaderViewContainer monthHeaderViewContainer, @NonNull CalendarMonth calendarMonth) {
 				zonedDateTime = zonedDateTime.withYear(calendarMonth.getYear());
@@ -90,7 +90,7 @@ public class CalendarFragment extends Fragment {
 			}
 		});
 		
-		
+		// 날짜표시와 밑에 파란색으로 약속 카운팅도 하기
 		binding.calendarView.setDayBinder(new DayBinder<DayViewContainer>() {
 			@NonNull
 			@Override
@@ -137,7 +137,8 @@ public class CalendarFragment extends Fragment {
 		
 		binding.calendarView.scrollToMonth(currentMonth);
 	}
-	
+
+	// 일 보여주는 컨테이너 바인딩
 	private class DayViewContainer extends ViewContainer {
 		private CalendarDayLayoutBinding binding;
 		
@@ -148,7 +149,8 @@ public class CalendarFragment extends Fragment {
 		}
 		
 	}
-	
+
+	// 달 보여주는 컨테이너 바인딩
 	private class MonthHeaderViewContainer extends ViewContainer {
 		private CalendarMonthHeaderLayoutBinding binding;
 		

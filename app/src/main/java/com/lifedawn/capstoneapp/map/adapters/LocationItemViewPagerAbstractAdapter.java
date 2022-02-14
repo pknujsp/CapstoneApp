@@ -80,7 +80,6 @@ public abstract class LocationItemViewPagerAbstractAdapter extends RecyclerView.
 					onClickedLocationBtnListener.onSelected(getKakaoLocalDocument(getBindingAdapterPosition()), true);
 				}
 			});
-			
 		}
 		
 		abstract void bind();

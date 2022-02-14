@@ -69,7 +69,7 @@ public class FixedPromiseFragment extends Fragment {
 		binding.recyclerView.setAdapter(adapter);
 	}
 	
-	private class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+	public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 		List<Event> events = new ArrayList<>();
 		OnClickPromiseItemListener onClickPromiseItemListener;
 		
@@ -103,7 +103,7 @@ public class FixedPromiseFragment extends Fragment {
 			return events.size();
 		}
 		
-		private class ViewHolder extends RecyclerView.ViewHolder {
+		public class ViewHolder extends RecyclerView.ViewHolder {
 			private ItemViewPromiseBinding binding;
 			
 			public ViewHolder(@NonNull View itemView) {

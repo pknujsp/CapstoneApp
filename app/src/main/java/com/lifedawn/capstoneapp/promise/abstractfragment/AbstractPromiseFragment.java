@@ -147,6 +147,8 @@ public abstract class AbstractPromiseFragment extends Fragment {
                 onClickedMap();
             }
         });
+
+
     }
 
     @Override
