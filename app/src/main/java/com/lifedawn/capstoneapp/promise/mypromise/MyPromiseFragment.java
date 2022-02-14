@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
@@ -23,8 +22,8 @@ import com.lifedawn.capstoneapp.account.util.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
 import com.lifedawn.capstoneapp.calendar.util.GoogleCalendarUtil;
 import com.lifedawn.capstoneapp.common.constants.Constant;
-import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
+import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountCalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentMyPromiseBinding;
 import com.lifedawn.capstoneapp.databinding.ItemViewPromiseBinding;
@@ -33,8 +32,6 @@ import com.lifedawn.capstoneapp.map.LocationDto;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -115,20 +112,29 @@ public class MyPromiseFragment extends Fragment {
                         eventList.addAll(events.getItems());
                         pageToken = events.getNextPageToken();
                     } while (pageToken != null);
+    
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                adapter.setEvents(eventList);
+                                adapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
                 } catch (Exception e) {
-
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                adapter.setEvents(eventList);
+                                adapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
                 }
 
-                if (getActivity() != null) {
-
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.setEvents(eventList);
-                            adapter.notifyDataSetChanged();
-                        }
-                    });
-                }
+               
             }
         });
     }
