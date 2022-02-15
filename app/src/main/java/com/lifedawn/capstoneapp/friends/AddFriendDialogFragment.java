@@ -1,9 +1,12 @@
 package com.lifedawn.capstoneapp.friends;
 
+import android.app.Dialog;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -49,7 +52,7 @@ public class AddFriendDialogFragment extends DialogFragment {
 				final String email = binding.emailEditText.getText().toString();
 				final String name = binding.nameEditText.getText().toString();
 				//이메일 형식에 맞는지 확인
-				boolean successful = false;
+				boolean successful = true;
 				
 				if (successful) {
 					friendViewModel.contains(email, new OnDbQueryCallback<Boolean>() {
@@ -62,8 +65,16 @@ public class AddFriendDialogFragment extends DialogFragment {
 								friendViewModel.insert(friendDto, new OnDbQueryCallback<FriendDto>() {
 									@Override
 									public void onResult(FriendDto e) {
-										dismiss();
-										onInsertedNewFriendCallback.onInserted(friendDto);
+										if(getActivity() != null){
+											getActivity().runOnUiThread(new Runnable() {
+												@Override
+												public void run() {
+													dismiss();
+													onInsertedNewFriendCallback.onInserted(friendDto);
+												}
+											});
+										}
+										
 									}
 								});
 							} else {
@@ -86,6 +97,20 @@ public class AddFriendDialogFragment extends DialogFragment {
 				}
 			}
 		});
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		Dialog dialog = getDialog();
+		
+		Rect rect = new Rect();
+		dialog.getWindow().getWindowManager().getDefaultDisplay().getRectSize(rect);
+		
+		WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
+		layoutParams.width = (int) (rect.width() * 0.9);
+		
+		dialog.getWindow().setAttributes(layoutParams);
 	}
 	
 	public interface OnInsertedNewFriendCallback {

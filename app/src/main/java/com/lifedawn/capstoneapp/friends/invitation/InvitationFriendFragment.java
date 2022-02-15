@@ -73,10 +73,12 @@ public class InvitationFriendFragment extends Fragment {
 					@Override
 					public void onClickedFriend(FriendDto friend, int position) {
 						EventAttendee eventAttendee = new EventAttendee();
-						eventAttendee.setOrganizer(false).setEmail(friend.getEmail());
+						eventAttendee.setOrganizer(false).setEmail(friend.getEmail()).setDisplayName(friend.getName());
+						eventAttendees.add(eventAttendee);
 						adapter.notifyDataSetChanged();
 					}
 				});
+				
 				Bundle bundle = new Bundle();
 				bundle.putBoolean("fabVisible", false);
 				bundle.putBoolean("backAfterItemClick", true);
@@ -95,17 +97,11 @@ public class InvitationFriendFragment extends Fragment {
 				addFriendDialogFragment.setOnInsertedNewFriendCallback(new AddFriendDialogFragment.OnInsertedNewFriendCallback() {
 					@Override
 					public void onInserted(FriendDto friendDto) {
-						if (getActivity() != null) {
-							getActivity().runOnUiThread(new Runnable() {
-								@Override
-								public void run() {
-									EventAttendee eventAttendee = new EventAttendee();
-									eventAttendee.setOrganizer(false).setEmail(friendDto.getEmail());
-									eventAttendees.add(eventAttendee);
-									adapter.notifyDataSetChanged();
-								}
-							});
-						}
+						EventAttendee eventAttendee = new EventAttendee();
+						eventAttendee.setOrganizer(false).setEmail(friendDto.getEmail()).setDisplayName(friendDto.getName());
+						eventAttendees.add(eventAttendee);
+						adapter.notifyDataSetChanged();
+						
 					}
 				});
 				
@@ -142,9 +138,9 @@ public class InvitationFriendFragment extends Fragment {
 		super.onDestroy();
 	}
 	
-	private class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-		OnClickEventAttendeeItemListener onClickEventAttendeeItemListener;
-		List<EventAttendee> eventAttendeeList;
+	private static class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+		private OnClickEventAttendeeItemListener onClickEventAttendeeItemListener;
+		private List<EventAttendee> eventAttendeeList;
 		
 		public void setEventAttendeeList(List<EventAttendee> eventAttendeeList) {
 			this.eventAttendeeList = eventAttendeeList;
@@ -189,6 +185,7 @@ public class InvitationFriendFragment extends Fragment {
 			}
 			
 			public void onBind() {
+				binding.friend.setText(eventAttendeeList.get(getBindingAdapterPosition()).getDisplayName());
 				
 				binding.removeBtn.setOnClickListener(new View.OnClickListener() {
 					@Override

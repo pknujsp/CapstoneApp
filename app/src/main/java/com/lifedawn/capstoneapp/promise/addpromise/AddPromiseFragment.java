@@ -145,9 +145,7 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 		invitationFriendFragment.setOnFragmentCallback(new OnFragmentCallback<ArrayList<EventAttendee>>() {
 			@Override
 			public void onResult(ArrayList<EventAttendee> e) {
-				newEventAttendeeList.clear();
-				newEventAttendeeList.addAll(e);
-				
+				newEventAttendeeList = e;
 				initAttendeesView(newEventAttendeeList);
 			}
 		});
@@ -288,6 +286,7 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 							});
 							binding.placeName.setText(R.string.placeName);
 							locationDto = null;
+							binding.naverMap.setVisibility(View.GONE);
 							dialogInterface.dismiss();
 						}
 					}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -304,7 +303,6 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 				public void onSelected(KakaoLocalDocument kakaoLocalDocument, boolean remove) {
 					locationDto = LocationDto.toLocationDto(kakaoLocalDocument);
 					onSelectedLocation(locationDto);
-					
 				}
 			});
 		}
