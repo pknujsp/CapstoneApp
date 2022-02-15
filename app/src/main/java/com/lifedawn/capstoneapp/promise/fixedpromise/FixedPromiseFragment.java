@@ -107,10 +107,19 @@ public class FixedPromiseFragment extends Fragment {
 			}
 		});
 		binding.recyclerView.setAdapter(adapter);
+		refresh();
 	}
 	
 	private void refresh() {
 		if (accountCalendarViewModel.getMainCalendarId() == null) {
+			if (getActivity() != null) {
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						dialog.dismiss();
+					}
+				});
+			}
 			return;
 		}
 		

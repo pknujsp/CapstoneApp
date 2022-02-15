@@ -219,7 +219,6 @@ public class MainTransactionFragment extends Fragment {
 		binding.simpleProfileView.profileName.setText(R.string.local);
 		dialog.dismiss();
 		init();
-		
 	}
 	
 	private void init() {
