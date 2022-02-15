@@ -106,16 +106,19 @@ public class MyPromiseFragment extends Fragment {
 			
 			@Override
 			public void onClickedEvent(Event event, int position) {
+
 			
 			}
 			
 			@Override
 			public void onClickedRefusal(Event event, int position) {
+
 			
 			}
 			
 			@Override
 			public void onClickedAcceptance(Event event, int position) {
+
 			
 			}
 		});

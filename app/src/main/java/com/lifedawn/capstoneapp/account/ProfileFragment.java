@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -20,8 +21,11 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
+import com.lifedawn.capstoneapp.appsettings.AppSettingsFragment;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountCalendarViewModel;
+import com.lifedawn.capstoneapp.databinding.FragmentAbstractNaverMapBindingImpl;
 import com.lifedawn.capstoneapp.databinding.FragmentProfileBinding;
+import com.lifedawn.capstoneapp.main.MainTransactionFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -87,8 +91,21 @@ public class ProfileFragment extends DialogFragment {
                 });
             }
         });
+        //앱 설정 버튼의 기능 설정
+        binding.appSettingsBtn.setOnClickListener(new View.OnClickListener() {
 
-        //
+            @Override
+            public void onClick(View view) {
+                dismiss();
+                AppSettingsFragment appSettingsFragment = new AppSettingsFragment();
+                FragmentManager fragmentManager = getParentFragment().getParentFragmentManager();
+                fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName()))
+                        .add(R.id.fragmentContainerView,appSettingsFragment,AppSettingsFragment.class.getName()).addToBackStack(AppSettingsFragment.class.getName())
+                        .commit();
+            }
+        });
+
+        //로그인 시 로그인 팝업
         accountCalendarViewModel.getSignInLiveData().observe(getViewLifecycleOwner(), new Observer<GoogleSignInAccount>() {
             @Override
             public void onChanged(GoogleSignInAccount account) {
@@ -99,7 +116,7 @@ public class ProfileFragment extends DialogFragment {
                 }
             }
         });
-
+        //로그아웃 시 로그아웃 팝업
         accountCalendarViewModel.getSignOutLiveData().observe(getViewLifecycleOwner(), new Observer<GoogleSignInAccount>() {
             @Override
             public void onChanged(GoogleSignInAccount account) {
