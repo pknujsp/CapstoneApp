@@ -50,7 +50,7 @@ public class GoogleAccountUtil {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		String name = sharedPreferences.getString("connectedAccountName", "");
 		String type = sharedPreferences.getString("connectedAccountType", "");
-		
+
 		return name.isEmpty() ? null : new Account(name, type);
 	}
 	
@@ -59,7 +59,7 @@ public class GoogleAccountUtil {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putString("connectedAccountName", account.name);
 		editor.putString("connectedAccountType", account.type);
-		
+
 		editor.commit();
 	}
 	
@@ -109,6 +109,8 @@ public class GoogleAccountUtil {
 					GoogleSignInAccount account = task.getResult(ApiException.class);
 					Account signInAccount = account.getAccount();
 					setGoogleAccountCredential(signInAccount);
+
+
 					
 					connectNewGoogleAccount(signInAccount);
 					onSignCallback.onSignInSuccessful(signInAccount, googleAccountCredential);

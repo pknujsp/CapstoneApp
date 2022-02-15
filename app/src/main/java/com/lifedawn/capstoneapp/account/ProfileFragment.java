@@ -155,7 +155,8 @@ public class ProfileFragment extends DialogFragment {
 
     public void onSignIn(Account account) {
         binding.profileImg.setVisibility(View.VISIBLE);
-        binding.profileName.setText(account.name);
+        //binding.profileName.setText(account.);
+        binding.email.setText(account.name);
         binding.signInBtn.setVisibility(View.GONE);
         binding.signOutBtn.setVisibility(View.VISIBLE);
 
@@ -164,6 +165,7 @@ public class ProfileFragment extends DialogFragment {
     public void onSignOut() {
         binding.profileImg.setVisibility(View.GONE);
         binding.profileName.setText(R.string.local);
+        binding.email.setText(R.string.local);
         binding.signInBtn.setVisibility(View.VISIBLE);
         binding.signOutBtn.setVisibility(View.GONE);
 

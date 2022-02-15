@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,16 +28,22 @@ import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountCalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentMyPromiseBinding;
 import com.lifedawn.capstoneapp.databinding.ItemViewPromiseBinding;
+import com.lifedawn.capstoneapp.main.MainTransactionFragment;
 import com.lifedawn.capstoneapp.main.MyApplication;
 import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.promise.editpromise.EditPromiseFragment;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 public class MyPromiseFragment extends Fragment {
@@ -74,7 +81,23 @@ public class MyPromiseFragment extends Fragment {
         adapter.setOnClickPromiseItemListener(new OnClickPromiseItemListener() {
             @Override
             public void onClickedEdit(Event event, int position) {
+                EditPromiseFragment editPromiseFragment = new EditPromiseFragment();
+                Map<String, Object> map = new HashMap<>();
+                Set<String> keySet = event.keySet();
+                for (String key : keySet) {
+                    map.put(key,event.get(key));
+                }
 
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("map", (Serializable) map);
+                editPromiseFragment.setArguments(bundle);
+
+                FragmentManager fragmentManager =
+                        getParentFragment().getParentFragment().getParentFragmentManager();
+                fragmentManager.beginTransaction().hide(
+                        fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName())).add(
+                        R.id.fragmentContainerView, editPromiseFragment, EditPromiseFragment.class.getName()).addToBackStack(
+                        EditPromiseFragment.class.getName()).commit();
             }
 
             @Override
