@@ -1,6 +1,5 @@
 package com.lifedawn.capstoneapp.main;
 
-import android.accounts.Account;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -9,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
@@ -25,6 +25,7 @@ import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
 import com.lifedawn.capstoneapp.calendar.fragments.CalendarTransactionFragment;
 import com.lifedawn.capstoneapp.calendar.util.GoogleCalendarUtil;
 import com.lifedawn.capstoneapp.common.interfaces.OnHttpApiCallback;
+import com.lifedawn.capstoneapp.common.view.ProgressDialog;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountCalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentMainTransactionBinding;
 import com.lifedawn.capstoneapp.friends.FriendTransactionFragment;
@@ -37,6 +38,7 @@ public class MainTransactionFragment extends Fragment {
 	private AccountCalendarViewModel accountCalendarViewModel;
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	private boolean initializing = true;
+	private AlertDialog dialog;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,7 @@ public class MainTransactionFragment extends Fragment {
 	@Override
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		
 		
 		binding.bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
 			@Override
@@ -110,9 +113,9 @@ public class MainTransactionFragment extends Fragment {
 			}
 		});
 		
-		accountCalendarViewModel.getSignInLiveData().observe(getViewLifecycleOwner(), new Observer<Account>() {
+		accountCalendarViewModel.getSignInLiveData().observe(getViewLifecycleOwner(), new Observer<GoogleSignInAccount>() {
 			@Override
-			public void onChanged(Account account) {
+			public void onChanged(GoogleSignInAccount account) {
 				if (!initializing) {
 					if (account == null) {
 					} else {
@@ -122,9 +125,9 @@ public class MainTransactionFragment extends Fragment {
 			}
 		});
 		
-		accountCalendarViewModel.getSignOutLiveData().observe(getViewLifecycleOwner(), new Observer<Account>() {
+		accountCalendarViewModel.getSignOutLiveData().observe(getViewLifecycleOwner(), new Observer<GoogleSignInAccount>() {
 			@Override
-			public void onChanged(Account account) {
+			public void onChanged(GoogleSignInAccount account) {
 				if (!initializing) {
 					if (account == null) {
 					
@@ -134,6 +137,7 @@ public class MainTransactionFragment extends Fragment {
 				}
 			}
 		});
+		dialog = ProgressDialog.showDialog(getActivity());
 		
 		final GoogleSignInAccount lastSignInAccount = accountCalendarViewModel.lastSignInAccount();
 		if (lastSignInAccount == null) {
@@ -142,24 +146,15 @@ public class MainTransactionFragment extends Fragment {
 		} else {
 			//로그인을 이전에 하였던 경우
 			GoogleAccountUtil googleAccountUtil = GoogleAccountUtil.getInstance(getContext());
-			final Account connectedAccount = googleAccountUtil.getConnectedGoogleAccount();
-			
-			if (connectedAccount.name.equals(lastSignInAccount.getAccount().name)) {
-				//같은 계정 -> 로그인 성공
-				onSignIn(connectedAccount);
-			} else {
-				//다른 계정 -> 로그인 실패
-				onSignOut();
-			}
+			onSignIn(googleAccountUtil.lastSignInAccount());
 		}
-		init();
 		
 		
 	}
 	
-	public void onSignIn(Account account) {
+	public void onSignIn(GoogleSignInAccount account) {
 		binding.simpleProfileView.profileImg.setVisibility(View.VISIBLE);
-		binding.simpleProfileView.profileName.setText(account.name);
+		binding.simpleProfileView.profileName.setText(account.getDisplayName());
 		
 		GoogleCalendarUtil googleCalendarUtil = new GoogleCalendarUtil(googleAccountLifeCycleObserver);
 		GoogleAccountUtil accountUtil = GoogleAccountUtil.getInstance(getContext());
@@ -176,6 +171,17 @@ public class MainTransactionFragment extends Fragment {
 										@Override
 										public void onResultSuccessful(Calendar e) {
 											accountCalendarViewModel.setMainCalendarId(e.getId());
+											if(getActivity() != null){
+												getActivity().runOnUiThread(new Runnable() {
+													@Override
+													public void run() {
+														dialog.dismiss();
+														init();
+													}
+												});
+												
+											}
+											
 										}
 										
 										@Override
@@ -185,6 +191,19 @@ public class MainTransactionFragment extends Fragment {
 									});
 						} else {
 							accountCalendarViewModel.setMainCalendarId(existing.getId());
+							
+							if(getActivity() != null){
+								getActivity().runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										dialog.dismiss();
+										init();
+									}
+								});
+								
+							}
+					
+							
 						}
 					}
 					
@@ -198,6 +217,9 @@ public class MainTransactionFragment extends Fragment {
 	public void onSignOut() {
 		binding.simpleProfileView.profileImg.setVisibility(View.GONE);
 		binding.simpleProfileView.profileName.setText(R.string.local);
+		dialog.dismiss();
+		init();
+		
 	}
 	
 	private void init() {

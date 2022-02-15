@@ -1,6 +1,5 @@
 package com.lifedawn.capstoneapp.common.viewmodel;
 
-import android.accounts.Account;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
@@ -21,11 +20,10 @@ import com.lifedawn.capstoneapp.common.repository.AccountRepository;
 import com.lifedawn.capstoneapp.common.repositoryinterface.IAccountRepository;
 
 public class AccountCalendarViewModel extends AndroidViewModel implements IAccountRepository {
-	private Account signInGoogleAccount;
 	private Constant usingAccountType;
 	private AccountRepository accountRepository;
-	private MutableLiveData<Account> signInLiveData;
-	private MutableLiveData<Account> signOutLiveData;
+	private MutableLiveData<GoogleSignInAccount> signInLiveData;
+	private MutableLiveData<GoogleSignInAccount> signOutLiveData;
 	private MutableLiveData<String> mainCalendarIdLiveData = new MutableLiveData<>();
 	private String mainCalendarId;
 	
@@ -49,48 +47,31 @@ public class AccountCalendarViewModel extends AndroidViewModel implements IAccou
 		return mainCalendarId;
 	}
 	
-	public LiveData<Account> getSignOutLiveData() {
+	public LiveData<GoogleSignInAccount> getSignOutLiveData() {
 		return signOutLiveData;
 	}
 	
-	public LiveData<Account> getSignInLiveData() {
+	public LiveData<GoogleSignInAccount> getSignInLiveData() {
 		return signInLiveData;
-	}
-	
-	private void setSignInGoogleAccount(Account signInGoogleAccount) {
-		this.signInGoogleAccount = signInGoogleAccount;
 	}
 	
 	private void setUsingAccountType(Constant usingAccountType) {
 		this.usingAccountType = usingAccountType;
 	}
 	
-	public Account getSignInGoogleAccount() {
-		return signInGoogleAccount;
-	}
 	
 	public Constant getUsingAccountType() {
 		return usingAccountType;
 	}
 	
-	@Override
-	public Account getConnectedGoogleAccount() {
-		return accountRepository.getConnectedGoogleAccount();
-	}
-	
-	@Override
-	public void connectNewGoogleAccount(Account account) {
-		accountRepository.connectNewGoogleAccount(account);
-		setSignInGoogleAccount(account);
-	}
+
 	
 	@Override
 	public void signIn(GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver, GoogleAccountUtil.OnSignCallback onSignCallback) {
 		accountRepository.signIn(googleAccountLifeCycleObserver, new GoogleAccountUtil.OnSignCallback() {
 			@Override
-			public void onSignInSuccessful(Account signInAccount, GoogleAccountCredential googleAccountCredential) {
+			public void onSignInSuccessful(GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential) {
 				onSignCallback.onSignInSuccessful(signInAccount, googleAccountCredential);
-				setSignInGoogleAccount(signInAccount);
 				setUsingAccountType(Constant.ACCOUNT_GOOGLE);
 				
 				GoogleCalendarUtil googleCalendarUtil = new GoogleCalendarUtil(googleAccountLifeCycleObserver);
@@ -125,22 +106,22 @@ public class AccountCalendarViewModel extends AndroidViewModel implements IAccou
 			}
 			
 			@Override
-			public void onSignOutSuccessful(Account signOutAccount) {
+			public void onSignOutSuccessful(GoogleSignInAccount signOutAccount) {
 			
 			}
 		});
 	}
 	
 	@Override
-	public void signOut(Account signInAccount, GoogleAccountUtil.OnSignCallback onSignCallback) {
-		accountRepository.signOut(signInAccount, new GoogleAccountUtil.OnSignCallback() {
+	public void signOut(GoogleSignInAccount account, GoogleAccountUtil.OnSignCallback onSignCallback) {
+		accountRepository.signOut(account, new GoogleAccountUtil.OnSignCallback() {
 			@Override
-			public void onSignInSuccessful(Account signInAccount, GoogleAccountCredential googleAccountCredential) {
+			public void onSignInSuccessful(GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential) {
 			
 			}
 			
 			@Override
-			public void onSignOutSuccessful(Account signOutAccount) {
+			public void onSignOutSuccessful(GoogleSignInAccount signOutAccount) {
 				onSignCallback.onSignOutSuccessful(signOutAccount);
 				setUsingAccountType(Constant.ACCOUNT_LOCAL_WITHOUT_GOOGLE);
 			}

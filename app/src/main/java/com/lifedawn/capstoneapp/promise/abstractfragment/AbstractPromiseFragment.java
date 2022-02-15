@@ -1,6 +1,5 @@
 package com.lifedawn.capstoneapp.promise.abstractfragment;
 
-import android.accounts.Account;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
@@ -217,9 +217,9 @@ public abstract class AbstractPromiseFragment extends Fragment {
         }
     }
 
-    protected void setAccount(Constant accountType, @Nullable Account account) {
+    protected void setAccount(Constant accountType, @Nullable GoogleSignInAccount account) {
         if (accountType == Constant.ACCOUNT_GOOGLE) {
-            binding.account.setText(account.name);
+            binding.account.setText(account.getDisplayName());
         } else {
             binding.account.setText(getString(R.string.local));
         }

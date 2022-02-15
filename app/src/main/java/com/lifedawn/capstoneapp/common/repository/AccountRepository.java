@@ -1,6 +1,5 @@
 package com.lifedawn.capstoneapp.common.repository;
 
-import android.accounts.Account;
 import android.app.Application;
 import android.content.Context;
 
@@ -15,58 +14,49 @@ import com.lifedawn.capstoneapp.common.repositoryinterface.IAccountRepository;
 public class AccountRepository implements IAccountRepository {
 	private Context context;
 	private GoogleAccountUtil googleAccountUtil;
-	private MutableLiveData<Account> signInLiveData = new MutableLiveData<>();
-	private MutableLiveData<Account> signOutLiveData = new MutableLiveData<>();
+	private MutableLiveData<GoogleSignInAccount> signInLiveData = new MutableLiveData<>();
+	private MutableLiveData<GoogleSignInAccount> signOutLiveData = new MutableLiveData<>();
 	
 	public AccountRepository(Application application) {
 		this.context = application.getApplicationContext();
 		googleAccountUtil = GoogleAccountUtil.getInstance(context);
 	}
 	
-	public MutableLiveData<Account> getSignInLiveData() {
+	public MutableLiveData<GoogleSignInAccount> getSignInLiveData() {
 		return signInLiveData;
 	}
 	
-	public MutableLiveData<Account> getSignOutLiveData() {
+	public MutableLiveData<GoogleSignInAccount> getSignOutLiveData() {
 		return signOutLiveData;
 	}
 	
-	@Override
-	public Account getConnectedGoogleAccount() {
-		return googleAccountUtil.getConnectedGoogleAccount();
-	}
-	
-	@Override
-	public void connectNewGoogleAccount(Account account) {
-		googleAccountUtil.connectNewGoogleAccount(account);
-	}
-	
+
 	@Override
 	public void signIn(GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver, GoogleAccountUtil.OnSignCallback onSignCallback) {
 		googleAccountUtil.signIn(googleAccountLifeCycleObserver, new GoogleAccountUtil.OnSignCallback() {
 			@Override
-			public void onSignInSuccessful(Account signInAccount, GoogleAccountCredential googleAccountCredential) {
+			public void onSignInSuccessful(GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential) {
 				onSignCallback.onSignInSuccessful(signInAccount, googleAccountCredential);
 				signInLiveData.setValue(signInAccount);
 			}
 			
 			@Override
-			public void onSignOutSuccessful(Account signOutAccount) {
+			public void onSignOutSuccessful(GoogleSignInAccount signOutAccount) {
 			
 			}
 		});
 	}
 	
 	@Override
-	public void signOut(Account signInAccount, GoogleAccountUtil.OnSignCallback onSignCallback) {
-		googleAccountUtil.signOut(signInAccount, new GoogleAccountUtil.OnSignCallback() {
+	public void signOut(GoogleSignInAccount account, GoogleAccountUtil.OnSignCallback onSignCallback) {
+		googleAccountUtil.signOut(account, new GoogleAccountUtil.OnSignCallback() {
 			@Override
-			public void onSignInSuccessful(Account signInAccount, GoogleAccountCredential googleAccountCredential) {
+			public void onSignInSuccessful(GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential) {
 			
 			}
 			
 			@Override
-			public void onSignOutSuccessful(Account signOutAccount) {
+			public void onSignOutSuccessful(GoogleSignInAccount signOutAccount) {
 				onSignCallback.onSignOutSuccessful(signOutAccount);
 				signOutLiveData.setValue(signOutAccount);
 			}

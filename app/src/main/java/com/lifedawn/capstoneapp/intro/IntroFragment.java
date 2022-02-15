@@ -1,6 +1,5 @@
 package com.lifedawn.capstoneapp.intro;
 
-import android.accounts.Account;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,6 +13,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountLifeCycleObserver;
@@ -56,12 +56,12 @@ public class IntroFragment extends Fragment {
 			public void onClick(View view) {
 				accountCalendarViewModel.signIn(googleAccountLifeCycleObserver, new GoogleAccountUtil.OnSignCallback() {
 					@Override
-					public void onSignInSuccessful(Account signInAccount, GoogleAccountCredential googleAccountCredential) {
+					public void onSignInSuccessful(GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential) {
 						startMainFragment();
 					}
 					
 					@Override
-					public void onSignOutSuccessful(Account signOutAccount) {
+					public void onSignOutSuccessful(GoogleSignInAccount signOutAccount) {
 					
 					}
 				});

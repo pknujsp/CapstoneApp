@@ -1,14 +1,11 @@
 package com.lifedawn.capstoneapp.account.util;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
-import androidx.preference.PreferenceManager;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -29,7 +26,6 @@ public class GoogleAccountUtil {
 	private GoogleAccountCredential googleAccountCredential;
 	
 	private Context context;
-	private static final String TAG = "GoogleAccountUtil";
 	
 	public static GoogleAccountUtil getInstance(Context context) {
 		if (instance == null) {
@@ -46,39 +42,13 @@ public class GoogleAccountUtil {
 		this.context = context;
 	}
 	
-	public Account getConnectedGoogleAccount() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		String name = sharedPreferences.getString("connectedAccountName", "");
-		String type = sharedPreferences.getString("connectedAccountType", "");
-
-		return name.isEmpty() ? null : new Account(name, type);
-	}
-	
-	public void connectNewGoogleAccount(Account account) {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.putString("connectedAccountName", account.name);
-		editor.putString("connectedAccountType", account.type);
-
-		editor.commit();
-	}
-	
-	public void disconnectNewGoogleAccount() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.putString("connectedAccountName", "");
-		editor.putString("connectedAccountType", "");
-		editor.commit();
-	}
-	
-	public void signOut(Account signInAccount, OnSignCallback onSignCallback) {
+	public void signOut(GoogleSignInAccount signInAccount, OnSignCallback onSignCallback) {
 		GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).setAccountName(
-				signInAccount.name).build();
+				signInAccount.getEmail()).build();
 		GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(context, googleSignInOptions);
 		googleSignInClient.signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
 			@Override
 			public void onSuccess(@NonNull Void unused) {
-				disconnectNewGoogleAccount();
 				onSignCallback.onSignOutSuccessful(signInAccount);
 			}
 		});
@@ -92,8 +62,8 @@ public class GoogleAccountUtil {
 		GoogleSignInAccount lastSignInAccount = lastSignInAccount();
 		
 		if (lastSignInAccount != null) {
-			setGoogleAccountCredential(lastSignInAccount.getAccount());
-			onSignCallback.onSignInSuccessful(lastSignInAccount.getAccount(), googleAccountCredential);
+			setGoogleAccountCredential(lastSignInAccount);
+			onSignCallback.onSignInSuccessful(lastSignInAccount, googleAccountCredential);
 			return;
 		}
 		GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(
@@ -107,13 +77,8 @@ public class GoogleAccountUtil {
 				Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
 				try {
 					GoogleSignInAccount account = task.getResult(ApiException.class);
-					Account signInAccount = account.getAccount();
-					setGoogleAccountCredential(signInAccount);
-
-
-					
-					connectNewGoogleAccount(signInAccount);
-					onSignCallback.onSignInSuccessful(signInAccount, googleAccountCredential);
+					setGoogleAccountCredential(account);
+					onSignCallback.onSignInSuccessful(account, googleAccountCredential);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -124,16 +89,16 @@ public class GoogleAccountUtil {
 	}
 	
 	
-	public void setGoogleAccountCredential(Account account) {
+	public void setGoogleAccountCredential(GoogleSignInAccount account) {
 		googleAccountCredential = GoogleAccountCredential.usingOAuth2(context, Arrays.asList(CREDENTIAL_SCOPES)).setBackOff(
 				new ExponentialBackOff());
-		googleAccountCredential.setSelectedAccount(account);
+		googleAccountCredential.setSelectedAccount(account.getAccount());
 	}
 	
 	public interface OnSignCallback {
-		void onSignInSuccessful(Account signInAccount, GoogleAccountCredential googleAccountCredential);
+		void onSignInSuccessful(GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential);
 		
-		void onSignOutSuccessful(Account signOutAccount);
+		void onSignOutSuccessful(GoogleSignInAccount signOutAccount);
 	}
 	
 	

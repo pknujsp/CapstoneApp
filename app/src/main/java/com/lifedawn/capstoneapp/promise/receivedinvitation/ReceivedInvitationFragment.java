@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -26,6 +27,7 @@ import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
 import com.lifedawn.capstoneapp.common.interfaces.OnHttpApiCallback;
 import com.lifedawn.capstoneapp.common.util.AttendeeUtil;
+import com.lifedawn.capstoneapp.common.view.ProgressDialog;
 import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountCalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentReceivedInvitationBinding;
@@ -48,6 +50,7 @@ public class ReceivedInvitationFragment extends Fragment {
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	private GoogleAccountUtil googleAccountUtil;
 	private RecyclerViewAdapter adapter;
+	private AlertDialog dialog;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -70,10 +73,12 @@ public class ReceivedInvitationFragment extends Fragment {
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		
+		dialog = ProgressDialog.showDialog(getActivity());
+		
 		binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 		binding.recyclerView.addItemDecoration(new RecyclerViewItemDecoration(getContext()));
 		
-		RecyclerViewAdapter adapter = new RecyclerViewAdapter(getContext());
+		adapter = new RecyclerViewAdapter(getContext());
 		adapter.setOnClickPromiseItemListener(new OnClickPromiseItemListener() {
 			@Override
 			public void onClickedEdit(Event event, int position) {
@@ -89,7 +94,7 @@ public class ReceivedInvitationFragment extends Fragment {
 			public void onClickedRefusal(Event event, int position) {
 				final Calendar calendarService = calendarUtil.getCalendarService(googleAccountUtil.getGoogleAccountCredential());
 				final String calendarId = accountCalendarViewModel.getMainCalendarId();
-				final String myEmail = accountCalendarViewModel.getConnectedGoogleAccount().name;
+				final String myEmail = accountCalendarViewModel.lastSignInAccount().getEmail();
 				
 				calendarUtil.sendResponseForInvitedPromise(calendarService, calendarId, myEmail, event, false,
 						new OnHttpApiCallback<Boolean>() {
@@ -109,7 +114,7 @@ public class ReceivedInvitationFragment extends Fragment {
 			public void onClickedAcceptance(Event event, int position) {
 				final Calendar calendarService = calendarUtil.getCalendarService(googleAccountUtil.getGoogleAccountCredential());
 				final String calendarId = accountCalendarViewModel.getMainCalendarId();
-				final String myEmail = accountCalendarViewModel.getConnectedGoogleAccount().name;
+				final String myEmail = accountCalendarViewModel.lastSignInAccount().getEmail();
 				
 				calendarUtil.sendResponseForInvitedPromise(calendarService, calendarId, myEmail, event, true,
 						new OnHttpApiCallback<Boolean>() {
@@ -137,7 +142,7 @@ public class ReceivedInvitationFragment extends Fragment {
 				final List<Event> invitedEventList = new ArrayList<>();
 				String pageToken = null;
 				
-				final String myEmail = accountCalendarViewModel.getConnectedGoogleAccount().name;
+				final String myEmail = accountCalendarViewModel.lastSignInAccount().getEmail();
 				
 				try {
 					do {
@@ -165,6 +170,7 @@ public class ReceivedInvitationFragment extends Fragment {
 						public void run() {
 							adapter.setEvents(invitedEventList);
 							adapter.notifyDataSetChanged();
+							dialog.dismiss();
 						}
 					});
 				}

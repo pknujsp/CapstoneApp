@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -25,6 +26,7 @@ import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
 import com.lifedawn.capstoneapp.calendar.util.GoogleCalendarUtil;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
+import com.lifedawn.capstoneapp.common.view.ProgressDialog;
 import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountCalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentFixedPromiseBinding;
@@ -47,6 +49,7 @@ public class FixedPromiseFragment extends Fragment {
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	private GoogleAccountUtil googleAccountUtil;
 	private RecyclerViewAdapter adapter;
+	private AlertDialog dialog;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -68,6 +71,8 @@ public class FixedPromiseFragment extends Fragment {
 	@Override
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		
+		dialog = ProgressDialog.showDialog(getActivity());
 		
 		binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 		binding.recyclerView.addItemDecoration(new RecyclerViewItemDecoration(getContext()));
@@ -117,7 +122,7 @@ public class FixedPromiseFragment extends Fragment {
 				final List<Event> fixedEventList = new ArrayList<>();
 				String pageToken = null;
 				
-				final String myEmail = accountCalendarViewModel.getConnectedGoogleAccount().name;
+				final String myEmail = accountCalendarViewModel.lastSignInAccount().getEmail();
 				
 				try {
 					do {
@@ -148,6 +153,7 @@ public class FixedPromiseFragment extends Fragment {
 						@Override
 						public void run() {
 							adapter.notifyDataSetChanged();
+							dialog.dismiss();
 						}
 					});
 				}
