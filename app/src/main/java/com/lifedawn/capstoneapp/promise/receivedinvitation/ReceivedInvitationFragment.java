@@ -27,7 +27,6 @@ import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
 import com.lifedawn.capstoneapp.common.interfaces.OnHttpApiCallback;
 import com.lifedawn.capstoneapp.common.util.AttendeeUtil;
-import com.lifedawn.capstoneapp.common.view.ProgressDialog;
 import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountCalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentReceivedInvitationBinding;
@@ -73,7 +72,6 @@ public class ReceivedInvitationFragment extends Fragment {
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		
-		dialog = ProgressDialog.showDialog(getActivity());
 		
 		binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 		binding.recyclerView.addItemDecoration(new RecyclerViewItemDecoration(getContext()));
@@ -170,7 +168,6 @@ public class ReceivedInvitationFragment extends Fragment {
 						public void run() {
 							adapter.setEvents(invitedEventList);
 							adapter.notifyDataSetChanged();
-							dialog.dismiss();
 						}
 					});
 				}

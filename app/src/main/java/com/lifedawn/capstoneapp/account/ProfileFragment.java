@@ -147,7 +147,6 @@ public class ProfileFragment extends DialogFragment {
         binding.email.setText(account.getEmail());
         binding.signInBtn.setVisibility(View.GONE);
         binding.signOutBtn.setVisibility(View.VISIBLE);
-
     }
 
     public void onSignOut() {

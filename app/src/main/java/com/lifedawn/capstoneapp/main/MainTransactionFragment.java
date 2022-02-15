@@ -25,7 +25,6 @@ import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
 import com.lifedawn.capstoneapp.calendar.fragments.CalendarTransactionFragment;
 import com.lifedawn.capstoneapp.calendar.util.GoogleCalendarUtil;
 import com.lifedawn.capstoneapp.common.interfaces.OnHttpApiCallback;
-import com.lifedawn.capstoneapp.common.view.ProgressDialog;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountCalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentMainTransactionBinding;
 import com.lifedawn.capstoneapp.friends.FriendTransactionFragment;
@@ -137,7 +136,6 @@ public class MainTransactionFragment extends Fragment {
 				}
 			}
 		});
-		dialog = ProgressDialog.showDialog(getActivity());
 		
 		final GoogleSignInAccount lastSignInAccount = accountCalendarViewModel.lastSignInAccount();
 		if (lastSignInAccount == null) {
@@ -175,7 +173,6 @@ public class MainTransactionFragment extends Fragment {
 												getActivity().runOnUiThread(new Runnable() {
 													@Override
 													public void run() {
-														dialog.dismiss();
 														init();
 													}
 												});
@@ -196,7 +193,6 @@ public class MainTransactionFragment extends Fragment {
 								getActivity().runOnUiThread(new Runnable() {
 									@Override
 									public void run() {
-										dialog.dismiss();
 										init();
 									}
 								});
@@ -217,7 +213,6 @@ public class MainTransactionFragment extends Fragment {
 	public void onSignOut() {
 		binding.simpleProfileView.profileImg.setVisibility(View.GONE);
 		binding.simpleProfileView.profileName.setText(R.string.local);
-		dialog.dismiss();
 		init();
 	}
 	
