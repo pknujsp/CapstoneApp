@@ -19,6 +19,7 @@ import com.lifedawn.capstoneapp.common.interfaces.OnDbQueryCallback;
 import com.lifedawn.capstoneapp.common.viewmodel.FriendViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentFriendsBinding;
 import com.lifedawn.capstoneapp.databinding.ItemViewFriendBinding;
+import com.lifedawn.capstoneapp.friends.AddFriendDialogFragment;
 import com.lifedawn.capstoneapp.room.dto.FriendDto;
 
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +33,7 @@ public class FriendsFragment extends Fragment {
 	private Boolean fabVisible;
 	private Boolean backAfterItemClick;
 	private OnClickFriendItemListener onClickFriendItemListener;
-	
+	private RecyclerViewAdapter adapter;
 	
 	public void setOnClickFriendItemListener(OnClickFriendItemListener onClickFriendItemListener) {
 		this.onClickFriendItemListener = onClickFriendItemListener;
@@ -67,14 +68,23 @@ public class FriendsFragment extends Fragment {
 		binding.floatingActionBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-			
+				AddFriendDialogFragment addFriendDialogFragment = new AddFriendDialogFragment();
+				addFriendDialogFragment.setOnInsertedNewFriendCallback(new AddFriendDialogFragment.OnInsertedNewFriendCallback() {
+					@Override
+					public void onInserted(FriendDto friendDto) {
+						adapter.friends.add(friendDto);
+						adapter.notifyDataSetChanged();
+					}
+				});
+				
+				addFriendDialogFragment.show(getChildFragmentManager(), AddFriendDialogFragment.class.getName());
 			}
 		});
 		
 		binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 		binding.recyclerView.addItemDecoration(new RecyclerViewItemDecoration(getContext()));
 		
-		RecyclerViewAdapter adapter = new RecyclerViewAdapter();
+		adapter = new RecyclerViewAdapter();
 		adapter.setOnClickFriendItemListener(new OnClickFriendItemListener() {
 			@Override
 			public void onClickedRemove(FriendDto friend, int position) {
@@ -162,6 +172,8 @@ public class FriendsFragment extends Fragment {
 			}
 			
 			public void onBind() {
+				
+				binding.friend.setText(friends.get(getBindingAdapterPosition()).getName());
 				
 				binding.removeBtn.setOnClickListener(new View.OnClickListener() {
 					@Override

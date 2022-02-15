@@ -8,8 +8,10 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.lifedawn.capstoneapp.databinding.FragmentFriendTransactionBinding;
+import com.lifedawn.capstoneapp.friends.myfriends.FriendsFragment;
 
 public class FriendTransactionFragment extends Fragment {
 	private FragmentFriendTransactionBinding binding;
@@ -29,5 +31,9 @@ public class FriendTransactionFragment extends Fragment {
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		
+		FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
+		fragmentTransaction.add(binding.fragmentContainerView.getId(), new FriendsFragment(), FriendsFragment.class.getName()).commit();
+		
 	}
 }
