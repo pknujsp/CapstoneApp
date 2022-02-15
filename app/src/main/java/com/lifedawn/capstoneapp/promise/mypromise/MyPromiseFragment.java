@@ -54,7 +54,6 @@ public class MyPromiseFragment extends Fragment {
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	private GoogleAccountUtil googleAccountUtil;
 	private RecyclerViewAdapter adapter;
-	private AlertDialog dialog;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
