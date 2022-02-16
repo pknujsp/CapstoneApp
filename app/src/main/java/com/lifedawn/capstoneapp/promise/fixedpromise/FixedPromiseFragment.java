@@ -26,6 +26,7 @@ import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
 import com.lifedawn.capstoneapp.calendar.util.GoogleCalendarUtil;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
+import com.lifedawn.capstoneapp.common.util.AttendeeUtil;
 import com.lifedawn.capstoneapp.common.view.ProgressDialog;
 import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountCalendarViewModel;
@@ -148,6 +149,10 @@ public class FixedPromiseFragment extends Fragment {
 							Events events = calendarService.events().list(calendarId).setPageToken(pageToken).execute();
 							List<Event> eventList = events.getItems();
 							for (Event event : eventList) {
+								if (event.getStart().getDateTime() == null){
+									continue;
+								}
+
 								if (event.getAttendees() != null) {
 									for (EventAttendee eventAttendee : event.getAttendees()) {
 										if (eventAttendee.getEmail().equals(myEmail) && eventAttendee.getResponseStatus().equals("accepted")) {
@@ -236,6 +241,7 @@ public class FixedPromiseFragment extends Fragment {
 			}
 
 			public void onBind() {
+				binding.editBtn.setVisibility(View.GONE);
 				binding.getRoot().setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
@@ -265,6 +271,12 @@ public class FixedPromiseFragment extends Fragment {
 					binding.location.setText(
 							locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName());
 				}
+
+				List<EventAttendee> attendeeList = event.getAttendees();
+				if (attendeeList != null) {
+					binding.people.setText(AttendeeUtil.toListString(attendeeList));
+				}
+
 			}
 		}
 	}
