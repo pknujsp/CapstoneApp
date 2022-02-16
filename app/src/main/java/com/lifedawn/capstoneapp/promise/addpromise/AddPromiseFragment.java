@@ -24,6 +24,7 @@ import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
 import com.lifedawn.capstoneapp.calendar.util.GoogleCalendarUtil;
 import com.lifedawn.capstoneapp.common.constants.Constant;
+import com.lifedawn.capstoneapp.common.interfaces.HttpCallback;
 import com.lifedawn.capstoneapp.common.interfaces.OnFragmentCallback;
 import com.lifedawn.capstoneapp.friends.invitation.InvitationFriendFragment;
 import com.lifedawn.capstoneapp.main.MyApplication;
@@ -48,28 +49,28 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 	private Calendar calendarService;
 	private GoogleCalendarUtil googleCalendarUtil;
 	private LocationDto locationDto;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		googleCalendarUtil = new GoogleCalendarUtil(googleAccountLifeCycleObserver);
-		
+
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}
-	
+
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		ZonedDateTime now = ZonedDateTime.now();
-		
+
 		binding.date.setText(now.format(START_DATE_FORMATTER));
 		binding.time.setText(now.format(START_TIME_FORMATTER));
 		setAccount(accountCalendarViewModel.getUsingAccountType(), accountCalendarViewModel.lastSignInAccount());
-		
+
 		binding.saveBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -77,31 +78,31 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 				Event event = new Event();
 				event.setSummary(binding.titleEditText.getText().toString()).setDescription(
 						binding.descriptionEditText.getText().toString());
-				
+
 				if (locationDto != null) {
 					event.setLocation(locationDto.toString());
 				}
-				
+
 				final DateTime dateTime = getStartDateTime();
 				EventDateTime start = new EventDateTime();
 				EventDateTime end = new EventDateTime();
 				start.setDateTime(dateTime).setTimeZone(TimeZone.getDefault().getID());
 				end.setDateTime(dateTime).setTimeZone(TimeZone.getDefault().getID());
-				
+
 				event.setStart(start).setEnd(end);
 				//반복 없음
-				
+
 				//알림
 				if (newRemindersList.size() > 0) {
 					Event.Reminders reminders = new Event.Reminders().setUseDefault(true).setOverrides(newRemindersList);
 					event.setReminders(reminders);
 				}
-				
+
 				//참석자
 				if (newEventAttendeeList.size() > 0) {
 					event.setAttendees(newEventAttendeeList);
 				}
-				
+
 				//캘린더ID 지정
 				googleAccountLifeCycleObserver.setInstanceUserRecoverableAuthIntentActivityResultCallback(
 						new ActivityResultCallback<ActivityResult>() {
@@ -118,17 +119,11 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 			}
 		});
 	}
-	
+
 	private void saveNewEvent(Event event) {
-		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
+		accountCalendarViewModel.saveEvent(calendarService, event, accountCalendarViewModel.getMainCalendarId(), new HttpCallback<Event>() {
 			@Override
-			public void run() {
-				try {
-					Event savedEvent = calendarService.events().insert(accountCalendarViewModel.getMainCalendarId(), event).execute();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				
+			public void onResponseSuccessful(Event result) {
 				getActivity().runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
@@ -136,9 +131,14 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 					}
 				});
 			}
+
+			@Override
+			public void onResponseFailed(Exception e) {
+
+			}
 		});
 	}
-	
+
 	@Override
 	protected void onClickedInviteFriendChip() {
 		InvitationFriendFragment invitationFriendFragment = new InvitationFriendFragment();
@@ -149,23 +149,23 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 				initAttendeesView(newEventAttendeeList);
 			}
 		});
-		
+
 		invitationFriendFragment.setEventAttendees(newEventAttendeeList);
-		
+
 		getParentFragmentManager().beginTransaction().hide(AddPromiseFragment.this).add(R.id.fragmentContainerView,
 				invitationFriendFragment, InvitationFriendFragment.class.getName()).addToBackStack(
 				InvitationFriendFragment.class.getName()).commit();
 	}
-	
+
 	@Override
 	protected void onClickedAddReminderChip() {
 		RemindersFragment remindersFragment = new RemindersFragment();
 		remindersFragment.setOnEventReminderResultListener(new RemindersFragment.OnEventReminderResultListener() {
 			@Override
 			public void onResultModifiedReminder(EventReminder reminder, int previousMinutes) {
-			
+
 			}
-			
+
 			@Override
 			public void onResultAddedReminder(EventReminder reminder) {
 				//중복검사
@@ -176,20 +176,20 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 					Toast.makeText(getContext(), R.string.existing_Value, Toast.LENGTH_SHORT).show();
 				}
 			}
-			
+
 			@Override
 			public void onResultRemovedReminder(int previousMinutes) {
-			
+
 			}
 		});
 		Bundle bundle = new Bundle();
 		bundle.putSerializable("requestType", RemindersFragment.RequestType.ADD);
 		remindersFragment.setArguments(bundle);
-		
+
 		getParentFragmentManager().beginTransaction().hide(AddPromiseFragment.this).add(R.id.fragmentContainerView, remindersFragment,
 				RemindersFragment.class.getName()).addToBackStack(RemindersFragment.class.getName()).commit();
 	}
-	
+
 	@Override
 	protected void onClickedFriendChip(EventAttendee eventAttendee, int index, boolean remove) {
 		if (remove) {
@@ -199,7 +199,7 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 			//친구 정보 다이얼로그로 표시
 		}
 	}
-	
+
 	@Override
 	protected void onClickedReminderChip(EventReminder eventReminder, int index, boolean remove) {
 		if (remove) {
@@ -209,7 +209,7 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 			Bundle bundle = new Bundle();
 			bundle.putInt("previousMinutes", eventReminder.getMinutes());
 			bundle.putSerializable("requestCode", RemindersFragment.RequestType.EDIT);
-			
+
 			RemindersFragment eventReminderFragment = new RemindersFragment();
 			eventReminderFragment.setOnEventReminderResultListener(new RemindersFragment.OnEventReminderResultListener() {
 				@Override
@@ -217,12 +217,12 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 					newRemindersList.add(reminder);
 					initRemindersView(newRemindersList);
 				}
-				
+
 				@Override
 				public void onResultAddedReminder(EventReminder reminder) {
-				
+
 				}
-				
+
 				@Override
 				public void onResultRemovedReminder(int previousMinutes) {
 					for (int i = 0; i < newRemindersList.size(); i++) {
@@ -239,39 +239,39 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 					eventReminderFragment, RemindersFragment.class.getName()).addToBackStack(RemindersFragment.class.getName()).commit();
 		}
 	}
-	
+
 	@Override
 	protected void onResultTime(LocalTime time) {
 		this.promiseTime = time;
-		
+
 	}
-	
+
 	@Override
 	protected void onResultDate(LocalDate date) {
 		this.promiseDate = date;
 	}
-	
+
 	@Override
 	protected LocalDate onClickedDate() {
 		return promiseDate;
 	}
-	
+
 	@Override
 	protected LocalTime onClickedTime() {
 		return promiseTime;
 	}
-	
+
 	@Override
 	protected void onClickedAccount() {
-	
+
 	}
-	
+
 	@Override
 	protected void onClickedMap() {
 		if (locationDto != null) {
 			String message = locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName() + getString(
 					R.string.message_change_location);
-			
+
 			AlertDialog dialog = new MaterialAlertDialogBuilder(getActivity()).setTitle(
 					R.string.title_asking_to_change_location).setMessage(message).setPositiveButton(R.string.ok,
 					new DialogInterface.OnClickListener() {
@@ -295,7 +295,7 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 					dialogInterface.dismiss();
 				}
 			}).create();
-			
+
 			dialog.show();
 		} else {
 			showMap(new LocationItemViewPagerAbstractAdapter.OnClickedLocationBtnListener() {
@@ -306,9 +306,9 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 				}
 			});
 		}
-		
+
 	}
-	
+
 	@Override
 	protected void onSelectedLocation(LocationDto locationDto) {
 		super.onSelectedLocation(locationDto);

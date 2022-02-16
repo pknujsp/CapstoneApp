@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -129,6 +130,20 @@ public class ReceivedInvitationFragment extends Fragment {
 			}
 		});
 		binding.recyclerView.setAdapter(adapter);
+		refresh();
+
+		accountCalendarViewModel.getMainCalendarIdLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
+			@Override
+			public void onChanged(String id) {
+				refresh();
+			}
+		});
+		accountCalendarViewModel.getEventLiveData().observe(getViewLifecycleOwner(), new Observer<Event>() {
+			@Override
+			public void onChanged(Event event) {
+				refresh();
+			}
+		});
 	}
 	
 	private void refresh() {

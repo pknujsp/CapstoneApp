@@ -46,15 +46,15 @@ public abstract class AbstractPromiseFragment extends Fragment {
 	protected AccountCalendarViewModel accountCalendarViewModel;
 	protected GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	protected SelectedLocationSimpleMapFragment mapFragment;
-	
+
 	protected final DateTimeFormatter START_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy M/d E a h:mm");
 	protected final DateTimeFormatter START_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy M/d E");
 	protected final DateTimeFormatter START_TIME_FORMATTER = DateTimeFormatter.ofPattern("a h:mm");
-	
+
 	public enum EditType implements Serializable {
 		ADD, EDIT
 	}
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -62,31 +62,31 @@ public abstract class AbstractPromiseFragment extends Fragment {
 			Bundle bundle = getArguments();
 			editType = (EditType) bundle.getSerializable("editType");
 		}
-		
+
 		googleAccountLifeCycleObserver = new GoogleAccountLifeCycleObserver(requireActivity().getActivityResultRegistry(),
 				requireActivity());
 		getLifecycle().addObserver(googleAccountLifeCycleObserver);
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		binding = FragmentEditPromiseBinding.inflate(inflater);
 		return binding.getRoot();
 	}
-	
-	
+
+
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		accountCalendarViewModel = new ViewModelProvider(getActivity()).get(AccountCalendarViewModel.class);
-		
+
 		binding.invite.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				onClickedInviteFriendChip();
 			}
 		});
-		
+
 		binding.addReminderChip.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -99,7 +99,7 @@ public abstract class AbstractPromiseFragment extends Fragment {
 				final LocalDate localDate = onClickedDate();
 				MaterialDatePicker datePicker = MaterialDatePicker.Builder.datePicker().setTitleText(R.string.promiseDate).setInputMode(
 						MaterialDatePicker.INPUT_MODE_CALENDAR).setSelection(TimeUnit.DAYS.toMillis(localDate.toEpochDay())).build();
-				
+
 				datePicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener() {
 					@Override
 					public void onPositiveButtonClick(Object selection) {
@@ -113,7 +113,7 @@ public abstract class AbstractPromiseFragment extends Fragment {
 				datePicker.addOnNegativeButtonClickListener(view -> {
 					datePicker.dismiss();
 				});
-				
+
 				datePicker.show(getChildFragmentManager(), datePicker.toString());
 			}
 		});
@@ -124,7 +124,7 @@ public abstract class AbstractPromiseFragment extends Fragment {
 				MaterialTimePicker.Builder builder = new MaterialTimePicker.Builder();
 				MaterialTimePicker timePicker = builder.setTitleText(R.string.promiseTime).setTimeFormat(TimeFormat.CLOCK_12H).setHour(
 						localTime.getHour()).setMinute(localTime.getMinute()).setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK).build();
-				
+
 				timePicker.addOnPositiveButtonClickListener(view -> {
 					final LocalTime newTime = LocalTime.of(timePicker.getHour(), timePicker.getMinute());
 					binding.time.setTag(newTime);
@@ -143,24 +143,24 @@ public abstract class AbstractPromiseFragment extends Fragment {
 				onClickedAccount();
 			}
 		});
-		
+
 		binding.placeName.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				onClickedMap();
 			}
 		});
-		
+
 		mapFragment = new SelectedLocationSimpleMapFragment();
 		getChildFragmentManager().beginTransaction().add(binding.naverMap.getId(), mapFragment).commit();
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		getLifecycle().removeObserver(googleAccountLifeCycleObserver);
 		super.onDestroy();
 	}
-	
+
 	protected void initAttendeesView(List<EventAttendee> attendeeList) {
 		if (binding.attendeeChipGroup.getChildCount() >= 2) {
 			binding.attendeeChipGroup.removeViews(1, binding.attendeeChipGroup.getChildCount() - 1);
@@ -170,7 +170,7 @@ public abstract class AbstractPromiseFragment extends Fragment {
 			for (EventAttendee eventAttendee : attendeeList) {
 				Chip chip = (Chip) getLayoutInflater().inflate(R.layout.event_attendee_chip, null);
 				chip.setText(eventAttendee.getDisplayName());
-				
+
 				int finalIndex = index;
 				chip.setOnClickListener(new View.OnClickListener() {
 					@Override
@@ -184,20 +184,20 @@ public abstract class AbstractPromiseFragment extends Fragment {
 						onClickedFriendChip(eventAttendee, finalIndex, true);
 					}
 				});
-				
+
 				index++;
 				binding.attendeeChipGroup.addView(chip);
 			}
 		}
 	}
-	
+
 	protected void initRemindersView(List<EventReminder> eventReminderList) {
 		if (binding.reminderChipGroup.getChildCount() >= 2) {
 			binding.reminderChipGroup.removeViews(1, binding.reminderChipGroup.getChildCount() - 1);
 		}
 		if (eventReminderList != null) {
 			int index = 1;
-			
+
 			for (EventReminder eventReminder : eventReminderList) {
 				Chip chip = (Chip) getLayoutInflater().inflate(R.layout.event_reminder_chip, null);
 				chip.setText(ReminderUtil.makeReminderText(ReminderUtil.make(eventReminder.getMinutes()), getContext()));
@@ -214,13 +214,13 @@ public abstract class AbstractPromiseFragment extends Fragment {
 						onClickedReminderChip(eventReminder, finalIndex, true);
 					}
 				});
-				
+
 				index++;
 				binding.reminderChipGroup.addView(chip);
 			}
 		}
 	}
-	
+
 	protected void setAccount(Constant accountType, @Nullable GoogleSignInAccount account) {
 		if (accountType == Constant.ACCOUNT_GOOGLE) {
 			binding.account.setText(account.getDisplayName());
@@ -228,8 +228,12 @@ public abstract class AbstractPromiseFragment extends Fragment {
 			binding.account.setText(getString(R.string.local));
 		}
 	}
-	
+
 	protected final boolean isDuplicate(List<EventReminder> eventReminderList, EventReminder eventReminder) {
+		if (eventReminderList == null) {
+			return false;
+		}
+
 		for (EventReminder compEventReminder : eventReminderList) {
 			if (compEventReminder.getMinutes().equals(eventReminder.getMinutes())) {
 				return true;
@@ -237,49 +241,49 @@ public abstract class AbstractPromiseFragment extends Fragment {
 		}
 		return false;
 	}
-	
+
 	protected DateTime getStartDateTime() {
 		LocalDate localDate = (LocalDate) binding.date.getTag();
 		LocalTime localTime = (LocalTime) binding.time.getTag();
-		
+
 		ZonedDateTime zonedDateTime = ZonedDateTime.of(localDate, localTime, ZoneId.systemDefault());
 		return new DateTime(zonedDateTime.toInstant().getEpochSecond() * 1000L, zonedDateTime.getOffset().getTotalSeconds());
 	}
-	
+
 	protected void showMap(LocationItemViewPagerAbstractAdapter.OnClickedLocationBtnListener onClickedLocationBtnListener) {
 		NewPromiseLocationNaverMapFragment newPromiseLocationNaverMapFragment = new NewPromiseLocationNaverMapFragment();
 		newPromiseLocationNaverMapFragment.setOnClickedLocationBtnListener(onClickedLocationBtnListener);
-		
+
 		newPromiseLocationNaverMapFragment.setPlaceBottomSheetSelectBtnVisibility(View.VISIBLE);
 		getParentFragmentManager().beginTransaction().hide(this).add(R.id.fragmentContainerView, newPromiseLocationNaverMapFragment,
 				NewPromiseLocationNaverMapFragment.class.getName()).addToBackStack(
 				NewPromiseLocationNaverMapFragment.class.getName()).commit();
 	}
-	
+
 	protected void onSelectedLocation(LocationDto locationDto) {
 		binding.placeName.setText(
 				locationDto.getLocationType() == Constant.PLACE ? locationDto.getPlaceName() : locationDto.getAddressName());
 		binding.naverMap.setVisibility(View.VISIBLE);
 		mapFragment.replaceLocation(locationDto);
 	}
-	
+
 	protected abstract void onResultDate(LocalDate date);
-	
+
 	protected abstract void onResultTime(LocalTime time);
-	
+
 	protected abstract LocalDate onClickedDate();
-	
+
 	protected abstract LocalTime onClickedTime();
-	
+
 	protected abstract void onClickedAccount();
-	
+
 	protected abstract void onClickedMap();
-	
+
 	protected abstract void onClickedInviteFriendChip();
-	
+
 	protected abstract void onClickedAddReminderChip();
-	
+
 	protected abstract void onClickedFriendChip(EventAttendee eventAttendee, int index, boolean remove);
-	
+
 	protected abstract void onClickedReminderChip(EventReminder eventReminder, int index, boolean remove);
 }
