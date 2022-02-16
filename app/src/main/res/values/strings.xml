@@ -90,4 +90,6 @@
     <string name="promiseDateTimeFormat">yyyy/M/d E a h:mm</string>
     <string name="update">업데이트</string>
     <string name="close">닫기</string>
+    <string name="failed_response_for_invitied_event">초대받은 약속에 대한 응답실패</string>
+    <string name="response_accept_to_invited_event">약속 참여 확정</string>
 </resources>

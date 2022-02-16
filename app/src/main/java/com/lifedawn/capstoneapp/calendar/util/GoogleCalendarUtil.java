@@ -129,32 +129,6 @@ public class GoogleCalendarUtil {
 		});
 	}
 
-	public void sendResponseForInvitedPromise(Calendar calendarService, String calendarId, String myEmail, Event event, boolean acceptance,
-	                                          OnHttpApiCallback<Boolean> callback) {
-		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					for (EventAttendee eventAttendee : event.getAttendees()) {
-						if (eventAttendee.getEmail().equals(myEmail) && !eventAttendee.getOrganizer()) {
-							eventAttendee.setResponseStatus(acceptance ? "accepted" : "declined");
-							break;
-						}
-					}
-
-					Event updatedEvent = calendarService.events().update(calendarId, event.getId(), event).execute();
-					if (updatedEvent != null) {
-						callback.onResultSuccessful(true);
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-					callback.onResultSuccessful(false);
-				}
-
-			}
-		});
-	}
-
 
 }
 

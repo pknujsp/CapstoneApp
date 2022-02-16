@@ -15,10 +15,11 @@ public class AttendeeUtil {
 		int count = 1;
 		
 		for (EventAttendee eventAttendee : eventAttendeeList) {
-			stringBuilder.append(eventAttendee.getDisplayName());
-			if (count++ < totalCount) {
+			stringBuilder.append(eventAttendee.getEmail());
+			if (count < totalCount) {
 				stringBuilder.append(divider);
 			}
+			count++;
 		}
 		
 		return stringBuilder.toString();

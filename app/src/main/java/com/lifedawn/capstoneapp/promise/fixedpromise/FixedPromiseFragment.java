@@ -43,223 +43,227 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FixedPromiseFragment extends Fragment {
-	private FragmentFixedPromiseBinding binding;
-	private AccountCalendarViewModel accountCalendarViewModel;
-	private GoogleCalendarUtil calendarUtil;
-	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
-	private GoogleAccountUtil googleAccountUtil;
-	private RecyclerViewAdapter adapter;
-	private AlertDialog dialog;
+    private FragmentFixedPromiseBinding binding;
+    private AccountCalendarViewModel accountCalendarViewModel;
+    private GoogleCalendarUtil calendarUtil;
+    private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
+    private GoogleAccountUtil googleAccountUtil;
+    private RecyclerViewAdapter adapter;
+    private AlertDialog dialog;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		googleAccountLifeCycleObserver = new GoogleAccountLifeCycleObserver(requireActivity().getActivityResultRegistry(),
-				requireActivity());
-		getLifecycle().addObserver(googleAccountLifeCycleObserver);
-		accountCalendarViewModel = new ViewModelProvider(requireActivity()).get(AccountCalendarViewModel.class);
-		calendarUtil = new GoogleCalendarUtil(googleAccountLifeCycleObserver);
-		googleAccountUtil = GoogleAccountUtil.getInstance(getContext());
-	}
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        googleAccountLifeCycleObserver = new GoogleAccountLifeCycleObserver(requireActivity().getActivityResultRegistry(),
+                requireActivity());
+        getLifecycle().addObserver(googleAccountLifeCycleObserver);
+        accountCalendarViewModel = new ViewModelProvider(requireActivity()).get(AccountCalendarViewModel.class);
+        calendarUtil = new GoogleCalendarUtil(googleAccountLifeCycleObserver);
+        googleAccountUtil = GoogleAccountUtil.getInstance(getContext());
+    }
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		binding = FragmentFixedPromiseBinding.inflate(inflater);
-		return binding.getRoot();
-	}
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentFixedPromiseBinding.inflate(inflater);
+        return binding.getRoot();
+    }
 
-	@Override
-	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
+    @Override
+    public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-		dialog = ProgressDialog.showDialog(getActivity());
+        dialog = ProgressDialog.showDialog(getActivity());
 
-		binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-		binding.recyclerView.addItemDecoration(new RecyclerViewItemDecoration(getContext()));
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        binding.recyclerView.addItemDecoration(new RecyclerViewItemDecoration(getContext()));
 
-		adapter = new RecyclerViewAdapter(getContext());
-		adapter.setOnClickPromiseItemListener(new OnClickPromiseItemListener() {
-			@Override
-			public void onClickedEdit(Event event, int position) {
+        adapter = new RecyclerViewAdapter(getContext());
+        adapter.setOnClickPromiseItemListener(new OnClickPromiseItemListener() {
+            @Override
+            public void onClickedEdit(Event event, int position) {
 
-			}
+            }
 
-			@Override
-			public void onClickedEvent(Event event, int position) {
+            @Override
+            public void onClickedEvent(Event event, int position) {
 
-			}
+            }
 
-			@Override
-			public void onClickedRefusal(Event event, int position) {
+            @Override
+            public void onClickedRefusal(Event event, int position) {
 
-			}
+            }
 
-			@Override
-			public void onClickedAcceptance(Event event, int position) {
+            @Override
+            public void onClickedAcceptance(Event event, int position) {
 
-			}
-		});
+            }
+        });
 
-		accountCalendarViewModel.getMainCalendarIdLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
-			@Override
-			public void onChanged(String id) {
-				refresh();
-			}
-		});
-		accountCalendarViewModel.getEventLiveData().observe(getViewLifecycleOwner(), new Observer<Event>() {
-			@Override
-			public void onChanged(Event event) {
-				refresh();
-			}
-		});
-		binding.recyclerView.setAdapter(adapter);
-		refresh();
+        accountCalendarViewModel.getMainCalendarIdLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String id) {
+                refresh();
+            }
+        });
+        accountCalendarViewModel.getEventLiveData().observe(getViewLifecycleOwner(), new Observer<Event>() {
+            @Override
+            public void onChanged(Event event) {
+                refresh();
+            }
+        });
+        binding.recyclerView.setAdapter(adapter);
+        refresh();
 
 
-	}
+    }
 
-	private void refresh() {
-		if (accountCalendarViewModel.getMainCalendarId() == null) {
-			if (getActivity() != null) {
-				getActivity().runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						dialog.dismiss();
-					}
-				});
-			}
-			return;
-		}
+    private void refresh() {
+        if (accountCalendarViewModel.getMainCalendarId() == null) {
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.dismiss();
+                    }
+                });
+            }
+            return;
+        }
 
-		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
-			@Override
-			public void run() {
-				final Calendar calendarService = calendarUtil.getCalendarService(googleAccountUtil.getGoogleAccountCredential());
-				final String calendarId = accountCalendarViewModel.getMainCalendarId();
-				final List<Event> fixedEventList = new ArrayList<>();
-				String pageToken = null;
+        MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
+            @Override
+            public void run() {
+                final Calendar calendarService = calendarUtil.getCalendarService(googleAccountUtil.getGoogleAccountCredential());
+                final String calendarId = accountCalendarViewModel.getMainCalendarId();
+                final List<Event> fixedEventList = new ArrayList<>();
+                String pageToken = null;
 
-				final String myEmail = accountCalendarViewModel.lastSignInAccount().getEmail();
+                final String myEmail = accountCalendarViewModel.lastSignInAccount().getEmail();
 
-				try {
-					do {
-						Events events = calendarService.events().list(calendarId).setPageToken(pageToken).execute();
-						List<Event> eventList = events.getItems();
-						for (Event event : eventList) {
-							if (event.getAttendees() != null) {
-								for (EventAttendee eventAttendee : event.getAttendees()) {
-									if (eventAttendee.getEmail().equals(myEmail)) {
-										fixedEventList.add(event);
-										break;
-									}
-								}
-							}
+                try {
+                    do {
+                        Events events = calendarService.events().list(calendarId).setPageToken(pageToken).execute();
+                        List<Event> eventList = events.getItems();
+                        for (Event event : eventList) {
+                            if (event.getAttendees() != null) {
+                                for (EventAttendee eventAttendee : event.getAttendees()) {
+                                    if (eventAttendee.getEmail().equals(myEmail)) {
+                                        fixedEventList.add(event);
+                                        break;
+                                    }
+                                }
+                            }
 
-						}
+                            if (event.getCreator().getEmail().equals(myEmail)) {
+                                fixedEventList.add(event);
+                            }
 
-						pageToken = events.getNextPageToken();
-					} while (pageToken != null);
+                        }
 
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				adapter.setEvents(fixedEventList);
+                        pageToken = events.getNextPageToken();
+                    } while (pageToken != null);
 
-				if (getActivity() != null) {
-					getActivity().runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							dialog.dismiss();
-							adapter.notifyDataSetChanged();
-						}
-					});
-				}
-			}
-		});
-	}
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                adapter.setEvents(fixedEventList);
 
-	private class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-		private List<Event> events = new ArrayList<>();
-		private OnClickPromiseItemListener onClickPromiseItemListener;
-		private DateTimeFormatter DATE_TIME_FORMATTER;
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.dismiss();
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            }
+        });
+    }
 
-		public RecyclerViewAdapter(Context context) {
-			DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(context.getString(R.string.promiseDateTimeFormat));
-		}
+    private class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+        private List<Event> events = new ArrayList<>();
+        private OnClickPromiseItemListener onClickPromiseItemListener;
+        private DateTimeFormatter DATE_TIME_FORMATTER;
 
-		public void setOnClickPromiseItemListener(OnClickPromiseItemListener onClickPromiseItemListener) {
-			this.onClickPromiseItemListener = onClickPromiseItemListener;
-		}
+        public RecyclerViewAdapter(Context context) {
+            DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(context.getString(R.string.promiseDateTimeFormat));
+        }
 
-		public void setEvents(List<Event> events) {
-			this.events = events;
-		}
+        public void setOnClickPromiseItemListener(OnClickPromiseItemListener onClickPromiseItemListener) {
+            this.onClickPromiseItemListener = onClickPromiseItemListener;
+        }
 
-		@NonNull
-		@Override
-		public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-			return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_view_promise, null));
-		}
+        public void setEvents(List<Event> events) {
+            this.events = events;
+        }
 
-		@Override
-		public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-			holder.onBind();
-		}
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_view_promise, null));
+        }
 
-		@Override
-		public void onViewRecycled(@NonNull ViewHolder holder) {
-			holder.clear();
-			super.onViewRecycled(holder);
-		}
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            holder.onBind();
+        }
 
-		@Override
-		public int getItemCount() {
-			return events.size();
-		}
+        @Override
+        public void onViewRecycled(@NonNull ViewHolder holder) {
+            holder.clear();
+            super.onViewRecycled(holder);
+        }
 
-		private class ViewHolder extends RecyclerView.ViewHolder {
-			private ItemViewPromiseBinding binding;
+        @Override
+        public int getItemCount() {
+            return events.size();
+        }
 
-			public ViewHolder(@NonNull View itemView) {
-				super(itemView);
-				binding = ItemViewPromiseBinding.bind(itemView);
-			}
+        private class ViewHolder extends RecyclerView.ViewHolder {
+            private ItemViewPromiseBinding binding;
 
-			public void clear() {
+            public ViewHolder(@NonNull View itemView) {
+                super(itemView);
+                binding = ItemViewPromiseBinding.bind(itemView);
+            }
 
-			}
+            public void clear() {
 
-			public void onBind() {
-				binding.getRoot().setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						onClickPromiseItemListener.onClickedEvent(events.get(getBindingAdapterPosition()), getBindingAdapterPosition());
-					}
-				});
+            }
 
-				binding.editBtn.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						onClickPromiseItemListener.onClickedEdit(events.get(getBindingAdapterPosition()), getBindingAdapterPosition());
-					}
-				});
+            public void onBind() {
+                binding.getRoot().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onClickPromiseItemListener.onClickedEvent(events.get(getBindingAdapterPosition()), getBindingAdapterPosition());
+                    }
+                });
 
-				final Event event = events.get(getBindingAdapterPosition());
-				EventDateTime eventDateTime = event.getStart();
-				ZonedDateTime start = ZonedDateTime.parse(eventDateTime.getDateTime().toString());
-				start = start.withZoneSameInstant(ZoneId.of(eventDateTime.getTimeZone()));
+                binding.editBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onClickPromiseItemListener.onClickedEdit(events.get(getBindingAdapterPosition()), getBindingAdapterPosition());
+                    }
+                });
 
-				binding.dateTime.setText(start.format(DATE_TIME_FORMATTER));
-				binding.description.setText(event.getDescription());
-				binding.title.setText(event.getSummary());
+                final Event event = events.get(getBindingAdapterPosition());
+                EventDateTime eventDateTime = event.getStart();
+                ZonedDateTime start = ZonedDateTime.parse(eventDateTime.getDateTime().toString());
+                start = start.withZoneSameInstant(ZoneId.of(eventDateTime.getTimeZone()));
 
-				LocationDto locationDto = new LocationDto();
-				if (event.getLocation() != null) {
-					locationDto = LocationDto.toLocationDto(event.getLocation());
-					binding.location.setText(
-							locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName());
-				}
-			}
-		}
-	}
+                binding.dateTime.setText(start.format(DATE_TIME_FORMATTER));
+                binding.description.setText(event.getDescription());
+                binding.title.setText(event.getSummary());
+
+                LocationDto locationDto = new LocationDto();
+                if (event.getLocation() != null) {
+                    locationDto = LocationDto.toLocationDto(event.getLocation());
+                    binding.location.setText(
+                            locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName());
+                }
+            }
+        }
+    }
 }
