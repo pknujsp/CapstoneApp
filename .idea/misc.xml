@@ -43,11 +43,14 @@
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/event_notification_chip.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_abstract_naver_map.xml" value="1.0" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_app_settings.xml" value="0.33" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_calendar.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_calendar_transaction.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_default_notificaiton_settings.xml" value="0.22" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_default_notification_settings.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_edit_promise.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_fixed_promise.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_friend_transaction.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_friends.xml" value="0.28306159420289856" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_intro.xml" value="0.2046875" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_invitation_friend.xml" value="0.2046875" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp_for_github/app/src/main/res/layout/fragment_location_search_result.xml" value="0.2046875" />
@@ -119,7 +122,7 @@
     </option>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

@@ -88,4 +88,5 @@
     <string name="title_asking_to_change_location">위치 변경</string>
     <string name="message_change_location">위치를 변경하시겠습니까?</string>
     <string name="promiseDateTimeFormat">yyyy/M/d E a h:mm</string>
+    <string name="close">닫기</string>
 </resources>

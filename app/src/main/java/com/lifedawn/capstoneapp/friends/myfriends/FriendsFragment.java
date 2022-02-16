@@ -1,5 +1,8 @@
 package com.lifedawn.capstoneapp.friends.myfriends;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,11 +10,15 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.lifedawn.capstoneapp.MainActivity;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickFriendItemListener;
@@ -94,7 +101,7 @@ public class FriendsFragment extends Fragment {
 					
 					}
 				});
-				
+				adapter.friends.remove(position);
 				adapter.notifyItemRemoved(position);
 			}
 			
@@ -172,8 +179,25 @@ public class FriendsFragment extends Fragment {
 			}
 			
 			public void onBind() {
+				int position = getBindingAdapterPosition();
+				FriendDto friendDto = friends.get(position);
 				
 				binding.friend.setText(friends.get(getBindingAdapterPosition()).getName());
+
+				binding.friend.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+						builder.setTitle(R.string.friend).setMessage(new String(friendDto.getName()+"\n"+
+								friendDto.getEmail())).setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialogInterface, int i) {
+								dialogInterface.dismiss();
+							}
+						}).create();
+						builder.show();
+					}
+				});
 				
 				binding.removeBtn.setOnClickListener(new View.OnClickListener() {
 					@Override
