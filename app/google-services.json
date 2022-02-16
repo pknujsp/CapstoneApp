@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "302828824120",
+    "project_id": "capstone-339206",
+    "storage_bucket": "capstone-339206.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:302828824120:android:b98d786fcbb777b2d0e8cd",
+        "android_client_info": {
+          "package_name": "com.lifedawn.capstoneapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "302828824120-vr5uqed4m00quupr3vhq9qgbbemagnhg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lifedawn.capstoneapp",
+            "certificate_hash": "54c4ba76e0b306e1eb69cc539fee285fd0296968"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCu3vg9BflpwVQ34L3XegPteSMi5Pg69Pk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

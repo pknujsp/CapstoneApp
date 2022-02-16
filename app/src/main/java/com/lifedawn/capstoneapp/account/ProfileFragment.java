@@ -64,7 +64,6 @@ public class ProfileFragment extends DialogFragment {
                     @Override
                     public void onSignInSuccessful(GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential) {
 
-
                     }
 
                     @Override

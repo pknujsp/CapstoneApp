@@ -26,46 +26,45 @@ public class AccountCalendarViewModel extends AndroidViewModel implements IAccou
 	private MutableLiveData<GoogleSignInAccount> signOutLiveData;
 	private MutableLiveData<String> mainCalendarIdLiveData = new MutableLiveData<>();
 	private String mainCalendarId;
-	
+
 	public AccountCalendarViewModel(@NonNull Application application) {
 		super(application);
 		this.accountRepository = new AccountRepository(application);
 		signInLiveData = accountRepository.getSignInLiveData();
 		signOutLiveData = accountRepository.getSignOutLiveData();
 	}
-	
+
 	public LiveData<String> getMainCalendarIdLiveData() {
 		return mainCalendarIdLiveData;
 	}
-	
+
 	public void setMainCalendarId(String mainCalendarId) {
 		this.mainCalendarId = mainCalendarId;
 		mainCalendarIdLiveData.postValue(mainCalendarId);
 	}
-	
+
 	public String getMainCalendarId() {
 		return mainCalendarId;
 	}
-	
+
 	public LiveData<GoogleSignInAccount> getSignOutLiveData() {
 		return signOutLiveData;
 	}
-	
+
 	public LiveData<GoogleSignInAccount> getSignInLiveData() {
 		return signInLiveData;
 	}
-	
+
 	private void setUsingAccountType(Constant usingAccountType) {
 		this.usingAccountType = usingAccountType;
 	}
-	
-	
+
+
 	public Constant getUsingAccountType() {
 		return usingAccountType;
 	}
-	
 
-	
+
 	@Override
 	public void signIn(GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver, GoogleAccountUtil.OnSignCallback onSignCallback) {
 		accountRepository.signIn(googleAccountLifeCycleObserver, new GoogleAccountUtil.OnSignCallback() {
@@ -73,9 +72,9 @@ public class AccountCalendarViewModel extends AndroidViewModel implements IAccou
 			public void onSignInSuccessful(GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential) {
 				onSignCallback.onSignInSuccessful(signInAccount, googleAccountCredential);
 				setUsingAccountType(Constant.ACCOUNT_GOOGLE);
-				
+
 				GoogleCalendarUtil googleCalendarUtil = new GoogleCalendarUtil(googleAccountLifeCycleObserver);
-				
+
 				googleCalendarUtil.existingPromiseCalendar(googleCalendarUtil.getCalendarService(googleAccountCredential),
 						new OnHttpApiCallback<CalendarListEntry>() {
 							@Override
@@ -87,39 +86,39 @@ public class AccountCalendarViewModel extends AndroidViewModel implements IAccou
 												public void onResultSuccessful(Calendar e) {
 													setMainCalendarId(e.getId());
 												}
-												
+
 												@Override
 												public void onResultFailed(Exception e) {
-												
+
 												}
 											});
 								} else {
 									setMainCalendarId(existing.getId());
 								}
 							}
-							
+
 							@Override
 							public void onResultFailed(Exception e) {
-							
+
 							}
 						});
 			}
-			
+
 			@Override
 			public void onSignOutSuccessful(GoogleSignInAccount signOutAccount) {
-			
+
 			}
 		});
 	}
-	
+
 	@Override
 	public void signOut(GoogleSignInAccount account, GoogleAccountUtil.OnSignCallback onSignCallback) {
 		accountRepository.signOut(account, new GoogleAccountUtil.OnSignCallback() {
 			@Override
 			public void onSignInSuccessful(GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential) {
-			
+
 			}
-			
+
 			@Override
 			public void onSignOutSuccessful(GoogleSignInAccount signOutAccount) {
 				onSignCallback.onSignOutSuccessful(signOutAccount);
@@ -127,7 +126,7 @@ public class AccountCalendarViewModel extends AndroidViewModel implements IAccou
 			}
 		});
 	}
-	
+
 	@Override
 	public GoogleSignInAccount lastSignInAccount() {
 		return accountRepository.lastSignInAccount();
