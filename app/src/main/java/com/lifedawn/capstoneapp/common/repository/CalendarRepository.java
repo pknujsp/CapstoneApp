@@ -53,7 +53,7 @@ public class CalendarRepository implements ICalendarRepository {
 
 	@Override
 	public void sendResponseForInvitedPromise(Calendar calendarService, String calendarId, String myEmail, Event event, boolean acceptance,
-											  OnHttpApiCallback<Boolean> callback) {
+	                                          OnHttpApiCallback<Boolean> callback) {
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
 			public void run() {
