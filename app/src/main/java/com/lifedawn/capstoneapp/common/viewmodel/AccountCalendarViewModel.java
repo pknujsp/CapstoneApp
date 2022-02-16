@@ -177,6 +177,17 @@ public class AccountCalendarViewModel extends AndroidViewModel implements IAccou
 
 	@Override
 	public void sendResponseForInvitedPromise(com.google.api.services.calendar.Calendar calendarService, String calendarId, String myEmail, Event event, boolean acceptance, OnHttpApiCallback<Boolean> callback) {
-		calendarRepository.sendResponseForInvitedPromise(calendarService, calendarId, myEmail, event, acceptance, callback);
+		calendarRepository.sendResponseForInvitedPromise(calendarService, calendarId, myEmail, event, acceptance, new OnHttpApiCallback<Boolean>() {
+			@Override
+			public void onResultSuccessful(Boolean e) {
+				callback.onResultSuccessful(e);
+				eventLiveData.postValue(null);
+			}
+
+			@Override
+			public void onResultFailed(Exception e) {
+
+			}
+		});
 	}
 }

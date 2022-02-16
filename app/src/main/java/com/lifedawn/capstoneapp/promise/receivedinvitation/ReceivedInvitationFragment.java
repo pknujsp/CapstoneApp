@@ -104,7 +104,8 @@ public class ReceivedInvitationFragment extends Fragment {
 									@Override
 									public void run() {
 										if (e) {
-											Toast.makeText(getContext(), R.string.response_accept_to_invited_event, Toast.LENGTH_SHORT).show();
+											Toast.makeText(getContext(), R.string.response_decline_to_invited_event, Toast.LENGTH_SHORT).show();
+											refresh();
 										} else {
 											Toast.makeText(getContext(), R.string.failed_response_for_invitied_event, Toast.LENGTH_SHORT).show();
 										}
@@ -128,7 +129,17 @@ public class ReceivedInvitationFragment extends Fragment {
 						new OnHttpApiCallback<Boolean>() {
 							@Override
 							public void onResultSuccessful(Boolean e) {
-
+								getActivity().runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										if (e) {
+											Toast.makeText(getContext(), R.string.response_accept_to_invited_event, Toast.LENGTH_SHORT).show();
+											refresh();
+										} else {
+											Toast.makeText(getContext(), R.string.failed_response_for_invitied_event, Toast.LENGTH_SHORT).show();
+										}
+									}
+								});
 							}
 
 							@Override
@@ -171,7 +182,7 @@ public class ReceivedInvitationFragment extends Fragment {
 						for (Event event : eventList) {
 							if (event.getAttendees() != null) {
 								for (EventAttendee eventAttendee : event.getAttendees()) {
-									if (eventAttendee.getEmail().equals(myEmail)) {
+									if (eventAttendee.getEmail().equals(myEmail) && eventAttendee.getResponseStatus().equals("needsAction")) {
 										invitedEventList.add(event);
 										break;
 									}
