@@ -234,7 +234,7 @@ public abstract class AbstractPromiseFragment extends Fragment {
 			binding.account.setText(getString(R.string.local));
 		}
 	}
-
+	//
 	protected final boolean isDuplicate(List<EventReminder> eventReminderList, EventReminder eventReminder) {
 		if (eventReminderList == null) {
 			return false;
