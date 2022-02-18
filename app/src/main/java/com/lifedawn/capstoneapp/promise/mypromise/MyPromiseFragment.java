@@ -16,19 +16,21 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.account.util.GoogleAccountLifeCycleObserver;
-import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
-import com.lifedawn.capstoneapp.calendar.util.GoogleCalendarUtil;
+import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.constants.Constant;
+import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
 import com.lifedawn.capstoneapp.common.view.ProgressDialog;
 import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
-import com.lifedawn.capstoneapp.common.viewmodel.AccountCalendarViewModel;
+import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
+import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentMyPromiseBinding;
 import com.lifedawn.capstoneapp.databinding.ItemViewPromiseBinding;
 import com.lifedawn.capstoneapp.main.MainTransactionFragment;
@@ -51,12 +53,12 @@ import java.util.Set;
 
 public class MyPromiseFragment extends Fragment {
 	private FragmentMyPromiseBinding binding;
-	private AccountCalendarViewModel accountCalendarViewModel;
-	private GoogleCalendarUtil calendarUtil;
+	private AccountViewModel accountViewModel;
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
-	private GoogleAccountUtil googleAccountUtil;
+	private CalendarViewModel calendarViewModel;
 	private RecyclerViewAdapter adapter;
 	private AlertDialog dialog;
+	private boolean initializing = true;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -64,9 +66,8 @@ public class MyPromiseFragment extends Fragment {
 		googleAccountLifeCycleObserver = new GoogleAccountLifeCycleObserver(requireActivity().getActivityResultRegistry(),
 				requireActivity());
 		getLifecycle().addObserver(googleAccountLifeCycleObserver);
-		accountCalendarViewModel = new ViewModelProvider(requireActivity()).get(AccountCalendarViewModel.class);
-		calendarUtil = new GoogleCalendarUtil(googleAccountLifeCycleObserver);
-		googleAccountUtil = GoogleAccountUtil.getInstance(getContext());
+		accountViewModel = new ViewModelProvider(requireActivity()).get(AccountViewModel.class);
+		calendarViewModel = new ViewModelProvider(requireActivity()).get(CalendarViewModel.class);
 	}
 
 	@Override
@@ -79,7 +80,6 @@ public class MyPromiseFragment extends Fragment {
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		dialog = ProgressDialog.showDialog(getActivity());
 
 		binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 		binding.recyclerView.addItemDecoration(new RecyclerViewItemDecoration(getContext()));
@@ -125,28 +125,53 @@ public class MyPromiseFragment extends Fragment {
 		});
 		binding.recyclerView.setAdapter(adapter);
 
-		refresh();
 
-		accountCalendarViewModel.getEventLiveData().observe(getViewLifecycleOwner(), new Observer<Event>() {
-			@Override
-			public void onChanged(Event event) {
-				refresh();
+
+		if (calendarViewModel.getCalendarService() == null) {
+			if (accountViewModel.getUsingAccountType() == Constant.ACCOUNT_GOOGLE) {
+				calendarViewModel.createCalendarService(accountViewModel.getGoogleAccountCredential(), googleAccountLifeCycleObserver, new BackgroundCallback<Calendar>() {
+					@Override
+					public void onResultSuccessful(Calendar e) {
+						if (calendarViewModel.getMainCalendarId() == null) {
+							calendarViewModel.existingPromiseCalendar(e, new BackgroundCallback<CalendarListEntry>() {
+								@Override
+								public void onResultSuccessful(CalendarListEntry e) {
+									refresh();
+								}
+
+								@Override
+								public void onResultFailed(Exception e) {
+
+								}
+							});
+						}
+					}
+
+					@Override
+					public void onResultFailed(Exception e) {
+
+					}
+				});
 			}
-		});
-		accountCalendarViewModel.getMainCalendarIdLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
-			@Override
-			public void onChanged(String id) {
-				refresh();
-			}
-		});
+		} else {
+			refresh();
+		}
+		initializing = false;
 	}
 
 	private void refresh() {
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				dialog = ProgressDialog.showDialog(getActivity());
+			}
+		});
+
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
 			public void run() {
-				final Calendar calendarService = calendarUtil.getCalendarService(googleAccountUtil.getGoogleAccountCredential());
-				final String calendarId = accountCalendarViewModel.getMainCalendarId();
+				final Calendar calendarService = calendarViewModel.getCalendarService();
+				final String calendarId = calendarViewModel.getMainCalendarId();
 				final List<Event> eventList = new ArrayList<>();
 				String pageToken = null;
 

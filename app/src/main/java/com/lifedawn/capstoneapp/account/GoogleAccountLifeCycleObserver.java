@@ -1,4 +1,4 @@
-package com.lifedawn.capstoneapp.account.util;
+package com.lifedawn.capstoneapp.account;
 
 import android.app.Activity;
 import android.content.Intent;

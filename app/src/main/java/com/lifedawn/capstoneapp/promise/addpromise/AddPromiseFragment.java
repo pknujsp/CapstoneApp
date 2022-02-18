@@ -21,20 +21,16 @@ import com.google.api.services.calendar.model.EventAttendee;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.EventReminder;
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
-import com.lifedawn.capstoneapp.calendar.util.GoogleCalendarUtil;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.HttpCallback;
 import com.lifedawn.capstoneapp.common.interfaces.OnFragmentCallback;
 import com.lifedawn.capstoneapp.friends.invitation.InvitationFriendFragment;
-import com.lifedawn.capstoneapp.main.MyApplication;
 import com.lifedawn.capstoneapp.map.LocationDto;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAbstractAdapter;
 import com.lifedawn.capstoneapp.promise.abstractfragment.AbstractPromiseFragment;
 import com.lifedawn.capstoneapp.reminder.RemindersFragment;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -47,14 +43,11 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 	private LocalDate promiseDate = LocalDate.now();
 	private LocalTime promiseTime = LocalTime.now();
 	private Calendar calendarService;
-	private GoogleCalendarUtil googleCalendarUtil;
 	private LocationDto locationDto;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		googleCalendarUtil = new GoogleCalendarUtil(googleAccountLifeCycleObserver);
-
 	}
 
 	@Override
@@ -69,7 +62,7 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 
 		binding.date.setText(now.format(START_DATE_FORMATTER));
 		binding.time.setText(now.format(START_TIME_FORMATTER));
-		setAccount(accountCalendarViewModel.getUsingAccountType(), accountCalendarViewModel.lastSignInAccount());
+		setAccount(accountViewModel.getUsingAccountType(), accountViewModel.lastSignInAccount());
 
 		binding.saveBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -108,20 +101,18 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 						new ActivityResultCallback<ActivityResult>() {
 							@Override
 							public void onActivityResult(ActivityResult result) {
-								calendarService = googleCalendarUtil.getCalendarService(
-										GoogleAccountUtil.getInstance(getContext()).getGoogleAccountCredential());
+								calendarService = calendarViewModel.getCalendarService();
 								saveNewEvent(event);
 							}
 						});
-				calendarService = googleCalendarUtil.getCalendarService(
-						GoogleAccountUtil.getInstance(getContext()).getGoogleAccountCredential());
+				calendarService = calendarViewModel.getCalendarService();
 				saveNewEvent(event);
 			}
 		});
 	}
 
 	private void saveNewEvent(Event event) {
-		accountCalendarViewModel.saveEvent(calendarService, event, accountCalendarViewModel.getMainCalendarId(), new HttpCallback<Event>() {
+		calendarViewModel.saveEvent(calendarService, event, calendarViewModel.getMainCalendarId(), new HttpCallback<Event>() {
 			@Override
 			public void onResponseSuccessful(Event result) {
 				getActivity().runOnUiThread(new Runnable() {

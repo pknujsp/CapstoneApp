@@ -23,7 +23,7 @@
                 android:textSize="34sp" />
 
             <com.google.android.gms.common.SignInButton
-                android:id="@+id/loginGoogleBtn"
+                android:id="@+id/signInGoogleBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="32dp"

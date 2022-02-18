@@ -1,12 +1,7 @@
 package com.lifedawn.capstoneapp;
 
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.os.Bundle;
-import android.util.Base64;
-import android.util.Log;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,17 +11,15 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
-import com.lifedawn.capstoneapp.common.viewmodel.AccountCalendarViewModel;
+import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.databinding.ActivityMainBinding;
 import com.lifedawn.capstoneapp.intro.IntroFragment;
 import com.lifedawn.capstoneapp.main.MainTransactionFragment;
 
-import java.security.MessageDigest;
-
 public class MainActivity extends AppCompatActivity {
 	private ActivityMainBinding binding;
-	private AccountCalendarViewModel accountCalendarViewModel;
-	
+	private AccountViewModel accountViewModel;
+
 	private final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
 		@Override
 		public void handleOnBackPressed() {
@@ -35,41 +28,25 @@ public class MainActivity extends AppCompatActivity {
 			}
 		}
 	};
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-		accountCalendarViewModel = new ViewModelProvider(this).get(AccountCalendarViewModel.class);
-		
+		accountViewModel = new ViewModelProvider(this).get(AccountViewModel.class);
+
 		init();
 	}
-	
-	private void getAppKeyHash() {
-		try {
-			PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);
-			for (Signature signature : info.signatures) {
-				MessageDigest md;
-				md = MessageDigest.getInstance("SHA");
-				md.update(signature.toByteArray());
-				String something = new String(Base64.encode(md.digest(), 0));
-				Log.e("Hash key", something);
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			Log.e("name not found", e.toString());
-		}
-	}
-	
+
 	private void init() {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		
+
 		final boolean appInit = sharedPreferences.getBoolean(SharedPreferenceConstant.APP_INIT.name(), false);
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-		
+
 		if (appInit) {
 			getOnBackPressedDispatcher().addCallback(onBackPressedCallback);
-			
+
 			//maintransactionfragment
 			MainTransactionFragment mainTransactionFragment = new MainTransactionFragment();
 			fragmentTransaction.add(binding.fragmentContainerView.getId(), mainTransactionFragment,
@@ -80,5 +57,5 @@ public class MainActivity extends AppCompatActivity {
 			fragmentTransaction.add(binding.fragmentContainerView.getId(), introFragment, IntroFragment.class.getName()).commit();
 		}
 	}
-	
+
 }

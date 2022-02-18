@@ -20,10 +20,11 @@ import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.EventAttendee;
 import com.google.api.services.calendar.model.EventReminder;
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.account.util.GoogleAccountLifeCycleObserver;
+import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.util.ReminderUtil;
-import com.lifedawn.capstoneapp.common.viewmodel.AccountCalendarViewModel;
+import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
+import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentEditPromiseBinding;
 import com.lifedawn.capstoneapp.map.LocationDto;
 import com.lifedawn.capstoneapp.map.NewPromiseLocationNaverMapFragment;
@@ -43,7 +44,8 @@ import java.util.concurrent.TimeUnit;
 public abstract class AbstractPromiseFragment extends Fragment {
 	protected FragmentEditPromiseBinding binding;
 	protected EditType editType;
-	protected AccountCalendarViewModel accountCalendarViewModel;
+	protected AccountViewModel accountViewModel;
+	protected CalendarViewModel calendarViewModel;
 	protected GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	protected SelectedLocationSimpleMapFragment mapFragment;
 
@@ -66,6 +68,9 @@ public abstract class AbstractPromiseFragment extends Fragment {
 		googleAccountLifeCycleObserver = new GoogleAccountLifeCycleObserver(requireActivity().getActivityResultRegistry(),
 				requireActivity());
 		getLifecycle().addObserver(googleAccountLifeCycleObserver);
+
+		accountViewModel = new ViewModelProvider(getActivity()).get(AccountViewModel.class);
+		calendarViewModel = new ViewModelProvider(getActivity()).get(CalendarViewModel.class);
 	}
 
 	@Override
@@ -78,7 +83,7 @@ public abstract class AbstractPromiseFragment extends Fragment {
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		accountCalendarViewModel = new ViewModelProvider(getActivity()).get(AccountCalendarViewModel.class);
+
 
 		binding.invite.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -93,6 +98,7 @@ public abstract class AbstractPromiseFragment extends Fragment {
 				onClickedAddReminderChip();
 			}
 		});
+
 		binding.date.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {

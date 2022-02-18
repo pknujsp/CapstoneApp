@@ -25,7 +25,6 @@ public class ProgressDialog {
 		dialog.show();
 		
 		return dialog;
-		
 	}
 	
 	public static void clearDialogs() {

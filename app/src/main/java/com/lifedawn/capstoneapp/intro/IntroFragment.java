@@ -16,10 +16,10 @@ import androidx.preference.PreferenceManager;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.account.util.GoogleAccountLifeCycleObserver;
-import com.lifedawn.capstoneapp.account.util.GoogleAccountUtil;
+import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
-import com.lifedawn.capstoneapp.common.viewmodel.AccountCalendarViewModel;
+import com.lifedawn.capstoneapp.common.repository.AccountRepository;
+import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentIntroBinding;
 import com.lifedawn.capstoneapp.main.MainTransactionFragment;
 
@@ -27,15 +27,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class IntroFragment extends Fragment {
 	private FragmentIntroBinding binding;
-	private GoogleAccountUtil googleAccountUtil;
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
-	private AccountCalendarViewModel accountCalendarViewModel;
+	private AccountViewModel accountViewModel;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		accountCalendarViewModel = new ViewModelProvider(requireActivity()).get(AccountCalendarViewModel.class);
-		googleAccountUtil = GoogleAccountUtil.getInstance(getContext());
+		accountViewModel = new ViewModelProvider(requireActivity()).get(AccountViewModel.class);
 		googleAccountLifeCycleObserver = new GoogleAccountLifeCycleObserver(requireActivity().getActivityResultRegistry(),
 				requireActivity());
 		getLifecycle().addObserver(googleAccountLifeCycleObserver);
@@ -51,10 +49,10 @@ public class IntroFragment extends Fragment {
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		
-		binding.loginGoogleBtn.setOnClickListener(new View.OnClickListener() {
+		binding.signInGoogleBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				accountCalendarViewModel.signIn(googleAccountLifeCycleObserver, new GoogleAccountUtil.OnSignCallback() {
+				accountViewModel.signIn(googleAccountLifeCycleObserver, new AccountRepository.OnSignCallback() {
 					@Override
 					public void onSignInSuccessful(GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential) {
 						startMainFragment();
