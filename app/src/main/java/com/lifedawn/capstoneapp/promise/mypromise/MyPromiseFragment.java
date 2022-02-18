@@ -37,6 +37,7 @@ import com.lifedawn.capstoneapp.main.MainTransactionFragment;
 import com.lifedawn.capstoneapp.main.MyApplication;
 import com.lifedawn.capstoneapp.map.LocationDto;
 import com.lifedawn.capstoneapp.promise.editpromise.EditPromiseFragment;
+import com.lifedawn.capstoneapp.promise.promiseinfo.PromiseInfoFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -107,8 +108,21 @@ public class MyPromiseFragment extends Fragment {
 
 			@Override
 			public void onClickedEvent(Event event, int position) {
+				PromiseInfoFragment promiseInfoFragment = new PromiseInfoFragment();
+				Map<String, Object> map = new HashMap<>();
+				Set<String> keySet = event.keySet();
+				for (String key : keySet) {
+					map.put(key, event.get(key));
+				}
 
+				Bundle bundle = new Bundle();
+				bundle.putSerializable("map", (Serializable) map);
+				promiseInfoFragment.setArguments(bundle);
 
+				FragmentManager fragmentManager = getParentFragment().getParentFragment().getParentFragmentManager();
+				fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName())).add(
+						R.id.fragmentContainerView, promiseInfoFragment, PromiseInfoFragment.class.getName()).addToBackStack(
+						PromiseInfoFragment.class.getName()).commit();
 			}
 
 			@Override
@@ -124,7 +138,6 @@ public class MyPromiseFragment extends Fragment {
 			}
 		});
 		binding.recyclerView.setAdapter(adapter);
-
 
 
 		if (calendarViewModel.getCalendarService() == null) {

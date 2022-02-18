@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,16 +35,23 @@ import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentFixedPromiseBinding;
 import com.lifedawn.capstoneapp.databinding.ItemViewPromiseBinding;
+import com.lifedawn.capstoneapp.main.MainTransactionFragment;
 import com.lifedawn.capstoneapp.main.MyApplication;
 import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.promise.editpromise.EditPromiseFragment;
+import com.lifedawn.capstoneapp.promise.promiseinfo.PromiseInfoFragment;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class FixedPromiseFragment extends Fragment {
 	private FragmentFixedPromiseBinding binding;
@@ -86,7 +94,21 @@ public class FixedPromiseFragment extends Fragment {
 
 			@Override
 			public void onClickedEvent(Event event, int position) {
+				PromiseInfoFragment promiseInfoFragment = new PromiseInfoFragment();
+				Map<String, Object> map = new HashMap<>();
+				Set<String> keySet = event.keySet();
+				for (String key : keySet) {
+					map.put(key, event.get(key));
+				}
 
+				Bundle bundle = new Bundle();
+				bundle.putSerializable("map", (Serializable) map);
+				promiseInfoFragment.setArguments(bundle);
+
+				FragmentManager fragmentManager = getParentFragment().getParentFragment().getParentFragmentManager();
+				fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName())).add(
+						R.id.fragmentContainerView, promiseInfoFragment, PromiseInfoFragment.class.getName()).addToBackStack(
+						PromiseInfoFragment.class.getName()).commit();
 			}
 
 			@Override
