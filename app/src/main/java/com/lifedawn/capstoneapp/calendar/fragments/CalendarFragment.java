@@ -232,11 +232,16 @@ public class CalendarFragment extends Fragment {
             }
         });
 
-        binding.calendarView.scrollToMonth(currentMonth);
         loadEvents(currentMonth.getYear(), currentMonth.getMonthValue(), new BackgroundCallback<List<Event>>() {
             @Override
             public void onResultSuccessful(List<Event> e) {
-                binding.calendarView.notifyCalendarChanged();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        binding.calendarView.scrollToMonth(currentMonth);
+
+                    }
+                });
             }
 
             @Override
