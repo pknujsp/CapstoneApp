@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -17,7 +19,9 @@ import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClic
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
+import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.EventReminder;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
@@ -30,6 +34,7 @@ import com.lifedawn.capstoneapp.map.LocationDto;
 import com.lifedawn.capstoneapp.map.NewPromiseLocationNaverMapFragment;
 import com.lifedawn.capstoneapp.map.SelectedLocationSimpleMapFragment;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAbstractAdapter;
+import com.lifedawn.capstoneapp.promise.editpromise.EditPromiseFragment;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -39,6 +44,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 
@@ -124,6 +130,7 @@ public abstract class AbstractPromiseFragment extends Fragment {
 				datePicker.show(getChildFragmentManager(), datePicker.toString());
 			}
 		});
+
 		binding.time.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -144,6 +151,7 @@ public abstract class AbstractPromiseFragment extends Fragment {
 				timePicker.show(getChildFragmentManager(), timePicker.toString());
 			}
 		});
+
 		binding.account.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -160,6 +168,8 @@ public abstract class AbstractPromiseFragment extends Fragment {
 
 		mapFragment = new SelectedLocationSimpleMapFragment();
 		getChildFragmentManager().beginTransaction().add(binding.naverMap.getId(), mapFragment).commit();
+
+
 	}
 
 	@Override
@@ -221,7 +231,6 @@ public abstract class AbstractPromiseFragment extends Fragment {
 						onClickedReminderChip(eventReminder, finalIndex, true);
 					}
 				});
-
 				index++;
 				binding.reminderChipGroup.addView(chip);
 			}
@@ -256,6 +265,7 @@ public abstract class AbstractPromiseFragment extends Fragment {
 
 		ZonedDateTime zonedDateTime = ZonedDateTime.of(localDate, localTime, ZoneId.systemDefault());
 		Calendar calendar = Calendar.getInstance();
+
 		calendar.set(zonedDateTime.getYear(), zonedDateTime.getMonthValue() - 1, zonedDateTime.getDayOfMonth(), zonedDateTime.getHour(),
 				zonedDateTime.getMinute());
 		DateTime dateTime = new DateTime(calendar.getTime());

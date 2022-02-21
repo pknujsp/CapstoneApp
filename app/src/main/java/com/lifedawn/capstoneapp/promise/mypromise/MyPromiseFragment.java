@@ -174,6 +174,9 @@ public class MyPromiseFragment extends Fragment {
 	}
 
 	private void refresh() {
+		if (getActivity() == null) {
+			return;
+		}
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
