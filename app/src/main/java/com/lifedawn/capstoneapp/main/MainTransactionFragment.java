@@ -26,6 +26,9 @@ import com.lifedawn.capstoneapp.promise.PromiseTransactionFragment;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MainTransactionFragment extends Fragment {
 	private FragmentMainTransactionBinding binding;
 	private AccountViewModel accountViewModel;
@@ -53,40 +56,56 @@ public class MainTransactionFragment extends Fragment {
 
 
 		binding.bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+			private Map<String, Fragment> fragmentMap = new HashMap<>();
+
 			@Override
 			public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 				Fragment primaryNavigationFragment = getChildFragmentManager().getPrimaryNavigationFragment();
 				Fragment newFragment = null;
+				boolean newCreate = false;
 
 				if (item.getItemId() == R.id.mainPage) {
 					if (primaryNavigationFragment instanceof PromiseTransactionFragment) {
 						return false;
 					} else {
-						PromiseTransactionFragment promiseTransactionFragment = new PromiseTransactionFragment();
-						newFragment = promiseTransactionFragment;
+						if (!fragmentMap.containsKey(PromiseTransactionFragment.class.getName())) {
+							fragmentMap.put(PromiseTransactionFragment.class.getName(), new PromiseTransactionFragment());
+							newCreate = true;
+						}
+						newFragment = fragmentMap.get(PromiseTransactionFragment.class.getName());
 					}
 				} else if (item.getItemId() == R.id.friendPage) {
 					if (primaryNavigationFragment instanceof FriendTransactionFragment) {
 						return false;
 					} else {
-						FriendTransactionFragment friendTransactionFragment = new FriendTransactionFragment();
-						newFragment = friendTransactionFragment;
+						if (!fragmentMap.containsKey(FriendTransactionFragment.class.getName())) {
+							fragmentMap.put(FriendTransactionFragment.class.getName(), new FriendTransactionFragment());
+							newCreate = true;
+						}
+						newFragment = fragmentMap.get(FriendTransactionFragment.class.getName());
 					}
 				} else {
 					if (primaryNavigationFragment instanceof CalendarTransactionFragment) {
 						return false;
 					} else {
-						CalendarTransactionFragment calendarTransactionFragment = new CalendarTransactionFragment();
-						newFragment = calendarTransactionFragment;
+						if (!fragmentMap.containsKey(CalendarTransactionFragment.class.getName())) {
+							fragmentMap.put(CalendarTransactionFragment.class.getName(), new CalendarTransactionFragment());
+							newCreate = true;
+						}
+						newFragment = fragmentMap.get(CalendarTransactionFragment.class.getName());
 					}
 				}
 
-				if (newFragment != null) {
-					getChildFragmentManager().beginTransaction().replace(binding.fragmentContainerView.getId(),
-							newFragment).setPrimaryNavigationFragment(newFragment).commit();
-					return true;
+				FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
+				if (newCreate) {
+					fragmentTransaction.hide(primaryNavigationFragment).add(binding.fragmentContainerView.getId(), newFragment,
+							newFragment.getClass().getName());
+				} else {
+					fragmentTransaction.hide(primaryNavigationFragment).show(newFragment);
 				}
-				return false;
+
+				fragmentTransaction.setPrimaryNavigationFragment(newFragment).commit();
+				return true;
 			}
 		});
 
