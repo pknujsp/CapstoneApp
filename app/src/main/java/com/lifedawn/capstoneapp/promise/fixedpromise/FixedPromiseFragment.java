@@ -173,7 +173,7 @@ public class FixedPromiseFragment extends Fragment {
 				String pageToken = null;
 
 				final String myEmail = accountViewModel.lastSignInAccount().getEmail();
-				final String[] calendarIds = new String[]{calendarViewModel.getMainCalendarId(), "primary"};
+				final String[] calendarIds = new String[]{"primary"};
 				final String accepted = "accepted";
 
 				try {
@@ -199,7 +199,6 @@ public class FixedPromiseFragment extends Fragment {
 								if (event.getCreator().getEmail().equals(myEmail)) {
 									fixedEventList.add(event);
 								}
-
 							}
 
 							pageToken = events.getNextPageToken();
@@ -296,14 +295,20 @@ public class FixedPromiseFragment extends Fragment {
 				start = start.withZoneSameInstant(ZoneId.of(eventDateTime.getTimeZone()));
 
 				binding.dateTime.setText(start.format(DATE_TIME_FORMATTER));
-				binding.description.setText(event.getDescription());
+				binding.description.setText(event.getDescription() == null ? getContext().getString(R.string.noDescription) : event.getDescription());
 				binding.title.setText(event.getSummary());
 
 				LocationDto locationDto = new LocationDto();
 				if (event.getLocation() != null) {
 					locationDto = LocationDto.toLocationDto(event.getLocation());
-					binding.location.setText(
-							locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName());
+					if (locationDto != null) {
+						binding.location.setText(
+								locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName());
+					} else {
+						binding.location.setTag(event.getLocation());
+					}
+				} else {
+					binding.location.setText(getContext().getString(R.string.no_promise_location));
 				}
 
 				List<EventAttendee> attendeeList = event.getAttendees();

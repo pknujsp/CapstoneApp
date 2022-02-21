@@ -133,9 +133,9 @@ public class CalendarFragment extends Fragment {
 			String dateText;
 			List<Event> eventList;
 			List<EventAttendee> attendeeList;
-			Integer acceptedCount;
-			Integer declinedCount;
-			Integer needsActionCount;
+			int acceptedCount;
+			int declinedCount;
+			int needsActionCount;
 
 			@NonNull
 			@Override
@@ -158,6 +158,7 @@ public class CalendarFragment extends Fragment {
 						Toast.makeText(getContext(), String.valueOf(calendarDay.getDate().getDayOfMonth()), Toast.LENGTH_SHORT).show();
 					}
 				});
+
 				acceptedCount = 0;
 				needsActionCount = 0;
 
@@ -169,6 +170,11 @@ public class CalendarFragment extends Fragment {
 						attendeeList = event.getAttendees();
 
 						if (attendeeList != null) {
+							if (event.getCreator().getEmail().equals(myEmail)) {
+								acceptedCount++;
+								continue;
+							}
+
 							for (EventAttendee attendee : attendeeList) {
 
 								if (attendee.getEmail().equals(myEmail)) {
@@ -177,8 +183,6 @@ public class CalendarFragment extends Fragment {
 									}
 									if (attendee.getResponseStatus().equals(NEEDS_ACTION)) {
 										needsActionCount++;
-									} else {
-
 									}
 								}
 
@@ -189,13 +193,15 @@ public class CalendarFragment extends Fragment {
 
 
 				}
+
 				if (acceptedCount > 0) {
-					viewContainer.binding.acceptedPromiseCount.setText(acceptedCount.toString());
+					viewContainer.binding.acceptedPromiseCount.setText(String.valueOf(acceptedCount));
 				} else {
 					viewContainer.binding.acceptedPromiseCount.setText(null);
 				}
+
 				if (needsActionCount > 0) {
-					viewContainer.binding.needsActionPromiseCount.setText(needsActionCount.toString());
+					viewContainer.binding.needsActionPromiseCount.setText(String.valueOf(needsActionCount));
 				} else {
 					viewContainer.binding.needsActionPromiseCount.setText(null);
 				}
@@ -254,7 +260,7 @@ public class CalendarFragment extends Fragment {
 				final List<Event> eventList = new ArrayList<>();
 				String pageToken = null;
 
-				final String[] calendarIds = new String[]{calendarViewModel.getMainCalendarId(), "primary"};
+				final String[] calendarIds = new String[]{"primary"};
 
 				try {
 					for (String calendarId : calendarIds) {

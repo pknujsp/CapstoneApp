@@ -108,24 +108,10 @@ public class PromiseInfoFragment extends Fragment {
 
 	protected void initAttendeesView(List<EventAttendee> attendeeList) {
 		if (attendeeList != null) {
-			int index = 1;
 			for (EventAttendee eventAttendee : attendeeList) {
 				Chip chip = (Chip) getLayoutInflater().inflate(R.layout.event_attendee_chip, null);
 				chip.setText(eventAttendee.getDisplayName());
-
-				int finalIndex = index;
-				chip.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-					}
-				});
-				chip.setOnCloseIconClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-					}
-				});
-
-				index++;
+				chip.setCloseIconVisible(false);
 				binding.attendeeChipGroup.addView(chip);
 			}
 		}

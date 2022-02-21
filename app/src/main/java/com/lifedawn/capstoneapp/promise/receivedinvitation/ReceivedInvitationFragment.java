@@ -194,19 +194,20 @@ public class ReceivedInvitationFragment extends Fragment {
 			@Override
 			public void run() {
 				final Calendar calendarService = calendarViewModel.getCalendarService();
-				final String calendarId = calendarViewModel.getMainCalendarId();
 				final List<Event> invitedEventList = new ArrayList<>();
 				String pageToken = null;
 
 				final String myEmail = accountViewModel.lastSignInAccount().getEmail();
 				final String needsAction = "needsAction";
+				final String eTag = "promise";
 
 				try {
 					do {
 						Events events = calendarService.events().list("primary").setPageToken(pageToken).execute();
 						List<Event> eventList = events.getItems();
+
 						for (Event event : eventList) {
-							if (event.getAttendees() != null) {
+							if (event.getAttendees() != null && event.getEtag().equals(eTag)) {
 								for (EventAttendee eventAttendee : event.getAttendees()) {
 									if (eventAttendee.getEmail().equals(myEmail) && eventAttendee.getResponseStatus().equals(needsAction)) {
 										invitedEventList.add(event);
@@ -318,14 +319,22 @@ public class ReceivedInvitationFragment extends Fragment {
 				start = start.withZoneSameInstant(ZoneId.of(eventDateTime.getTimeZone()));
 
 				binding.dateTime.setText(start.format(DATE_TIME_FORMATTER));
-				binding.description.setText(event.getDescription());
+				binding.description.setText(event.getDescription() == null ? getContext().getString(R.string.noDescription) :
+						event.getDescription());
 				binding.title.setText(event.getSummary());
 
 				LocationDto locationDto = new LocationDto();
 				if (event.getLocation() != null) {
 					locationDto = LocationDto.toLocationDto(event.getLocation());
-					binding.location.setText(
-							locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName());
+
+					if (locationDto != null) {
+						binding.location.setText(
+								locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName());
+					} else {
+						binding.location.setTag(event.getLocation());
+					}
+				} else {
+					binding.location.setText(getContext().getString(R.string.no_promise_location));
 				}
 
 				List<EventAttendee> attendeeList = event.getAttendees();

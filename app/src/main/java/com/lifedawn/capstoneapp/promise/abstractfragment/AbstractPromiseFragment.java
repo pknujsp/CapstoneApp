@@ -37,6 +37,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -234,6 +235,7 @@ public abstract class AbstractPromiseFragment extends Fragment {
 			binding.account.setText(getString(R.string.local));
 		}
 	}
+
 	//
 	protected final boolean isDuplicate(List<EventReminder> eventReminderList, EventReminder eventReminder) {
 		if (eventReminderList == null) {
@@ -253,7 +255,11 @@ public abstract class AbstractPromiseFragment extends Fragment {
 		LocalTime localTime = (LocalTime) binding.time.getTag();
 
 		ZonedDateTime zonedDateTime = ZonedDateTime.of(localDate, localTime, ZoneId.systemDefault());
-		return new DateTime(zonedDateTime.toInstant().getEpochSecond() * 1000L, zonedDateTime.getOffset().getTotalSeconds());
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(zonedDateTime.getYear(), zonedDateTime.getMonthValue() - 1, zonedDateTime.getDayOfMonth(), zonedDateTime.getHour(),
+				zonedDateTime.getMinute());
+		DateTime dateTime = new DateTime(calendar.getTime());
+		return dateTime;
 	}
 
 	protected void showMap(LocationItemViewPagerAbstractAdapter.OnClickedLocationBtnListener onClickedLocationBtnListener) {

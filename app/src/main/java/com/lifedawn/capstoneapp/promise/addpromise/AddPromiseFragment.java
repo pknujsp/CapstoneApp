@@ -35,6 +35,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class AddPromiseFragment extends AbstractPromiseFragment {
@@ -61,7 +63,9 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 		ZonedDateTime now = ZonedDateTime.now();
 
 		binding.date.setText(now.format(START_DATE_FORMATTER));
+		binding.date.setTag(now.toLocalDate());
 		binding.time.setText(now.format(START_TIME_FORMATTER));
+		binding.time.setTag(now.toLocalTime());
 		setAccount(accountViewModel.getUsingAccountType(), accountViewModel.lastSignInAccount());
 
 		binding.saveBtn.setOnClickListener(new View.OnClickListener() {
@@ -76,14 +80,15 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 					event.setLocation(locationDto.toString());
 				}
 
+				final String timeZoneId = TimeZone.getDefault().getID();
+
 				final DateTime dateTime = getStartDateTime();
 				EventDateTime start = new EventDateTime();
 				EventDateTime end = new EventDateTime();
-				start.setDateTime(dateTime).setTimeZone(TimeZone.getDefault().getID());
-				end.setDateTime(dateTime).setTimeZone(TimeZone.getDefault().getID());
+				start.setDateTime(dateTime).setTimeZone(timeZoneId);
+				end.setDateTime(dateTime).setTimeZone(timeZoneId);
 
 				event.setStart(start).setEnd(end);
-				//반복 없음
 
 				//알림
 				if (newRemindersList.size() > 0) {
@@ -112,7 +117,7 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 	}
 
 	private void saveNewEvent(Event event) {
-		calendarViewModel.saveEvent(calendarService, event, calendarViewModel.getMainCalendarId(), new HttpCallback<Event>() {
+		calendarViewModel.saveEvent(calendarService, event, "primary", new HttpCallback<Event>() {
 			@Override
 			public void onResponseSuccessful(Event result) {
 				getActivity().runOnUiThread(new Runnable() {

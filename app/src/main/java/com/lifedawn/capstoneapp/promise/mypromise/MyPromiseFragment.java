@@ -20,6 +20,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventAttendee;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 import com.lifedawn.capstoneapp.R;
@@ -184,14 +185,19 @@ public class MyPromiseFragment extends Fragment {
 			@Override
 			public void run() {
 				final Calendar calendarService = calendarViewModel.getCalendarService();
-				final String calendarId = calendarViewModel.getMainCalendarId();
+				final String calendarId = "primary";
 				final List<Event> eventList = new ArrayList<>();
+				final String myEmail = accountViewModel.lastSignInAccount().getEmail();
 				String pageToken = null;
 
 				try {
 					do {
 						Events events = calendarService.events().list(calendarId).setPageToken(pageToken).execute();
-						eventList.addAll(events.getItems());
+						for (Event event : events.getItems()) {
+							if (event.getAttendees() != null && event.getCreator().getEmail().equals(myEmail)) {
+								eventList.add(event);
+							}
+						}
 						pageToken = events.getNextPageToken();
 					} while (pageToken != null);
 
@@ -223,7 +229,7 @@ public class MyPromiseFragment extends Fragment {
 		});
 	}
 
-	private static class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+	private class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 		private List<Event> events = new ArrayList<>();
 		private OnClickPromiseItemListener onClickPromiseItemListener;
 		private DateTimeFormatter DATE_TIME_FORMATTER;
@@ -295,14 +301,21 @@ public class MyPromiseFragment extends Fragment {
 				start = start.withZoneSameInstant(ZoneId.of(eventDateTime.getTimeZone()));
 
 				binding.dateTime.setText(start.format(DATE_TIME_FORMATTER));
-				binding.description.setText(event.getDescription());
+				binding.description.setText(event.getDescription() == null ? getContext().getString(R.string.noDescription) :
+						event.getDescription());
 				binding.title.setText(event.getSummary());
 
 				LocationDto locationDto = new LocationDto();
 				if (event.getLocation() != null) {
 					locationDto = LocationDto.toLocationDto(event.getLocation());
-					binding.location.setText(
-							locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName());
+					if (locationDto != null) {
+						binding.location.setText(
+								locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName());
+					} else {
+						binding.location.setTag(event.getLocation());
+					}
+				} else {
+					binding.location.setText(getContext().getString(R.string.no_promise_location));
 				}
 			}
 		}

@@ -44,7 +44,7 @@ public class CalendarRepository implements ICalendarRepository {
 			public void run() {
 				Event savedEvent = null;
 				try {
-					savedEvent = calendarService.events().insert(calendarId, newEvent).execute();
+					savedEvent = calendarService.events().insert("primary", newEvent).execute();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -62,7 +62,7 @@ public class CalendarRepository implements ICalendarRepository {
 				Event updatedEvent = null;
 				try {
 					updatedEvent =
-							calendarService.events().update(calendarId, editEvent.getId(), editEvent).execute();
+							calendarService.events().update("primary", editEvent.getId(), editEvent).execute();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -87,7 +87,7 @@ public class CalendarRepository implements ICalendarRepository {
 					}
 
 					Event updatedEvent =
-							calendarService.events().update(calendarId, event.getId(), event).execute();
+							calendarService.events().update("primary", event.getId(), event).execute();
 					if (updatedEvent != null) {
 						callback.onResultSuccessful(true);
 					}

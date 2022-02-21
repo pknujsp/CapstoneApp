@@ -94,4 +94,5 @@
     <string name="response_accept_to_invited_event">약속 참여 확정</string>
     <string name="response_decline_to_invited_event">약속 거부함</string>
     <string name="no_promise_location">약속 장소 없음</string>
+    <string name="noDescription">내용 없음</string>
 </resources>
