@@ -7,4 +7,5 @@
 
     <dimen name="map_button_size">36dp</dimen>
     <dimen name="button_rectangle_radius">24dp</dimen>
+    <dimen name="btnSizeInToolbar">24dp</dimen>
 </resources>

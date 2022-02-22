@@ -60,6 +60,8 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		binding.toolbar.fragmentTitle.setText(R.string.new_promise);
+
 		ZonedDateTime now = ZonedDateTime.now();
 
 		binding.date.setText(now.format(START_DATE_FORMATTER));
@@ -92,7 +94,8 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 
 				//알림
 				if (newRemindersList.size() > 0) {
-					Event.Reminders reminders = new Event.Reminders().setUseDefault(true).setOverrides(newRemindersList);
+					Event.Reminders reminders = new Event.Reminders();
+					reminders.setOverrides(newRemindersList).setUseDefault(false);
 					event.setReminders(reminders);
 				}
 
@@ -123,7 +126,11 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 				getActivity().runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						getParentFragmentManager().popBackStack();
+						if (result == null) {
+							Toast.makeText(getContext(), R.string.failed_add_new_promise, Toast.LENGTH_SHORT).show();
+						} else {
+							getParentFragmentManager().popBackStack();
+						}
 					}
 				});
 			}
@@ -280,9 +287,9 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 									onSelectedLocation(locationDto);
 								}
 							});
-							binding.placeName.setText(R.string.placeName);
 							locationDto = null;
-							binding.naverMap.setVisibility(View.GONE);
+							mapFragment.replaceLocation(null);
+							binding.placeName.setText(R.string.no_promise_location);
 							dialogInterface.dismiss();
 						}
 					}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -291,7 +298,6 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 					dialogInterface.dismiss();
 				}
 			}).create();
-
 			dialog.show();
 		} else {
 			showMap(new LocationItemViewPagerAbstractAdapter.OnClickedLocationBtnListener() {

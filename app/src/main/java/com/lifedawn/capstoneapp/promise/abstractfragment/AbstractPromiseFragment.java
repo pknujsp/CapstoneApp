@@ -90,7 +90,12 @@ public abstract class AbstractPromiseFragment extends Fragment {
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-
+		binding.toolbar.backBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				getParentFragmentManager().popBackStack();
+			}
+		});
 
 		binding.invite.setOnClickListener(new View.OnClickListener() {
 			@Override

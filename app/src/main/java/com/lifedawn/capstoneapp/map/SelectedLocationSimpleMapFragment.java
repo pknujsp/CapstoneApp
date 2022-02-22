@@ -51,29 +51,32 @@ public class SelectedLocationSimpleMapFragment extends AbstractSimpleNaverMapFra
 
 	private void showMarkerOfSelectedLocation() {
 		if (locationDto == null) {
-			return;
+			if (selectedLocationMarker != null) {
+				selectedLocationMarker.setMap(null);
+			}
+		} else {
+			selectedLocationMarker = new Marker();
+			String caption = null;
+
+			if (locationDto.getLocationType() == ADDRESS) {
+				caption = locationDto.getAddressName();
+			} else if (locationDto.getLocationType() == PLACE) {
+				caption = locationDto.getPlaceName();
+			}
+
+			selectedLocationMarker.setCaptionText(caption);
+			selectedLocationMarker.setCaptionColor(Color.BLACK);
+			selectedLocationMarker.setPosition(
+					new LatLng(Double.parseDouble(locationDto.getLatitude()), Double.parseDouble(locationDto.getLongitude())));
+
+			int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 32f, getResources().getDisplayMetrics());
+			int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 42f, getResources().getDisplayMetrics());
+			selectedLocationMarker.setWidth(width);
+			selectedLocationMarker.setHeight(height);
+
+			selectedLocationMarker.setMap(naverMap);
+			CameraUpdate cameraUpdate = CameraUpdate.scrollAndZoomTo(selectedLocationMarker.getPosition(), 13);
+			naverMap.moveCamera(cameraUpdate);
 		}
-		selectedLocationMarker = new Marker();
-		String caption = null;
-
-		if (locationDto.getLocationType() == ADDRESS) {
-			caption = locationDto.getAddressName();
-		} else if (locationDto.getLocationType() == PLACE) {
-			caption = locationDto.getPlaceName();
-		}
-
-		selectedLocationMarker.setCaptionText(caption);
-		selectedLocationMarker.setCaptionColor(Color.BLACK);
-		selectedLocationMarker.setPosition(
-				new LatLng(Double.parseDouble(locationDto.getLatitude()), Double.parseDouble(locationDto.getLongitude())));
-
-		int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 32f, getResources().getDisplayMetrics());
-		int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, getResources().getDisplayMetrics());
-		selectedLocationMarker.setWidth(width);
-		selectedLocationMarker.setWidth(height);
-
-		selectedLocationMarker.setMap(naverMap);
-		CameraUpdate cameraUpdate = CameraUpdate.scrollAndZoomTo(selectedLocationMarker.getPosition(), 13);
-		naverMap.moveCamera(cameraUpdate);
 	}
 }

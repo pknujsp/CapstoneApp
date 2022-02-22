@@ -44,5 +44,19 @@
         <item name="android:textColor">@color/black</item>
     </style>
 
+    <style name="LabelValueLayout" parent="">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
 
+    <style name="Label" parent="">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Value" parent="">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">15sp</item>
+    </style>
 </resources>

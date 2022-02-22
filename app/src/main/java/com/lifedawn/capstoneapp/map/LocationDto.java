@@ -39,7 +39,7 @@ public class LocationDto implements Serializable {
 			return null;
 		}
 		String[] separatedStr = str.split(",");
-		if (separatedStr.length != 4) {
+		if (separatedStr.length != 5) {
 			return null;
 		}
 

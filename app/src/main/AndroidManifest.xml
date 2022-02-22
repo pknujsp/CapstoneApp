@@ -18,6 +18,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CapstoneApp"
         android:usesCleartextTraffic="true">
+
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -28,13 +30,23 @@
             </intent-filter>
         </activity>
 
+        <receiver
+            android:name=".reminder.notifications.PromiseNotificationReceiver"
+            android:enabled="true"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+
+        </receiver>
+
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="90mygyptxv" />
         <meta-data
             android:name="com.kakao.sdk.AppKey"
             android:value="0dc55f983ec285210efb88d1389f7c2b" />
-
     </application>
 
 </manifest>

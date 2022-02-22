@@ -15,6 +15,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.api.services.calendar.Calendar;
@@ -59,7 +60,6 @@ public class FixedPromiseFragment extends Fragment {
 	private CalendarViewModel calendarViewModel;
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	private RecyclerViewAdapter adapter;
-	private AlertDialog dialog;
 	private boolean initializing = true;
 
 	@Override
@@ -123,6 +123,12 @@ public class FixedPromiseFragment extends Fragment {
 		});
 		binding.recyclerView.setAdapter(adapter);
 
+		binding.refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+			@Override
+			public void onRefresh() {
+				refresh();
+			}
+		});
 
 		if (calendarViewModel.getCalendarService() == null) {
 			if (accountViewModel.getUsingAccountType() == Constant.ACCOUNT_GOOGLE) {
@@ -133,7 +139,14 @@ public class FixedPromiseFragment extends Fragment {
 							calendarViewModel.existingPromiseCalendar(e, new BackgroundCallback<CalendarListEntry>() {
 								@Override
 								public void onResultSuccessful(CalendarListEntry e) {
-									refresh();
+									binding.refreshLayout.post(new Runnable() {
+										@Override
+										public void run() {
+											binding.refreshLayout.setRefreshing(true);
+											refresh();
+
+										}
+									});
 								}
 
 								@Override
@@ -151,20 +164,19 @@ public class FixedPromiseFragment extends Fragment {
 				});
 			}
 		} else {
-			refresh();
+			binding.refreshLayout.post(new Runnable() {
+				@Override
+				public void run() {
+					binding.refreshLayout.setRefreshing(true);
+					refresh();
+				}
+			});
 		}
 
 		initializing = false;
 	}
 
 	private void refresh() {
-		getActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				dialog = ProgressDialog.showDialog(getActivity());
-			}
-		});
-
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -213,7 +225,7 @@ public class FixedPromiseFragment extends Fragment {
 					getActivity().runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
-							dialog.dismiss();
+							binding.refreshLayout.setRefreshing(false);
 							adapter.notifyDataSetChanged();
 						}
 					});
@@ -298,7 +310,7 @@ public class FixedPromiseFragment extends Fragment {
 				binding.description.setText(event.getDescription() == null ? getContext().getString(R.string.noDescription) : event.getDescription());
 				binding.title.setText(event.getSummary());
 
-				LocationDto locationDto = new LocationDto();
+				LocationDto locationDto = null;
 				if (event.getLocation() != null) {
 					locationDto = LocationDto.toLocationDto(event.getLocation());
 					if (locationDto != null) {

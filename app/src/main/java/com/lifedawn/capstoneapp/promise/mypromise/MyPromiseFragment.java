@@ -15,6 +15,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.api.services.calendar.Calendar;
@@ -59,7 +60,6 @@ public class MyPromiseFragment extends Fragment {
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	private CalendarViewModel calendarViewModel;
 	private RecyclerViewAdapter adapter;
-	private AlertDialog dialog;
 	private boolean initializing = true;
 
 	@Override
@@ -140,6 +140,12 @@ public class MyPromiseFragment extends Fragment {
 		});
 		binding.recyclerView.setAdapter(adapter);
 
+		binding.refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+			@Override
+			public void onRefresh() {
+				refresh();
+			}
+		});
 
 		if (calendarViewModel.getCalendarService() == null) {
 			if (accountViewModel.getUsingAccountType() == Constant.ACCOUNT_GOOGLE) {
@@ -150,7 +156,15 @@ public class MyPromiseFragment extends Fragment {
 							calendarViewModel.existingPromiseCalendar(e, new BackgroundCallback<CalendarListEntry>() {
 								@Override
 								public void onResultSuccessful(CalendarListEntry e) {
-									refresh();
+									binding.refreshLayout.post(new Runnable() {
+										@Override
+										public void run() {
+											binding.refreshLayout.setRefreshing(true);
+											refresh();
+
+										}
+									});
+
 								}
 
 								@Override
@@ -168,7 +182,15 @@ public class MyPromiseFragment extends Fragment {
 				});
 			}
 		} else {
-			refresh();
+			binding.refreshLayout.post(new Runnable() {
+				@Override
+				public void run() {
+					binding.refreshLayout.setRefreshing(true);
+					refresh();
+
+				}
+			});
+
 		}
 		initializing = false;
 	}
@@ -177,12 +199,6 @@ public class MyPromiseFragment extends Fragment {
 		if (getActivity() == null) {
 			return;
 		}
-		getActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				dialog = ProgressDialog.showDialog(getActivity());
-			}
-		});
 
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
@@ -208,9 +224,10 @@ public class MyPromiseFragment extends Fragment {
 						getActivity().runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
+								binding.refreshLayout.setRefreshing(false);
 								adapter.setEvents(eventList);
 								adapter.notifyDataSetChanged();
-								dialog.dismiss();
+
 							}
 						});
 					}
@@ -219,9 +236,10 @@ public class MyPromiseFragment extends Fragment {
 						getActivity().runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
+								binding.refreshLayout.setRefreshing(false);
 								adapter.setEvents(eventList);
 								adapter.notifyDataSetChanged();
-								dialog.dismiss();
+
 							}
 						});
 					}
@@ -308,9 +326,8 @@ public class MyPromiseFragment extends Fragment {
 						event.getDescription());
 				binding.title.setText(event.getSummary());
 
-				LocationDto locationDto = new LocationDto();
 				if (event.getLocation() != null) {
-					locationDto = LocationDto.toLocationDto(event.getLocation());
+					LocationDto locationDto = LocationDto.toLocationDto(event.getLocation());
 					if (locationDto != null) {
 						binding.location.setText(
 								locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName());

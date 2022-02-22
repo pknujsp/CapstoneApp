@@ -70,7 +70,13 @@ public class PromiseInfoFragment extends Fragment {
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-
+		binding.toolbar.backBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				getParentFragmentManager().popBackStack();
+			}
+		});
+		binding.toolbar.fragmentTitle.setText(R.string.promise_info);
 		mapFragment = new SelectedLocationSimpleMapFragment();
 		getChildFragmentManager().beginTransaction().add(binding.naverMap.getId(), mapFragment).commit();
 
@@ -119,24 +125,11 @@ public class PromiseInfoFragment extends Fragment {
 
 	protected void initRemindersView(List<EventReminder> eventReminderList) {
 		if (eventReminderList != null) {
-			int index = 1;
 
 			for (EventReminder eventReminder : eventReminderList) {
 				Chip chip = (Chip) getLayoutInflater().inflate(R.layout.event_reminder_chip, null);
 				chip.setText(ReminderUtil.makeReminderText(ReminderUtil.make(eventReminder.getMinutes()), getContext()));
-				int finalIndex = index;
-				chip.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-					}
-				});
-				chip.setOnCloseIconClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-					}
-				});
-
-				index++;
+				chip.setCloseIconVisible(false);
 				binding.reminderChipGroup.addView(chip);
 			}
 		}

@@ -2,6 +2,8 @@ package com.lifedawn.capstoneapp.promise.editpromise;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +49,15 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 	private LocationDto locationDto;
 	private Calendar calendarService;
 
+	private boolean initializing = true;
+
+	private boolean editSummary;
+	private boolean editDateTime;
+	private boolean editDescription;
+	private boolean editAttendees;
+	private boolean editLocation;
+	private boolean editReminders;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -73,6 +84,8 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		binding.toolbar.fragmentTitle.setText(R.string.edit_promise);
+
 		init();
 
 		binding.saveBtn.setText(R.string.update);
@@ -91,10 +104,54 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 				updateEvent();
 			}
 		});
+
+		binding.titleEditText.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				if (!initializing) {
+					editSummary = true;
+				}
+			}
+		});
+
+		binding.descriptionEditText.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				if (!initializing) {
+					editDescription = true;
+				}
+			}
+		});
 	}
 
 	private void updateEvent() {
-		editEvent.setSummary(binding.titleEditText.getText().toString()).setDescription(binding.descriptionEditText.getText().toString());
+		if (editSummary) {
+			editEvent.setSummary(binding.titleEditText.getText().toString());
+		}
+		if (editDescription) {
+			editEvent.setDescription(binding.descriptionEditText.getText().toString());
+		}
+
 		calendarViewModel.updateEvent(calendarService, editEvent, calendarViewModel.getMainCalendarId(), new HttpCallback<Event>() {
 			@Override
 			public void onResponseSuccessful(Event result) {
@@ -124,6 +181,7 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 		end.setDateTime(dateTime).setTimeZone(TimeZone.getDefault().getID());
 
 		editEvent.setStart(start).setEnd(end);
+		editDateTime = true;
 	}
 
 	@Override
@@ -135,6 +193,7 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 		end.setDateTime(dateTime).setTimeZone(TimeZone.getDefault().getID());
 
 		editEvent.setStart(start).setEnd(end);
+		editDateTime = true;
 	}
 
 	@Override
@@ -150,7 +209,6 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 	@Override
 	protected void onClickedAccount() {
 
-
 	}
 
 	@Override
@@ -159,7 +217,7 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 			String message = locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName() + getString(
 					R.string.message_change_location);
 
-			AlertDialog dialog = new MaterialAlertDialogBuilder(getActivity()).setTitle(
+			new MaterialAlertDialogBuilder(getActivity()).setTitle(
 					R.string.title_asking_to_change_location).setMessage(message).setPositiveButton(R.string.ok,
 					new DialogInterface.OnClickListener() {
 						@Override
@@ -170,10 +228,12 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 									locationDto = LocationDto.toLocationDto(kakaoLocalDocument);
 									editEvent.setLocation(locationDto.toString());
 									onSelectedLocation(locationDto);
+									editLocation = true;
 								}
 							});
-							binding.placeName.setText(R.string.placeName);
-							binding.naverMap.setVisibility(View.GONE);
+							editLocation = true;
+							mapFragment.replaceLocation(null);
+							binding.placeName.setText(R.string.no_promise_location);
 							locationDto = null;
 							editEvent.setLocation(null);
 							dialogInterface.dismiss();
@@ -183,9 +243,7 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 				public void onClick(DialogInterface dialogInterface, int i) {
 					dialogInterface.dismiss();
 				}
-			}).create();
-
-			dialog.show();
+			}).create().show();
 		} else {
 			showMap(new LocationItemViewPagerAbstractAdapter.OnClickedLocationBtnListener() {
 				@Override
@@ -195,6 +253,7 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 				}
 			});
 		}
+
 	}
 
 	@Override
@@ -209,6 +268,7 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 				} else {
 					editEvent.setAttendees(e);
 				}
+				editAttendees = true;
 				initAttendeesView(editEvent.getAttendees());
 			}
 		});
@@ -243,7 +303,7 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 					if (editEvent.getReminders().getOverrides() == null) {
 						editEvent.getReminders().setOverrides(new ArrayList<>());
 					}
-
+					editReminders = true;
 					editEvent.getReminders().getOverrides().add(reminder);
 					initRemindersView(editEvent.getReminders().getOverrides());
 				} else {
@@ -357,6 +417,8 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 		}
 
 		binding.account.setText(originalEvent.getOrganizer().getDisplayName());
+
+		initializing = false;
 	}
 
 }

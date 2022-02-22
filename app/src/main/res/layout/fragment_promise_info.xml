@@ -9,11 +9,22 @@
         android:layout_height="match_parent"
         >
 
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            />
+
         <androidx.core.widget.NestedScrollView
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/saveBtn"
+            android:layout_below="@id/toolbar"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
             >
 
             <LinearLayout
@@ -94,6 +105,7 @@
                         android:id="@+id/naverMap"
                         android:layout_width="match_parent"
                         android:layout_height="150dp"
+                        android:layout_marginBottom="4dp"
                         />
 
                     <TextView
