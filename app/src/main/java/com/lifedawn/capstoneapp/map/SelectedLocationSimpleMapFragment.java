@@ -67,8 +67,8 @@ public class SelectedLocationSimpleMapFragment extends AbstractSimpleNaverMapFra
 		selectedLocationMarker.setPosition(
 				new LatLng(Double.parseDouble(locationDto.getLatitude()), Double.parseDouble(locationDto.getLongitude())));
 
-		int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 36f, getResources().getDisplayMetrics());
-		int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, getResources().getDisplayMetrics());
+		int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 32f, getResources().getDisplayMetrics());
+		int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, getResources().getDisplayMetrics());
 		selectedLocationMarker.setWidth(width);
 		selectedLocationMarker.setWidth(height);
 
