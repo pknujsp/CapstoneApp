@@ -1,7 +1,15 @@
 package com.lifedawn.capstoneapp.promise.fixedpromise;
 
+import android.Manifest;
+import android.accounts.Account;
+import android.annotation.SuppressLint;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +17,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
@@ -45,11 +55,13 @@ import com.lifedawn.capstoneapp.promise.promiseinfo.PromiseInfoFragment;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -130,53 +142,111 @@ public class FixedPromiseFragment extends Fragment {
 			}
 		});
 
-		if (calendarViewModel.getCalendarService() == null) {
-			if (accountViewModel.getUsingAccountType() == Constant.ACCOUNT_GOOGLE) {
-				calendarViewModel.createCalendarService(accountViewModel.getGoogleAccountCredential(), googleAccountLifeCycleObserver, new BackgroundCallback<Calendar>() {
-					@Override
-					public void onResultSuccessful(Calendar e) {
-						if (calendarViewModel.getMainCalendarId() == null) {
-							calendarViewModel.existingPromiseCalendar(e, new BackgroundCallback<CalendarListEntry>() {
-								@Override
-								public void onResultSuccessful(CalendarListEntry e) {
-									binding.refreshLayout.post(new Runnable() {
-										@Override
-										public void run() {
-											binding.refreshLayout.setRefreshing(true);
-											refresh();
+		ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.READ_CALENDAR,
+				Manifest.permission.WRITE_CALENDAR}, (int) System.currentTimeMillis());
+		initializing = false;
 
-										}
-									});
-								}
+		loadEvents();
+	}
 
-								@Override
-								public void onResultFailed(Exception e) {
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+	}
 
-								}
-							});
+	private void loadEvents() {
+		binding.refreshLayout.setRefreshing(true);
+		loadCalendar(new BackgroundCallback<ContentValues>() {
+			@SuppressLint("Range")
+			@Override
+			public void onResultSuccessful(ContentValues calendar) {
+				String[] selectionArgs = {calendar.getAsString(CalendarContract.Calendars._ID)};
+
+				final String EVENT_QUERY = CalendarContract.Events.CALENDAR_ID + "=?";
+				Cursor cursor = getContext().getContentResolver().query(CalendarContract.Events.CONTENT_URI, null, EVENT_QUERY, selectionArgs,
+						null);
+
+				List<ContentValues> eventList = new ArrayList<>();
+
+				if (cursor != null) {
+					while (cursor.moveToNext()) {
+						ContentValues event = new ContentValues();
+						String[] keys = cursor.getColumnNames();
+						for (String key : keys) {
+							event.put(key, cursor.getString(cursor.getColumnIndex(key)));
 						}
+						eventList.add(event);
 					}
+					cursor.close();
+				}
 
+				binding.refreshLayout.setRefreshing(false);
+				adapter.setEvents(eventList);
+				getActivity().runOnUiThread(new Runnable() {
 					@Override
-					public void onResultFailed(Exception e) {
-
+					public void run() {
+						adapter.notifyDataSetChanged();
 					}
 				});
 			}
-		} else {
-			binding.refreshLayout.post(new Runnable() {
-				@Override
-				public void run() {
-					binding.refreshLayout.setRefreshing(true);
-					refresh();
-				}
-			});
-		}
 
-		initializing = false;
+			@Override
+			public void onResultFailed(Exception e) {
+
+			}
+		});
+	}
+
+	private void loadCalendar(BackgroundCallback<ContentValues> callback) {
+		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
+			@SuppressLint("Range")
+			@Override
+			public void run() {
+				Account account = accountViewModel.lastSignInAccount().getAccount();
+				final String email = account.name;
+				ContentResolver contentResolver = getContext().getContentResolver();
+				Cursor cursor = contentResolver.query(CalendarContract.Calendars.CONTENT_URI, null, null, null, null);
+
+				List<ContentValues> eventList = new ArrayList<>();
+
+				if (cursor != null) {
+					while (cursor.moveToNext()) {
+						ContentValues calendar = new ContentValues();
+						String[] keys = cursor.getColumnNames();
+						for (String key : keys) {
+							calendar.put(key, cursor.getString(cursor.getColumnIndex(key)));
+						}
+						eventList.add(calendar);
+					}
+					cursor.close();
+				}
+
+				for (ContentValues calendar : eventList) {
+					if (calendar.getAsString(CalendarContract.Calendars.ACCOUNT_NAME).equals(email) &&
+							calendar.getAsString(CalendarContract.Calendars.IS_PRIMARY).equals("1")) {
+						callback.onResultSuccessful(calendar);
+						break;
+					}
+				}
+			}
+		});
 	}
 
 	private void refresh() {
+		calendarViewModel.syncCalendars(accountViewModel.lastSignInAccount().getAccount(), new BackgroundCallback<Boolean>() {
+			@SuppressLint("Range")
+			@Override
+			public void onResultSuccessful(Boolean e) {
+				binding.refreshLayout.setRefreshing(false);
+				loadEvents();
+			}
+
+			@Override
+			public void onResultFailed(Exception e) {
+
+			}
+		});
+		/*
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -232,10 +302,71 @@ public class FixedPromiseFragment extends Fragment {
 				}
 			}
 		});
+
+		 */
+	}
+
+	@SuppressLint("Range")
+	public Account getGoogleAccount() {
+		if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
+			final String[] PROJECTION = {
+					CalendarContract.Calendars.ACCOUNT_NAME, CalendarContract.Calendars.OWNER_ACCOUNT, CalendarContract.Calendars.ACCOUNT_TYPE,
+					CalendarContract.Calendars.IS_PRIMARY};
+			ContentResolver contentResolver = getContext().getContentResolver();
+
+			Cursor cursor = contentResolver.query(CalendarContract.Calendars.CONTENT_URI, PROJECTION, null, null, null);
+
+			final String GOOGLE_SECONDARY_CALENDAR = "@group.calendar.google.com";
+			List<ContentValues> accountList = new ArrayList<>();
+			Set<String> ownerAccountSet = new HashSet<>();
+
+			if (cursor != null) {
+				while (cursor.moveToNext()) {
+					if (cursor.getInt(3) == 1) {
+						// another || google primary calendar
+						if (!ownerAccountSet.contains(cursor.getString(1))) {
+							ownerAccountSet.add(cursor.getString(1));
+							ContentValues accountValues = new ContentValues();
+
+							accountValues.put(CalendarContract.Calendars.ACCOUNT_NAME, cursor.getString(0));
+							accountValues.put(CalendarContract.Calendars.OWNER_ACCOUNT, cursor.getString(1));
+							accountValues.put(CalendarContract.Calendars.ACCOUNT_TYPE, cursor.getString(2));
+
+							accountList.add(accountValues);
+						}
+					} else if (cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.OWNER_ACCOUNT)).contains(GOOGLE_SECONDARY_CALENDAR)) {
+						if (!ownerAccountSet.contains(cursor.getString(1))) {
+							ownerAccountSet.add(cursor.getString(1));
+							ContentValues accountValues = new ContentValues();
+
+							accountValues.put(CalendarContract.Calendars.ACCOUNT_NAME, cursor.getString(0));
+							accountValues.put(CalendarContract.Calendars.OWNER_ACCOUNT, cursor.getString(1));
+							accountValues.put(CalendarContract.Calendars.ACCOUNT_TYPE, cursor.getString(2));
+
+							accountList.add(accountValues);
+						}
+					}
+				}
+				cursor.close();
+			}
+			Account googleSignInAccount = accountViewModel.lastSignInAccount().getAccount();
+
+			for (ContentValues contentValues : accountList) {
+				if (contentValues.getAsString(CalendarContract.Calendars.ACCOUNT_TYPE).equals("com.google")) {
+					if (contentValues.getAsString(CalendarContract.Calendars.ACCOUNT_NAME).equals(googleSignInAccount.name)) {
+						Account account = new Account(contentValues.getAsString(CalendarContract.Calendars.ACCOUNT_NAME)
+								, contentValues.getAsString(CalendarContract.Calendars.ACCOUNT_TYPE));
+
+						return account;
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	private class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-		private List<Event> events = new ArrayList<>();
+		private List<ContentValues> events = new ArrayList<>();
 		private OnClickPromiseItemListener onClickPromiseItemListener;
 		private DateTimeFormatter DATE_TIME_FORMATTER;
 
@@ -247,7 +378,7 @@ public class FixedPromiseFragment extends Fragment {
 			this.onClickPromiseItemListener = onClickPromiseItemListener;
 		}
 
-		public void setEvents(List<Event> events) {
+		public void setEvents(List<ContentValues> events) {
 			this.events = events;
 		}
 
@@ -290,43 +421,47 @@ public class FixedPromiseFragment extends Fragment {
 				binding.getRoot().setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						onClickPromiseItemListener.onClickedEvent(events.get(getBindingAdapterPosition()), getBindingAdapterPosition());
 					}
 				});
 
 				binding.editBtn.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						onClickPromiseItemListener.onClickedEdit(events.get(getBindingAdapterPosition()), getBindingAdapterPosition());
 					}
 				});
 
-				final Event event = events.get(getBindingAdapterPosition());
-				EventDateTime eventDateTime = event.getStart();
-				ZonedDateTime start = ZonedDateTime.parse(eventDateTime.getDateTime().toString());
-				start = start.withZoneSameInstant(ZoneId.of(eventDateTime.getTimeZone()));
+				final ContentValues event = events.get(getBindingAdapterPosition());
+				String dtStart = event.getAsString(CalendarContract.Events.DTSTART);
+				String eventTimeZone = event.getAsString(CalendarContract.Events.EVENT_TIMEZONE);
+				ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(dtStart)), ZoneId.of(eventTimeZone));
+				start = start.withZoneSameInstant(start.getZone());
 
 				binding.dateTime.setText(start.format(DATE_TIME_FORMATTER));
-				binding.description.setText(event.getDescription() == null ? getContext().getString(R.string.noDescription) : event.getDescription());
-				binding.title.setText(event.getSummary());
+				binding.description.setText(event.getAsString(CalendarContract.Events.DESCRIPTION) == null ?
+						getContext().getString(R.string.noDescription) :
+						event.getAsString(CalendarContract.Events.DESCRIPTION));
+				binding.title.setText(event.getAsString(CalendarContract.Events.TITLE));
 
 				LocationDto locationDto = null;
-				if (event.getLocation() != null) {
-					locationDto = LocationDto.toLocationDto(event.getLocation());
+				if (event.getAsString(CalendarContract.Events.EVENT_LOCATION) != null) {
+					locationDto = LocationDto.toLocationDto(event.getAsString(CalendarContract.Events.EVENT_LOCATION));
 					if (locationDto != null) {
 						binding.location.setText(
 								locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName());
 					} else {
-						binding.location.setTag(event.getLocation());
+						binding.location.setTag(event.getAsString(CalendarContract.Events.EVENT_LOCATION));
 					}
 				} else {
 					binding.location.setText(getContext().getString(R.string.no_promise_location));
 				}
 
-				List<EventAttendee> attendeeList = event.getAttendees();
+				/*
+				List<EventAttendee> attendeeList = event.getAsString(CalendarContract.Events.ATT);
 				if (attendeeList != null) {
 					binding.people.setText(AttendeeUtil.toListString(attendeeList));
 				}
+
+				 */
 
 			}
 		}

@@ -1,10 +1,17 @@
 package com.lifedawn.capstoneapp.common.repository;
 
+import android.accounts.Account;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SyncStatusObserver;
+import android.os.Bundle;
+import android.provider.CalendarContract;
+import android.util.Log;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
+import androidx.annotation.NonNull;
 
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
@@ -24,7 +31,10 @@ import com.lifedawn.capstoneapp.common.repositoryinterface.ICalendarRepository;
 import com.lifedawn.capstoneapp.main.MyApplication;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class CalendarRepository implements ICalendarRepository {
@@ -186,4 +196,92 @@ public class CalendarRepository implements ICalendarRepository {
 		});
 	}
 
+	@Override
+	public void syncCalendars(Account account, BackgroundCallback<Boolean> callback) {
+		CalendarSyncStatusObserver calendarSyncStatusObserver = new CalendarSyncStatusObserver();
+
+		calendarSyncStatusObserver.setProviderHandle(ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, calendarSyncStatusObserver));
+		calendarSyncStatusObserver.setSyncCallback(callback);
+		calendarSyncStatusObserver.setAccount(account);
+
+		Bundle arguments = new Bundle();
+		arguments.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+		arguments.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+		ContentResolver.requestSync(account, CalendarContract.AUTHORITY, arguments);
+	}
+
+
+	private static class CalendarSyncStatusObserver implements SyncStatusObserver {
+		private final int PENDING = 0;
+		private final int PENDING_ACTIVE = 10;
+		private final int ACTIVE = 20;
+		private final int FINISHED = 30;
+
+		private final Map<Account, Integer> mAccountSyncState =
+				Collections.synchronizedMap(new HashMap<Account, Integer>());
+
+		private final String mCalendarAuthority = CalendarContract.AUTHORITY;
+
+		private Object mProviderHandle;
+		private BackgroundCallback<Boolean> syncCallback;
+		private Account account;
+
+		public Object getmProviderHandle() {
+			return mProviderHandle;
+		}
+
+		public void setAccount(Account account) {
+			this.account = account;
+		}
+
+		public void setSyncCallback(BackgroundCallback<Boolean> syncCallback) {
+			this.syncCallback = syncCallback;
+		}
+
+		public void setProviderHandle(@NonNull final Object providerHandle) {
+			mProviderHandle = providerHandle;
+		}
+
+
+		@Override
+		public void onStatusChanged(int which) {
+			if (which == ContentResolver.SYNC_OBSERVER_TYPE_PENDING) {
+				if (ContentResolver.isSyncPending(account, mCalendarAuthority)) {
+					mAccountSyncState.put(account, PENDING);
+				} else {
+					mAccountSyncState.put(account, PENDING_ACTIVE);
+				}
+			} else if (which == ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE) {
+				if (ContentResolver.isSyncActive(account, mCalendarAuthority)) {
+					mAccountSyncState.put(account, ACTIVE);
+				} else {
+					mAccountSyncState.put(account, FINISHED);
+				}
+			}
+
+			if (1 == mAccountSyncState.size()) {
+				int finishedCount = 0;
+
+				for (Integer syncState : mAccountSyncState.values()) {
+					if (syncState == FINISHED) {
+						finishedCount++;
+					}
+				}
+
+				if (finishedCount == 1) {
+					if (mProviderHandle != null) {
+						ContentResolver.removeStatusChangeListener(mProviderHandle);
+						mProviderHandle = null;
+					}
+					if (syncCallback != null) {
+						syncCallback.onResultSuccessful(true);
+						syncCallback = null;
+					}
+					mAccountSyncState.clear();
+				}
+			}
+
+		}
+
+	}
 }

@@ -1,5 +1,6 @@
 package com.lifedawn.capstoneapp.common.viewmodel;
 
+import android.accounts.Account;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
@@ -123,4 +124,8 @@ public class CalendarViewModel extends AndroidViewModel implements ICalendarRepo
 	}
 
 
+	@Override
+	public void syncCalendars(Account account, BackgroundCallback<Boolean> callback) {
+		calendarRepository.syncCalendars(account, callback);
+	}
 }

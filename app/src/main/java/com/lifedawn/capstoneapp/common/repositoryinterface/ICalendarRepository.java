@@ -1,5 +1,7 @@
 package com.lifedawn.capstoneapp.common.repositoryinterface;
 
+import android.accounts.Account;
+
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.CalendarListEntry;
@@ -22,4 +24,6 @@ public interface ICalendarRepository {
 	void addPromiseCalendar(Calendar calendarService, BackgroundCallback<com.google.api.services.calendar.model.Calendar> callback);
 
 	void existingPromiseCalendar(Calendar calendarService, BackgroundCallback<CalendarListEntry> callback);
+
+	void syncCalendars(Account account, BackgroundCallback<Boolean> callback);
 }
