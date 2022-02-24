@@ -1,6 +1,8 @@
 package com.lifedawn.capstoneapp.promise.promiseinfo;
 
+import android.content.ContentValues;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,11 +35,11 @@ import java.util.Set;
 
 public class PromiseInfoFragment extends Fragment {
 	private FragmentPromiseInfoBinding binding;
-	private Event originalEvent;
+	private ContentValues originalEvent;
 	private LocationDto locationDto;
 	private SelectedLocationSimpleMapFragment mapFragment;
 
-	protected final DateTimeFormatter START_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy M/d E a h:mm");
+	private final DateTimeFormatter START_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy M/d E a h:mm");
 
 
 	@Override
@@ -45,16 +47,10 @@ public class PromiseInfoFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		if (getArguments() != null) {
 			Bundle bundle = getArguments();
-			originalEvent = new Event();
-			HashMap<String, Object> map = (HashMap<String, Object>) bundle.getSerializable("map");
+			originalEvent = bundle.getParcelable("event");
 
-			Set<String> keySet = map.keySet();
-			for (String key : keySet) {
-				originalEvent.set(key, map.get(key));
-			}
-
-			if (originalEvent.getLocation() != null) {
-				locationDto = LocationDto.toLocationDto(originalEvent.getLocation());
+			if (originalEvent.getAsString(CalendarContract.Events.EVENT_LOCATION) != null) {
+				locationDto = LocationDto.toLocationDto(originalEvent.getAsString(CalendarContract.Events.EVENT_LOCATION));
 			}
 		}
 

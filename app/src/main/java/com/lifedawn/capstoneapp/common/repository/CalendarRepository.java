@@ -1,10 +1,13 @@
 package com.lifedawn.capstoneapp.common.repository;
 
 import android.accounts.Account;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncStatusObserver;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.util.Log;
@@ -31,6 +34,7 @@ import com.lifedawn.capstoneapp.common.repositoryinterface.ICalendarRepository;
 import com.lifedawn.capstoneapp.main.MyApplication;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -95,7 +99,7 @@ public class CalendarRepository implements ICalendarRepository {
 							break;
 						}
 					}
-
+					
 					Event updatedEvent =
 							calendarService.events().update("primary", event.getId(), event).execute();
 					if (updatedEvent != null) {
@@ -282,6 +286,152 @@ public class CalendarRepository implements ICalendarRepository {
 			}
 
 		}
+
+	}
+
+	@SuppressLint("Range")
+	public static void loadAllEvents(Context context, String calendarId, BackgroundCallback<List<ContentValues>> callback) {
+		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
+			@Override
+			public void run() {
+				String[] selectionArgs = {calendarId};
+				String selection = CalendarContract.Events.CALENDAR_ID + "=?";
+
+				Cursor cursor = context.getContentResolver().query(CalendarContract.Events.CONTENT_URI, null, selection, selectionArgs,
+						null);
+
+				List<ContentValues> eventList = new ArrayList<>();
+
+				if (cursor != null) {
+					while (cursor.moveToNext()) {
+						ContentValues event = new ContentValues();
+						String[] keys = cursor.getColumnNames();
+						for (String key : keys) {
+							event.put(key, cursor.getString(cursor.getColumnIndex(key)));
+						}
+						eventList.add(event);
+					}
+					cursor.close();
+				}
+				callback.onResultSuccessful(eventList);
+			}
+		});
+
+	}
+
+	@SuppressLint("Range")
+	public static void loadMyEvents(Context context, Account account, String calendarId, BackgroundCallback<List<ContentValues>> callback) {
+		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
+			@Override
+			public void run() {
+				String selection = CalendarContract.Events.CALENDAR_ID + "=? AND " + CalendarContract.Events.ACCOUNT_NAME + "=?";
+				String[] selectionArgs = new String[]{calendarId, account.name};
+
+				Cursor cursor = context.getContentResolver().query(CalendarContract.Events.CONTENT_URI, null, selection, selectionArgs,
+						null);
+
+				List<ContentValues> eventList = new ArrayList<>();
+
+				if (cursor != null) {
+					while (cursor.moveToNext()) {
+						ContentValues event = new ContentValues();
+						String[] keys = cursor.getColumnNames();
+						for (String key : keys) {
+							event.put(key, cursor.getString(cursor.getColumnIndex(key)));
+						}
+						eventList.add(event);
+					}
+					cursor.close();
+				}
+				callback.onResultSuccessful(eventList);
+			}
+		});
+
+	}
+
+	@SuppressLint("Range")
+	public static void loadReceivedInvitationEvents(Context context, Account account, String calendarId,
+	                                                BackgroundCallback<List<ContentValues>> callback) {
+		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
+			@Override
+			public void run() {
+				String selection = CalendarContract.Events.CALENDAR_ID + "=? AND " + CalendarContract.Events.ORGANIZER + "!=?";
+				String[] selectionArgs = {calendarId, account.name};
+
+				Cursor cursor = context.getContentResolver().query(CalendarContract.Events.CONTENT_URI, null, selection, selectionArgs,
+						null);
+
+				List<ContentValues> eventList = new ArrayList<>();
+				if (cursor != null) {
+					while (cursor.moveToNext()) {
+						ContentValues event = new ContentValues();
+						String[] keys = cursor.getColumnNames();
+						for (String key : keys) {
+							event.put(key, cursor.getString(cursor.getColumnIndex(key)));
+						}
+						eventList.add(event);
+					}
+					cursor.close();
+				}
+				callback.onResultSuccessful(eventList);
+			}
+		});
+
+	}
+
+	@SuppressLint("Range")
+	public static void loadCalendar(Context context, Account account, BackgroundCallback<ContentValues> callback) {
+		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
+			@Override
+			public void run() {
+				final String selection = CalendarContract.Calendars.ACCOUNT_NAME + "=? AND " + CalendarContract.Calendars.IS_PRIMARY + "=?";
+				final String[] selectionArgs = new String[]{account.name, "1"};
+				Cursor cursor = context.getContentResolver().query(CalendarContract.Calendars.CONTENT_URI, null, selection, selectionArgs, null);
+
+				ContentValues calendar = new ContentValues();
+
+				if (cursor != null) {
+					while (cursor.moveToNext()) {
+						String[] keys = cursor.getColumnNames();
+						for (String key : keys) {
+							calendar.put(key, cursor.getString(cursor.getColumnIndex(key)));
+						}
+					}
+					cursor.close();
+				}
+
+				callback.onResultSuccessful(calendar);
+			}
+		});
+
+
+	}
+
+	@SuppressLint("Range")
+	public static void loadAttendees(Context context, Long eventId, BackgroundCallback<List<ContentValues>> callback) {
+		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
+			@Override
+			public void run() {
+				Cursor cursor = CalendarContract.Attendees.query(context.getContentResolver(), eventId, null);
+				List<ContentValues> attendeeList = new ArrayList<>();
+
+				if (cursor != null) {
+					while (cursor.moveToNext()) {
+						ContentValues attendee = new ContentValues();
+						String[] keys = cursor.getColumnNames();
+						for (String key : keys) {
+							attendee.put(key, cursor.getString(cursor.getColumnIndex(key)));
+						}
+
+						attendeeList.add(attendee);
+					}
+					cursor.close();
+				}
+
+				callback.onResultSuccessful(attendeeList);
+			}
+		});
+
 
 	}
 }
