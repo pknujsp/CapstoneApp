@@ -15,8 +15,13 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.lifedawn.capstoneapp.R;
+import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
+import com.lifedawn.capstoneapp.common.constants.Constant;
+import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentPromiseTransactionBinding;
@@ -35,6 +40,7 @@ public class PromiseTransactionFragment extends Fragment {
 	private FragmentPromiseTransactionBinding binding;
 	private AccountViewModel accountViewModel;
 	private CalendarViewModel calendarViewModel;
+	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	private boolean initializing = true;
 	private Integer lastIndexViewPager;
 
@@ -43,12 +49,21 @@ public class PromiseTransactionFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		accountViewModel = new ViewModelProvider(getActivity()).get(AccountViewModel.class);
 		calendarViewModel = new ViewModelProvider(getActivity()).get(CalendarViewModel.class);
+		googleAccountLifeCycleObserver = new GoogleAccountLifeCycleObserver(requireActivity().getActivityResultRegistry(),
+				requireActivity());
+		getLifecycle().addObserver(googleAccountLifeCycleObserver);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		binding = FragmentPromiseTransactionBinding.inflate(inflater);
 		return binding.getRoot();
+	}
+
+	@Override
+	public void onDestroy() {
+		getLifecycle().removeObserver(googleAccountLifeCycleObserver);
+		super.onDestroy();
 	}
 
 	@Override
@@ -91,6 +106,22 @@ public class PromiseTransactionFragment extends Fragment {
 				}
 			}
 		});
+		if (calendarViewModel.getCalendarService() == null) {
+			if (accountViewModel.getUsingAccountType() == Constant.ACCOUNT_GOOGLE) {
+				calendarViewModel.createCalendarService(accountViewModel.getGoogleAccountCredential(), googleAccountLifeCycleObserver,
+						new BackgroundCallback<Calendar>() {
+							@Override
+							public void onResultSuccessful(Calendar e) {
+
+							}
+
+							@Override
+							public void onResultFailed(Exception e) {
+
+							}
+						});
+			}
+		}
 
 		init();
 	}

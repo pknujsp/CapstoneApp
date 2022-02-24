@@ -112,8 +112,7 @@ public class CalendarViewModel extends AndroidViewModel implements ICalendarRepo
 		calendarRepository.existingPromiseCalendar(calendarService, new BackgroundCallback<CalendarListEntry>() {
 			@Override
 			public void onResultSuccessful(CalendarListEntry e) {
-				mainCalendarId = e == null ? null : e.getId();
-				callback.onResultSuccessful(e);
+				//callback.onResultSuccessful(e);
 			}
 
 			@Override

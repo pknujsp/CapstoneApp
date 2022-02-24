@@ -27,6 +27,7 @@ import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.HttpCallback;
 import com.lifedawn.capstoneapp.common.interfaces.OnFragmentCallback;
 import com.lifedawn.capstoneapp.friends.invitation.InvitationFriendFragment;
+import com.lifedawn.capstoneapp.main.MyApplication;
 import com.lifedawn.capstoneapp.map.LocationDto;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAbstractAdapter;
 import com.lifedawn.capstoneapp.promise.abstractfragment.AbstractPromiseFragment;
@@ -48,6 +49,7 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 	private Event editEvent;
 	private LocationDto locationDto;
 	private Calendar calendarService;
+	private String eventId;
 
 	private boolean initializing = true;
 
@@ -63,15 +65,8 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 		super.onCreate(savedInstanceState);
 		if (getArguments() != null) {
 			Bundle bundle = getArguments();
-			originalEvent = new Event();
-			HashMap<String, Object> map = (HashMap<String, Object>) bundle.getSerializable("map");
 
-			Set<String> keySet = map.keySet();
-			for (String key : keySet) {
-				originalEvent.set(key, map.get(key));
-			}
-
-			editEvent = originalEvent.clone();
+			eventId = bundle.getString("eventId");
 		}
 
 	}
@@ -86,7 +81,27 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 		super.onViewCreated(view, savedInstanceState);
 		binding.toolbar.fragmentTitle.setText(R.string.edit_promise);
 
-		init();
+		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
+			@Override
+			public void run() {
+				final Calendar calendarService = calendarViewModel.getCalendarService();
+
+				try {
+					originalEvent = calendarService.events().get("primary", eventId).execute();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				editEvent = originalEvent.clone();
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						init();
+					}
+				});
+			}
+		});
+
 
 		binding.saveBtn.setText(R.string.update);
 		binding.saveBtn.setOnClickListener(new View.OnClickListener() {

@@ -269,7 +269,7 @@ public abstract class AbstractPromiseFragment extends Fragment {
 		LocalTime localTime = (LocalTime) binding.time.getTag();
 
 		ZonedDateTime zonedDateTime = ZonedDateTime.of(localDate, localTime, ZoneId.systemDefault());
-		Calendar calendar = Calendar.getInstance();
+		Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
 
 		calendar.set(zonedDateTime.getYear(), zonedDateTime.getMonthValue() - 1, zonedDateTime.getDayOfMonth(), zonedDateTime.getHour(),
 				zonedDateTime.getMinute());

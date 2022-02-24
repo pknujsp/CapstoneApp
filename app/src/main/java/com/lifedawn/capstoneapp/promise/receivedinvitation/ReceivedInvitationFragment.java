@@ -96,13 +96,13 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 
 			@Override
 			public void onClickedRefusal(ContentValues event, int position) {
-				responseToInvitationEvent(event.getAsString(CalendarContract.Events._ID), false);
+				responseToInvitationEvent(event.getAsString("_sync_id"), false);
 
 			}
 
 			@Override
 			public void onClickedAcceptance(ContentValues event, int position) {
-				responseToInvitationEvent(event.getAsString(CalendarContract.Events._ID), true);
+				responseToInvitationEvent(event.getAsString("_sync_id"), true);
 			}
 		});
 		binding.recyclerView.setAdapter(adapter);
@@ -292,7 +292,6 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 				String dtStart = event.getAsString(CalendarContract.Events.DTSTART);
 				String eventTimeZone = event.getAsString(CalendarContract.Events.EVENT_TIMEZONE);
 				ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(dtStart)), ZoneId.of(eventTimeZone));
-				start = start.withZoneSameInstant(start.getZone());
 
 				binding.dateTime.setText(start.format(DATE_TIME_FORMATTER));
 				binding.description.setText(event.getAsString(CalendarContract.Events.DESCRIPTION) == null ?

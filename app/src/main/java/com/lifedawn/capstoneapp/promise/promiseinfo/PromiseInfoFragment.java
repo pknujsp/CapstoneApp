@@ -27,6 +27,7 @@ import com.lifedawn.capstoneapp.map.LocationDto;
 import com.lifedawn.capstoneapp.map.SelectedLocationSimpleMapFragment;
 import com.lifedawn.capstoneapp.promise.abstractfragment.AbstractPromiseFragment;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -81,9 +82,9 @@ public class PromiseInfoFragment extends Fragment {
 
         binding.title.setText(originalEvent.getAsString(CalendarContract.Events.TITLE));
 
-        Long eventDateTime = originalEvent.getAsLong(CalendarContract.Events.CALENDAR_TIME_ZONE);
-        ZonedDateTime start = ZonedDateTime.parse(eventDateTime.toString());
-        start = start.withZoneSameInstant(ZoneId.of(eventDateTime.toString()));
+        String dtStart = originalEvent.getAsString(CalendarContract.Events.DTSTART);
+        String eventTimeZone = originalEvent.getAsString(CalendarContract.Events.EVENT_TIMEZONE);
+        ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(dtStart)), ZoneId.of(eventTimeZone));
 
         binding.dateTime.setText(start.format(START_DATETIME_FORMATTER));
         binding.description.setText(originalEvent.getAsString(CalendarContract.Events.DESCRIPTION));

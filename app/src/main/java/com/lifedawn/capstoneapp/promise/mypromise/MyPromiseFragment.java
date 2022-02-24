@@ -92,7 +92,8 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 			public void onClickedEdit(ContentValues event, int position) {
 				EditPromiseFragment editPromiseFragment = new EditPromiseFragment();
 				Bundle bundle = new Bundle();
-				bundle.putParcelable("event", event);
+				bundle.putString("eventId", event.getAsString("_sync_id"));
+
 				editPromiseFragment.setArguments(bundle);
 
 				FragmentManager fragmentManager = getParentFragment().getParentFragment().getParentFragmentManager();
@@ -266,7 +267,6 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 				String dtStart = event.getAsString(CalendarContract.Events.DTSTART);
 				String eventTimeZone = event.getAsString(CalendarContract.Events.EVENT_TIMEZONE);
 				ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(dtStart)), ZoneId.of(eventTimeZone));
-				start = start.withZoneSameInstant(start.getZone());
 
 				binding.dateTime.setText(start.format(DATE_TIME_FORMATTER));
 				binding.description.setText(event.getAsString(CalendarContract.Events.DESCRIPTION) == null ?

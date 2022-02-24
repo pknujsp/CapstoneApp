@@ -239,7 +239,6 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 				String dtStart = event.getAsString(CalendarContract.Events.DTSTART);
 				String eventTimeZone = event.getAsString(CalendarContract.Events.EVENT_TIMEZONE);
 				ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(dtStart)), ZoneId.of(eventTimeZone));
-				start = start.withZoneSameInstant(start.getZone());
 
 				binding.dateTime.setText(start.format(DATE_TIME_FORMATTER));
 				binding.description.setText(event.getAsString(CalendarContract.Events.DESCRIPTION) == null ?
