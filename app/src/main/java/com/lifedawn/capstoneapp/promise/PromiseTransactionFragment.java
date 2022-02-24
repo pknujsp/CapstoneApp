@@ -59,6 +59,7 @@ public class PromiseTransactionFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				AddPromiseFragment addPromiseFragment = new AddPromiseFragment();
+
 				getParentFragment().getParentFragmentManager().beginTransaction().hide(
 						getParentFragment().getParentFragmentManager().findFragmentByTag(MainTransactionFragment.class.getName())).add(
 						R.id.fragmentContainerView, addPromiseFragment, AddPromiseFragment.class.getName()).addToBackStack(

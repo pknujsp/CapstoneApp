@@ -96,73 +96,13 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 
 			@Override
 			public void onClickedRefusal(ContentValues event, int position) {
-				final Calendar calendarService = calendarViewModel.getCalendarService();
-				final String myEmail = accountViewModel.lastSignInAccount().getEmail();
+				responseToInvitationEvent(event.getAsString(CalendarContract.Events._ID), false);
 
-				calendarViewModel.sendResponseForInvitedPromise(calendarService, "primary", myEmail, event, false,
-						new BackgroundCallback<Boolean>() {
-							@Override
-							public void onResultSuccessful(Boolean e) {
-								getActivity().runOnUiThread(new Runnable() {
-									@Override
-									public void run() {
-										if (e) {
-											Toast.makeText(getContext(), R.string.response_decline_to_invited_event, Toast.LENGTH_SHORT).show();
-											binding.refreshLayout.post(new Runnable() {
-												@Override
-												public void run() {
-													binding.refreshLayout.setRefreshing(true);
-													syncCalendars();
-												}
-											});
-										} else {
-											Toast.makeText(getContext(), R.string.failed_response_for_invitied_event, Toast.LENGTH_SHORT).show();
-										}
-									}
-								});
-							}
-
-							@Override
-							public void onResultFailed(Exception e) {
-
-							}
-						});
 			}
 
 			@Override
 			public void onClickedAcceptance(ContentValues event, int position) {
-				final Calendar calendarService = calendarViewModel.getCalendarService();
-				final String myEmail = accountViewModel.lastSignInAccount().getEmail();
-
-				calendarViewModel.sendResponseForInvitedPromise(calendarService, "primary", myEmail, event, true,
-						new BackgroundCallback<Boolean>() {
-							@Override
-							public void onResultSuccessful(Boolean e) {
-								getActivity().runOnUiThread(new Runnable() {
-									@Override
-									public void run() {
-										if (e) {
-											Toast.makeText(getContext(), R.string.response_accept_to_invited_event, Toast.LENGTH_SHORT).show();
-											binding.refreshLayout.post(new Runnable() {
-												@Override
-												public void run() {
-													binding.refreshLayout.setRefreshing(true);
-													syncCalendars();
-												}
-											});
-
-										} else {
-											Toast.makeText(getContext(), R.string.failed_response_for_invitied_event, Toast.LENGTH_SHORT).show();
-										}
-									}
-								});
-							}
-
-							@Override
-							public void onResultFailed(Exception e) {
-
-							}
-						});
+				responseToInvitationEvent(event.getAsString(CalendarContract.Events._ID), true);
 			}
 		});
 		binding.recyclerView.setAdapter(adapter);
@@ -177,6 +117,49 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 
 		initializing = false;
 		refreshEvents();
+	}
+
+	private void responseToInvitationEvent(String eventId, boolean acceptance) {
+		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
+			@Override
+			public void run() {
+				final Calendar calendarService = calendarViewModel.getCalendarService();
+				final String myEmail = accountViewModel.lastSignInAccount().getEmail();
+				Event updatedEvent = null;
+
+				try {
+					Event event = calendarService.events().get("primary", eventId).execute();
+					for (EventAttendee eventAttendee : event.getAttendees()) {
+						if (eventAttendee.getEmail().equals(myEmail)) {
+							eventAttendee.setResponseStatus(acceptance ? "accepted" : "declined");
+							break;
+						}
+					}
+
+					updatedEvent = calendarService.events().update("primary", event.getId(), event).execute();
+
+				} catch (Exception e) {
+					getActivity().runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Toast.makeText(getContext(), R.string.failed_response_for_invitied_event,
+									Toast.LENGTH_SHORT).show();
+						}
+					});
+				}
+
+				if (updatedEvent != null) {
+					getActivity().runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							syncCalendars();
+							Toast.makeText(getContext(), acceptance ? R.string.response_accept_to_invited_event : R.string.response_decline_to_invited_event,
+									Toast.LENGTH_SHORT).show();
+						}
+					});
+				}
+			}
+		});
 	}
 
 
