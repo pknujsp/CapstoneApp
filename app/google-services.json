@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "302828824120-2p1q4vpq8t5soomorslcg7ucnu88s57r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lifedawn.capstoneapp",
+            "certificate_hash": "f9f5ed064c73938ef5125e0c297f7b2e246d626d"
+          }
+        },
+        {
+          "client_id": "302828824120-dm9se7thqb1hrku7mvivg01eqvrgralr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lifedawn.capstoneapp",
+            "certificate_hash": "2ede2f8579c99ac6d75c12355ba805b4f0c0f9c0"
+          }
+        },
+        {
           "client_id": "302828824120-vr5uqed4m00quupr3vhq9qgbbemagnhg.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
