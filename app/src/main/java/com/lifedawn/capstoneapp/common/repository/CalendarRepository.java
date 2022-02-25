@@ -34,6 +34,7 @@ import com.lifedawn.capstoneapp.common.repositoryinterface.ICalendarRepository;
 import com.lifedawn.capstoneapp.main.MyApplication;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -392,6 +393,40 @@ public class CalendarRepository implements ICalendarRepository {
 	}
 
 	@SuppressLint("Range")
+	public static void loadAllEvents(Context context, String calendarId, ZonedDateTime begin, ZonedDateTime end,
+	                                 BackgroundCallback<List<ContentValues>> callback) {
+		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
+			@Override
+			public void run() {
+				final String selection = CalendarContract.Events.CALENDAR_ID + "=? AND " + CalendarContract.Events.DTSTART + ">=? AND " +
+						CalendarContract.Events.DTEND + "<=?";
+				final String[] selectionArgs = {calendarId, String.valueOf(begin.toInstant().getEpochSecond() * 1000L),
+						String.valueOf(end.toInstant().getEpochSecond() * 1000L)};
+
+				Cursor cursor = context.getContentResolver().query(CalendarContract.Events.CONTENT_URI, null, selection, selectionArgs,
+						null);
+
+				List<ContentValues> eventList = new ArrayList<>();
+
+				if (cursor != null) {
+					while (cursor.moveToNext()) {
+						ContentValues event = new ContentValues();
+						String[] keys = cursor.getColumnNames();
+						for (String key : keys) {
+							event.put(key, cursor.getString(cursor.getColumnIndex(key)));
+						}
+						eventList.add(event);
+					}
+					cursor.close();
+				}
+				callback.onResultSuccessful(eventList);
+			}
+		});
+
+	}
+
+
+	@SuppressLint("Range")
 	public static void loadCalendar(Context context, Account account, BackgroundCallback<ContentValues> callback) {
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
@@ -401,7 +436,6 @@ public class CalendarRepository implements ICalendarRepository {
 				Cursor cursor = context.getContentResolver().query(CalendarContract.Calendars.CONTENT_URI, null, selection, selectionArgs, null);
 
 				ContentValues calendar = new ContentValues();
-
 				if (cursor != null) {
 					while (cursor.moveToNext()) {
 						String[] keys = cursor.getColumnNames();
@@ -421,6 +455,34 @@ public class CalendarRepository implements ICalendarRepository {
 
 	@SuppressLint("Range")
 	public static void loadAttendees(Context context, Long eventId, BackgroundCallback<List<ContentValues>> callback) {
+		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
+			@Override
+			public void run() {
+				Cursor cursor = CalendarContract.Attendees.query(context.getContentResolver(), eventId, null);
+				List<ContentValues> attendeeList = new ArrayList<>();
+
+				if (cursor != null) {
+					while (cursor.moveToNext()) {
+						ContentValues attendee = new ContentValues();
+						String[] keys = cursor.getColumnNames();
+						for (String key : keys) {
+							attendee.put(key, cursor.getString(cursor.getColumnIndex(key)));
+						}
+
+						attendeeList.add(attendee);
+					}
+					cursor.close();
+				}
+
+				callback.onResultSuccessful(attendeeList);
+			}
+		});
+
+	}
+
+
+	@SuppressLint("Range")
+	public static void loadAttendees(Context context, Long eventId, ZonedDateTime begin, ZonedDateTime end, BackgroundCallback<List<ContentValues>> callback) {
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
 			public void run() {
