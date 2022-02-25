@@ -1,13 +1,13 @@
 package com.lifedawn.capstoneapp.common.interfaces;
 
-import android.content.ContentValues;
+import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
 
 public interface OnClickPromiseItemListener {
-	void onClickedEdit(ContentValues event, int position);
+	void onClickedEdit(CalendarRepository.EventObj event, int position);
 
-	void onClickedEvent(ContentValues event, int position);
+	void onClickedEvent(CalendarRepository.EventObj event, int position);
 
-	void onClickedRefusal(ContentValues event, int position);
+	void onClickedRefusal(CalendarRepository.EventObj event, int position);
 
-	void onClickedAcceptance(ContentValues event, int position);
+	void onClickedAcceptance(CalendarRepository.EventObj event, int position);
 }

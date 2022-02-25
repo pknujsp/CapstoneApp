@@ -18,8 +18,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.EventAttendee;
 import com.kizitonwose.calendarview.model.CalendarDay;
 import com.kizitonwose.calendarview.model.CalendarMonth;
 import com.kizitonwose.calendarview.model.DayOwner;
@@ -130,7 +128,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 			List<ContentValues> eventList;
 			List<ContentValues> attendeeList;
 			int acceptedCount;
-			int needsActionCount;
+			int eventCount;
 
 			@NonNull
 			@Override
@@ -141,7 +139,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 			@Override
 			public void bind(@NonNull DayViewContainer viewContainer, @NonNull CalendarDay calendarDay) {
 				acceptedCount = 0;
-				needsActionCount = 0;
+				eventCount = 0;
 				dateText = calendarDay.getDate().toString();
 
 				viewContainer.binding.calendarDayText.setText(String.valueOf(calendarDay.getDate().getDayOfMonth()));
@@ -160,22 +158,16 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 
 				if (eventsMap.containsKey(dateText)) {
 					eventList = eventsMap.get(dateText);
+					eventCount = eventList.size();
 					attendeeList = attendeesMap.get(dateText);
 
 					for (ContentValues event : eventList) {
 						if (attendeeList != null) {
-							if (event.getAsString(CalendarContract.Events.OWNER_ACCOUNT).equals(myEmail)) {
-								acceptedCount++;
-								continue;
-							}
 
 							for (ContentValues attendee : attendeeList) {
 								if (attendee.getAsString(CalendarContract.Attendees.ATTENDEE_EMAIL).equals(myEmail)) {
 									if (attendee.getAsInteger(CalendarContract.Attendees.ATTENDEE_STATUS).equals(CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED)) {
 										acceptedCount++;
-									}
-									if (attendee.getAsInteger(CalendarContract.Attendees.ATTENDEE_STATUS).equals(CalendarContract.Attendees.ATTENDEE_STATUS_INVITED)) {
-										needsActionCount++;
 									}
 
 								}
@@ -188,7 +180,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 				}
 
 				viewContainer.binding.acceptedPromiseCount.setText(acceptedCount > 0 ? String.valueOf(acceptedCount) : null);
-				viewContainer.binding.needsActionPromiseCount.setText(needsActionCount > 0 ? String.valueOf(needsActionCount) : null);
+				viewContainer.binding.eventCount.setText(eventCount > 0 ? String.valueOf(eventCount) : null);
 			}
 		});
 
@@ -268,6 +260,9 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 								String dateText = null;
 								ZonedDateTime eventDateTime = null;
 								final ZoneId zoneId = firstDateTime.getZone();
+
+								eventsMap.clear();
+								attendeesMap.clear();
 
 								for (ContentValues event : eventList) {
 									eventDateTime =

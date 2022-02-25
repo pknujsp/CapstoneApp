@@ -19,10 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.model.CalendarListEntry;
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.EventDateTime;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.constants.Constant;
@@ -30,6 +26,7 @@ import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.interfaces.IRefreshCalendar;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
+import com.lifedawn.capstoneapp.common.util.AttendeeUtil;
 import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
@@ -42,16 +39,12 @@ import com.lifedawn.capstoneapp.promise.promiseinfo.PromiseInfoFragment;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
@@ -89,10 +82,10 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 		adapter = new RecyclerViewAdapter(getContext());
 		adapter.setOnClickPromiseItemListener(new OnClickPromiseItemListener() {
 			@Override
-			public void onClickedEdit(ContentValues event, int position) {
+			public void onClickedEdit(CalendarRepository.EventObj event, int position) {
 				EditPromiseFragment editPromiseFragment = new EditPromiseFragment();
 				Bundle bundle = new Bundle();
-				bundle.putString("eventId", event.getAsString("_sync_id"));
+				bundle.putString("eventId", event.getEvent().getAsString("_sync_id"));
 
 				editPromiseFragment.setArguments(bundle);
 
@@ -103,7 +96,7 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 			}
 
 			@Override
-			public void onClickedEvent(ContentValues event, int position) {
+			public void onClickedEvent(CalendarRepository.EventObj event, int position) {
 				PromiseInfoFragment promiseInfoFragment = new PromiseInfoFragment();
 
 				Bundle bundle = new Bundle();
@@ -117,13 +110,13 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 			}
 
 			@Override
-			public void onClickedRefusal(ContentValues event, int position) {
+			public void onClickedRefusal(CalendarRepository.EventObj event, int position) {
 
 
 			}
 
 			@Override
-			public void onClickedAcceptance(ContentValues event, int position) {
+			public void onClickedAcceptance(CalendarRepository.EventObj event, int position) {
 
 
 			}
@@ -139,6 +132,8 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 
 
 		initializing = false;
+		binding.refreshLayout.setRefreshing(true);
+
 		refreshEvents();
 
 	}
@@ -167,27 +162,28 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 		CalendarRepository.loadCalendar(getContext(), account, new BackgroundCallback<ContentValues>() {
 			@Override
 			public void onResultSuccessful(ContentValues e) {
-				CalendarRepository.loadMyEvents(getContext(), account, e.getAsString(CalendarContract.Calendars._ID), new BackgroundCallback<List<ContentValues>>() {
-					@Override
-					public void onResultSuccessful(List<ContentValues> e) {
-						if (getActivity() != null) {
-							getActivity().runOnUiThread(new Runnable() {
-								@Override
-								public void run() {
-									binding.refreshLayout.setRefreshing(false);
-									adapter.setEvents(e);
-									adapter.notifyDataSetChanged();
+				CalendarRepository.loadMyEvents(getContext(), account, e.getAsString(CalendarContract.Calendars._ID),
+						new BackgroundCallback<List<CalendarRepository.EventObj>>() {
+							@Override
+							public void onResultSuccessful(List<CalendarRepository.EventObj> e) {
+								if (getActivity() != null) {
+									getActivity().runOnUiThread(new Runnable() {
+										@Override
+										public void run() {
+											binding.refreshLayout.setRefreshing(false);
+											adapter.setEvents(e);
+											adapter.notifyDataSetChanged();
 
+										}
+									});
 								}
-							});
-						}
-					}
+							}
 
-					@Override
-					public void onResultFailed(Exception e) {
+							@Override
+							public void onResultFailed(Exception e) {
 
-					}
-				});
+							}
+						});
 			}
 
 			@Override
@@ -198,7 +194,7 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 	}
 
 	private class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-		private List<ContentValues> events = new ArrayList<>();
+		private List<CalendarRepository.EventObj> events = new ArrayList<>();
 		private OnClickPromiseItemListener onClickPromiseItemListener;
 		private DateTimeFormatter DATE_TIME_FORMATTER;
 
@@ -210,7 +206,7 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 			this.onClickPromiseItemListener = onClickPromiseItemListener;
 		}
 
-		public void setEvents(List<ContentValues> events) {
+		public void setEvents(List<CalendarRepository.EventObj> events) {
 			this.events = events;
 		}
 
@@ -263,7 +259,7 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 					}
 				});
 
-				final ContentValues event = events.get(getBindingAdapterPosition());
+				final ContentValues event = events.get(getBindingAdapterPosition()).getEvent();
 				String dtStart = event.getAsString(CalendarContract.Events.DTSTART);
 				String eventTimeZone = event.getAsString(CalendarContract.Events.EVENT_TIMEZONE);
 				ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(dtStart)), ZoneId.of(eventTimeZone));
@@ -286,6 +282,7 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 					binding.location.setText(getContext().getString(R.string.no_promise_location));
 				}
 
+				binding.people.setText(AttendeeUtil.toListString(events.get(getBindingAdapterPosition()).getAttendeeList()));
 			}
 		}
 	}

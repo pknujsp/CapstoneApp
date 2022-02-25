@@ -26,6 +26,7 @@ import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.interfaces.IRefreshCalendar;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
+import com.lifedawn.capstoneapp.common.util.AttendeeUtil;
 import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
@@ -78,16 +79,16 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 		adapter = new RecyclerViewAdapter(getContext());
 		adapter.setOnClickPromiseItemListener(new OnClickPromiseItemListener() {
 			@Override
-			public void onClickedEdit(ContentValues event, int position) {
+			public void onClickedEdit(CalendarRepository.EventObj event, int position) {
 
 			}
 
 			@Override
-			public void onClickedEvent(ContentValues event, int position) {
+			public void onClickedEvent(CalendarRepository.EventObj event, int position) {
 				PromiseInfoFragment promiseInfoFragment = new PromiseInfoFragment();
 
 				Bundle bundle = new Bundle();
-				bundle.putParcelable("event", event);
+				bundle.putParcelable("event", event.getEvent());
 				promiseInfoFragment.setArguments(bundle);
 
 				FragmentManager fragmentManager = getParentFragment().getParentFragment().getParentFragmentManager();
@@ -97,12 +98,12 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 			}
 
 			@Override
-			public void onClickedRefusal(ContentValues event, int position) {
+			public void onClickedRefusal(CalendarRepository.EventObj event, int position) {
 
 			}
 
 			@Override
-			public void onClickedAcceptance(ContentValues event, int position) {
+			public void onClickedAcceptance(CalendarRepository.EventObj event, int position) {
 
 			}
 		});
@@ -116,6 +117,8 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 		});
 
 		initializing = false;
+		binding.refreshLayout.setRefreshing(true);
+
 		refreshEvents();
 	}
 
@@ -139,31 +142,32 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 
 	@Override
 	public void refreshEvents() {
-		if(accountViewModel.lastSignInAccount() == null){
+		if (accountViewModel.lastSignInAccount() == null) {
 			return;
 		}
 		final Account account = accountViewModel.lastSignInAccount().getAccount();
 		CalendarRepository.loadCalendar(getContext(), account, new BackgroundCallback<ContentValues>() {
 			@Override
 			public void onResultSuccessful(ContentValues e) {
-				CalendarRepository.loadAllEvents(getContext(), e.getAsString(CalendarContract.Calendars._ID), new BackgroundCallback<List<ContentValues>>() {
-					@Override
-					public void onResultSuccessful(List<ContentValues> e) {
-						getActivity().runOnUiThread(new Runnable() {
+				CalendarRepository.loadAllEvents(getContext(), e.getAsString(CalendarContract.Calendars._ID),
+						new BackgroundCallback<List<CalendarRepository.EventObj>>() {
 							@Override
-							public void run() {
-								binding.refreshLayout.setRefreshing(false);
-								adapter.setEvents(e);
-								adapter.notifyDataSetChanged();
+							public void onResultSuccessful(List<CalendarRepository.EventObj> e) {
+								getActivity().runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										binding.refreshLayout.setRefreshing(false);
+										adapter.setEvents(e);
+										adapter.notifyDataSetChanged();
+									}
+								});
+							}
+
+							@Override
+							public void onResultFailed(Exception e) {
+
 							}
 						});
-					}
-
-					@Override
-					public void onResultFailed(Exception e) {
-
-					}
-				});
 			}
 
 			@Override
@@ -174,7 +178,7 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 	}
 
 	private class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-		private List<ContentValues> events = new ArrayList<>();
+		private List<CalendarRepository.EventObj> events = new ArrayList<>();
 		private OnClickPromiseItemListener onClickPromiseItemListener;
 		private DateTimeFormatter DATE_TIME_FORMATTER;
 
@@ -186,7 +190,7 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 			this.onClickPromiseItemListener = onClickPromiseItemListener;
 		}
 
-		public void setEvents(List<ContentValues> events) {
+		public void setEvents(List<CalendarRepository.EventObj> events) {
 			this.events = events;
 		}
 
@@ -229,6 +233,7 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 				binding.getRoot().setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
+						onClickPromiseItemListener.onClickedEvent(events.get(getBindingAdapterPosition()), getBindingAdapterPosition());
 					}
 				});
 
@@ -238,7 +243,9 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 					}
 				});
 
-				final ContentValues event = events.get(getBindingAdapterPosition());
+				CalendarRepository.EventObj eventObj = events.get(getBindingAdapterPosition());
+
+				final ContentValues event = eventObj.getEvent();
 				String dtStart = event.getAsString(CalendarContract.Events.DTSTART);
 				String eventTimeZone = event.getAsString(CalendarContract.Events.EVENT_TIMEZONE);
 				ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(dtStart)), ZoneId.of(eventTimeZone));
@@ -261,13 +268,7 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 					binding.location.setText(getContext().getString(R.string.no_promise_location));
 				}
 
-				/*
-				List<EventAttendee> attendeeList = event.getAsString(CalendarContract.Events.ATT);
-				if (attendeeList != null) {
-					binding.people.setText(AttendeeUtil.toListString(attendeeList));
-				}
-
-				 */
+				binding.people.setText(AttendeeUtil.toListString(eventObj.getAttendeeList()));
 
 			}
 		}

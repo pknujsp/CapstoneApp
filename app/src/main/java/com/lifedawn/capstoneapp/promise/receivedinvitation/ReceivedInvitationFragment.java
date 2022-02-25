@@ -14,17 +14,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
-import com.google.api.services.calendar.model.EventDateTime;
-import com.google.api.services.calendar.model.Events;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.constants.Constant;
@@ -33,13 +31,16 @@ import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
 import com.lifedawn.capstoneapp.common.util.AttendeeUtil;
+import com.lifedawn.capstoneapp.common.util.ReminderUtil;
 import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentReceivedInvitationBinding;
 import com.lifedawn.capstoneapp.databinding.ItemViewInvitedPromiseBinding;
+import com.lifedawn.capstoneapp.main.MainTransactionFragment;
 import com.lifedawn.capstoneapp.main.MyApplication;
 import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.promise.promiseinfo.PromiseInfoFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -56,6 +57,7 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 	private CalendarViewModel calendarViewModel;
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	private RecyclerViewAdapter adapter;
+	private String myEmail;
 
 	private boolean initializing = true;
 
@@ -85,24 +87,32 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 		adapter = new RecyclerViewAdapter(getContext());
 		adapter.setOnClickPromiseItemListener(new OnClickPromiseItemListener() {
 			@Override
-			public void onClickedEdit(ContentValues event, int position) {
+			public void onClickedEdit(CalendarRepository.EventObj event, int position) {
 
 			}
 
 			@Override
-			public void onClickedEvent(ContentValues event, int position) {
+			public void onClickedEvent(CalendarRepository.EventObj event, int position) {
+				PromiseInfoFragment promiseInfoFragment = new PromiseInfoFragment();
 
+				Bundle bundle = new Bundle();
+				bundle.putParcelable("event", event.getEvent());
+				promiseInfoFragment.setArguments(bundle);
+
+				FragmentManager fragmentManager = getParentFragment().getParentFragment().getParentFragmentManager();
+				fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName())).add(
+						R.id.fragmentContainerView, promiseInfoFragment, PromiseInfoFragment.class.getName()).addToBackStack(
+						PromiseInfoFragment.class.getName()).commit();
 			}
 
 			@Override
-			public void onClickedRefusal(ContentValues event, int position) {
-				responseToInvitationEvent(event.getAsString("_sync_id"), false);
-
+			public void onClickedRefusal(CalendarRepository.EventObj event, int position) {
+				responseToInvitationEvent(event.getEvent().getAsString("_sync_id"), false);
 			}
 
 			@Override
-			public void onClickedAcceptance(ContentValues event, int position) {
-				responseToInvitationEvent(event.getAsString("_sync_id"), true);
+			public void onClickedAcceptance(CalendarRepository.EventObj event, int position) {
+				responseToInvitationEvent(event.getEvent().getAsString("_sync_id"), true);
 			}
 		});
 		binding.recyclerView.setAdapter(adapter);
@@ -114,8 +124,9 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 			}
 		});
 
-
 		initializing = false;
+		binding.refreshLayout.setRefreshing(true);
+
 		refreshEvents();
 	}
 
@@ -124,7 +135,6 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 			@Override
 			public void run() {
 				final Calendar calendarService = calendarViewModel.getCalendarService();
-				final String myEmail = accountViewModel.lastSignInAccount().getEmail();
 				Event updatedEvent = null;
 
 				try {
@@ -165,7 +175,9 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 
 	@Override
 	public void syncCalendars() {
-		final Account account = accountViewModel.lastSignInAccount().getAccount();
+		Account account = accountViewModel.lastSignInAccount().getAccount();
+		myEmail = account.name;
+
 		calendarViewModel.syncCalendars(account, new BackgroundCallback<Boolean>() {
 			@SuppressLint("Range")
 			@Override
@@ -183,12 +195,14 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 	@Override
 	public void refreshEvents() {
 		Account account = accountViewModel.lastSignInAccount().getAccount();
+		myEmail = account.name;
 		CalendarRepository.loadCalendar(getContext(), account, new BackgroundCallback<ContentValues>() {
 			@Override
 			public void onResultSuccessful(ContentValues e) {
-				CalendarRepository.loadReceivedInvitationEvents(getContext(), account, e.getAsString(CalendarContract.Calendars._ID), new BackgroundCallback<List<ContentValues>>() {
+				CalendarRepository.loadReceivedInvitationEvents(getContext(), account, new BackgroundCallback<List<CalendarRepository.EventObj>>() {
 					@Override
-					public void onResultSuccessful(List<ContentValues> e) {
+					public void onResultSuccessful(List<CalendarRepository.EventObj> e) {
+
 						getActivity().runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
@@ -214,7 +228,7 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 	}
 
 	private class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-		private List<ContentValues> events = new ArrayList<>();
+		private List<CalendarRepository.EventObj> events = new ArrayList<>();
 		private OnClickPromiseItemListener onClickPromiseItemListener;
 		private DateTimeFormatter DATE_TIME_FORMATTER;
 
@@ -226,7 +240,7 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 			this.onClickPromiseItemListener = onClickPromiseItemListener;
 		}
 
-		public void setEvents(List<ContentValues> events) {
+		public void setEvents(List<CalendarRepository.EventObj> events) {
 			this.events = events;
 		}
 
@@ -288,7 +302,9 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 					}
 				});
 
-				final ContentValues event = events.get(getBindingAdapterPosition());
+				CalendarRepository.EventObj eventObj = events.get(getBindingAdapterPosition());
+
+				final ContentValues event = eventObj.getEvent();
 				String dtStart = event.getAsString(CalendarContract.Events.DTSTART);
 				String eventTimeZone = event.getAsString(CalendarContract.Events.EVENT_TIMEZONE);
 				ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(dtStart)), ZoneId.of(eventTimeZone));
@@ -311,7 +327,40 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 					binding.location.setText(getContext().getString(R.string.no_promise_location));
 				}
 
+				if (eventObj.getAttendeeList().size() > 0) {
+					String text = AttendeeUtil.toListString(eventObj.getAttendeeList());
+					binding.people.setText(text);
+				} else {
+					binding.people.setText(null);
+				}
+
+				binding.invitee.setText(event.getAsString(CalendarContract.Events.ORGANIZER));
+
+				List<ContentValues> attendeeList = eventObj.getAttendeeList();
+				for (ContentValues attendee : attendeeList) {
+					if (attendee.getAsString(CalendarContract.Attendees.ATTENDEE_EMAIL).equals(myEmail)) {
+						if (attendee.getAsInteger(CalendarContract.Attendees.ATTENDEE_STATUS).equals(CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED)) {
+							binding.status.setText(getString(R.string.response_accept_to_invited_event));
+							binding.acceptanceBtn.setVisibility(View.GONE);
+							binding.refusalBtn.setVisibility(View.VISIBLE);
+							break;
+						} else if (attendee.getAsInteger(CalendarContract.Attendees.ATTENDEE_STATUS).equals(CalendarContract.Attendees.ATTENDEE_STATUS_DECLINED)) {
+							binding.status.setText(getString(R.string.response_decline_to_invited_event));
+							binding.acceptanceBtn.setVisibility(View.VISIBLE);
+							binding.refusalBtn.setVisibility(View.GONE);
+							break;
+						} else if (attendee.getAsInteger(CalendarContract.Attendees.ATTENDEE_STATUS).equals(CalendarContract.Attendees.ATTENDEE_STATUS_INVITED)) {
+							binding.status.setText(getString(R.string.no_response_to_invited_event));
+							binding.acceptanceBtn.setVisibility(View.VISIBLE);
+							binding.refusalBtn.setVisibility(View.VISIBLE);
+							break;
+						}
+					}
+				}
+
+
 			}
 		}
 	}
+
 }

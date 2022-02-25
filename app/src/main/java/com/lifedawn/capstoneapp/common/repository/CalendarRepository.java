@@ -9,8 +9,9 @@ import android.content.Context;
 import android.content.SyncStatusObserver;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.provider.CalendarContract;
-import android.util.Log;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -298,98 +299,19 @@ public class CalendarRepository implements ICalendarRepository {
 
 	}
 
-	@SuppressLint("Range")
-	public static void loadAllEvents(Context context, String calendarId, BackgroundCallback<List<ContentValues>> callback) {
-		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
-			@Override
-			public void run() {
-				String[] selectionArgs = {calendarId};
-				String selection = CalendarContract.Events.CALENDAR_ID + "=?";
 
-				Cursor cursor = context.getContentResolver().query(CalendarContract.Events.CONTENT_URI, null, selection, selectionArgs,
-						null);
-
-				List<ContentValues> eventList = new ArrayList<>();
-
-				if (cursor != null) {
-					while (cursor.moveToNext()) {
-						ContentValues event = new ContentValues();
-						String[] keys = cursor.getColumnNames();
-						for (String key : keys) {
-							event.put(key, cursor.getString(cursor.getColumnIndex(key)));
-						}
-						eventList.add(event);
-					}
-					cursor.close();
-				}
-				callback.onResultSuccessful(eventList);
-			}
-		});
-
+	public static void loadMyEvents(Context context, Account account, String calendarId, BackgroundCallback<List<EventObj>> callback) {
+		String selection = CalendarContract.Events.CALENDAR_ID + "=? AND " + CalendarContract.Events.ACCOUNT_NAME + "=?";
+		String[] selectionArgs = new String[]{calendarId, account.name};
+		loadAllEvents(context, selection, selectionArgs, callback);
 	}
 
 	@SuppressLint("Range")
-	public static void loadMyEvents(Context context, Account account, String calendarId, BackgroundCallback<List<ContentValues>> callback) {
-		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
-			@Override
-			public void run() {
-				String selection = CalendarContract.Events.CALENDAR_ID + "=? AND " + CalendarContract.Events.ACCOUNT_NAME + "=?";
-				String[] selectionArgs = new String[]{calendarId, account.name};
-
-				Cursor cursor = context.getContentResolver().query(CalendarContract.Events.CONTENT_URI, null, selection, selectionArgs,
-						null);
-
-				List<ContentValues> eventList = new ArrayList<>();
-
-				if (cursor != null) {
-					while (cursor.moveToNext()) {
-						ContentValues event = new ContentValues();
-						String[] keys = cursor.getColumnNames();
-						for (String key : keys) {
-							event.put(key, cursor.getString(cursor.getColumnIndex(key)));
-						}
-						eventList.add(event);
-					}
-					cursor.close();
-				}
-				callback.onResultSuccessful(eventList);
-			}
-		});
-
-	}
-
-	@SuppressLint("Range")
-	public static void loadReceivedInvitationEvents(Context context, Account account, String calendarId,
-	                                                BackgroundCallback<List<ContentValues>> callback) {
-		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
-			@Override
-			public void run() {
-				String selection = CalendarContract.Events.ORGANIZER + "!=? AND " + CalendarContract.Events.ACCOUNT_NAME + "=?";
-				String[] selectionArgs = {account.name, account.name};
-				final String standardEmailStructure = "@gmail.com";
-				Cursor cursor = context.getContentResolver().query(CalendarContract.Events.CONTENT_URI, null, selection, selectionArgs,
-						null);
-
-				List<ContentValues> eventList = new ArrayList<>();
-				if (cursor != null) {
-					while (cursor.moveToNext()) {
-						if (cursor.getString(cursor.getColumnIndex(CalendarContract.Events.ORGANIZER)).contains(standardEmailStructure)) {
-							ContentValues event = new ContentValues();
-							String[] keys = cursor.getColumnNames();
-							for (String key : keys) {
-								event.put(key, cursor.getString(cursor.getColumnIndex(key)));
-							}
-							eventList.add(event);
-						}
-
-
-					}
-					cursor.close();
-				}
-				callback.onResultSuccessful(eventList);
-			}
-		});
-
+	public static void loadReceivedInvitationEvents(Context context, Account account,
+	                                                BackgroundCallback<List<EventObj>> callback) {
+		String selection = CalendarContract.Events.ORGANIZER + " LIKE '%@gmail.com' AND " + CalendarContract.Events.ACCOUNT_NAME + "!=?";
+		String[] selectionArgs = {account.name};
+		loadAllEvents(context, selection, selectionArgs, callback);
 	}
 
 	@SuppressLint("Range")
@@ -523,12 +445,12 @@ public class CalendarRepository implements ICalendarRepository {
 
 				if (cursor != null) {
 					while (cursor.moveToNext()) {
-						ContentValues event = new ContentValues();
+						ContentValues reminder = new ContentValues();
 						String[] keys = cursor.getColumnNames();
 						for (String key : keys) {
-							event.put(key, cursor.getString(cursor.getColumnIndex(key)));
+							reminder.put(key, cursor.getString(cursor.getColumnIndex(key)));
 						}
-						reminderList.add(event);
+						reminderList.add(reminder);
 					}
 					cursor.close();
 				}
@@ -536,5 +458,153 @@ public class CalendarRepository implements ICalendarRepository {
 			}
 		});
 
+	}
+
+
+	public static void loadAllEvents(Context context, String calendarId, BackgroundCallback<List<EventObj>> callback) {
+		String[] selectionArgs = {calendarId};
+		String selection = CalendarContract.Events.CALENDAR_ID + "=?";
+		loadAllEvents(context, selection, selectionArgs, callback);
+	}
+
+	@SuppressLint("Range")
+	private static void loadAllEvents(Context context, String selection, String[] selectionArgs, BackgroundCallback<List<EventObj>> callback) {
+		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
+			@Override
+			public void run() {
+				List<EventObj> eventObjList = new ArrayList<>();
+				Cursor cursor = context.getContentResolver().query(CalendarContract.Events.CONTENT_URI, null, selection, selectionArgs,
+						null);
+
+				List<ContentValues> eventList = new ArrayList<>();
+
+				if (cursor != null) {
+					while (cursor.moveToNext()) {
+						ContentValues event = new ContentValues();
+						String[] keys = cursor.getColumnNames();
+						for (String key : keys) {
+							event.put(key, cursor.getString(cursor.getColumnIndex(key)));
+						}
+						eventList.add(event);
+						EventObj eventObj = new EventObj();
+						eventObj.setEvent(event);
+						eventObjList.add(eventObj);
+					}
+					cursor.close();
+				}
+
+				int i = 0;
+				for (ContentValues event : eventList) {
+					cursor = CalendarContract.Reminders.query(context.getContentResolver(), event.getAsLong(CalendarContract.Events._ID),
+							null);
+
+					List<ContentValues> reminderList = new ArrayList<>();
+
+					if (cursor != null) {
+						while (cursor.moveToNext()) {
+							ContentValues reminder = new ContentValues();
+							String[] keys = cursor.getColumnNames();
+							for (String key : keys) {
+								reminder.put(key, cursor.getString(cursor.getColumnIndex(key)));
+							}
+							reminderList.add(reminder);
+						}
+						cursor.close();
+					}
+					eventObjList.get(i).setReminderList(reminderList);
+					i++;
+				}
+
+				i = 0;
+				for (ContentValues event : eventList) {
+					cursor = CalendarContract.Attendees.query(context.getContentResolver(), event.getAsLong(CalendarContract.Events._ID), null);
+					List<ContentValues> attendeeList = new ArrayList<>();
+
+					if (cursor != null) {
+						while (cursor.moveToNext()) {
+							ContentValues attendee = new ContentValues();
+							String[] keys = cursor.getColumnNames();
+							for (String key : keys) {
+								attendee.put(key, cursor.getString(cursor.getColumnIndex(key)));
+							}
+
+							attendeeList.add(attendee);
+						}
+						cursor.close();
+						eventObjList.get(i).setAttendeeList(attendeeList);
+						i++;
+					}
+				}
+
+				callback.onResultSuccessful(eventObjList);
+
+			}
+		});
+	}
+
+	public static class EventObj implements Parcelable {
+		private ContentValues event;
+		private List<ContentValues> attendeeList;
+		private List<ContentValues> reminderList;
+
+		public EventObj() {
+		}
+
+		protected EventObj(Parcel in) {
+			event = in.readParcelable(ContentValues.class.getClassLoader());
+			attendeeList = in.createTypedArrayList(ContentValues.CREATOR);
+			reminderList = in.createTypedArrayList(ContentValues.CREATOR);
+		}
+
+		public static final Creator<EventObj> CREATOR = new Creator<EventObj>() {
+			@Override
+			public EventObj createFromParcel(Parcel in) {
+				return new EventObj(in);
+			}
+
+			@Override
+			public EventObj[] newArray(int size) {
+				return new EventObj[size];
+			}
+		};
+
+		public ContentValues getEvent() {
+			return event;
+		}
+
+		public EventObj setEvent(ContentValues event) {
+			this.event = event;
+			return this;
+		}
+
+		public List<ContentValues> getAttendeeList() {
+			return attendeeList;
+		}
+
+		public EventObj setAttendeeList(List<ContentValues> attendeeList) {
+			this.attendeeList = attendeeList;
+			return this;
+		}
+
+		public List<ContentValues> getReminderList() {
+			return reminderList;
+		}
+
+		public EventObj setReminderList(List<ContentValues> reminderList) {
+			this.reminderList = reminderList;
+			return this;
+		}
+
+		@Override
+		public int describeContents() {
+			return 0;
+		}
+
+		@Override
+		public void writeToParcel(Parcel dest, int flags) {
+			dest.writeParcelable(event, flags);
+			dest.writeTypedList(attendeeList);
+			dest.writeTypedList(reminderList);
+		}
 	}
 }
