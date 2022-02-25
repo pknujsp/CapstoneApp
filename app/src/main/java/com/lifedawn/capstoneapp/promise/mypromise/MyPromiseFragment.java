@@ -100,7 +100,7 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 				PromiseInfoFragment promiseInfoFragment = new PromiseInfoFragment();
 
 				Bundle bundle = new Bundle();
-				bundle.putParcelable("event", event);
+				bundle.putParcelable("event", event.getEvent());
 				promiseInfoFragment.setArguments(bundle);
 
 				FragmentManager fragmentManager = getParentFragment().getParentFragment().getParentFragmentManager();

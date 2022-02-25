@@ -309,7 +309,7 @@ public class CalendarRepository implements ICalendarRepository {
 	@SuppressLint("Range")
 	public static void loadReceivedInvitationEvents(Context context, Account account,
 	                                                BackgroundCallback<List<EventObj>> callback) {
-		String selection = CalendarContract.Events.ORGANIZER + " LIKE '%@gmail.com' AND " + CalendarContract.Events.ACCOUNT_NAME + "!=?";
+		String selection = CalendarContract.Events.ORGANIZER + " LIKE '%@gmail.com' AND " + CalendarContract.Events.ORGANIZER + "!=?";
 		String[] selectionArgs = {account.name};
 		loadAllEvents(context, selection, selectionArgs, callback);
 	}
