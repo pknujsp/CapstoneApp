@@ -139,6 +139,9 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 
 	@Override
 	public void refreshEvents() {
+		if(accountViewModel.lastSignInAccount() == null){
+			return;
+		}
 		final Account account = accountViewModel.lastSignInAccount().getAccount();
 		CalendarRepository.loadCalendar(getContext(), account, new BackgroundCallback<ContentValues>() {
 			@Override

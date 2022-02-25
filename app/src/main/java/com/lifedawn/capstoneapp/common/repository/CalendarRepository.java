@@ -450,7 +450,6 @@ public class CalendarRepository implements ICalendarRepository {
 			}
 		});
 
-
 	}
 
 	@SuppressLint("Range")
