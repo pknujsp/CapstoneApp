@@ -140,6 +140,10 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 
 			@Override
 			public void bind(@NonNull DayViewContainer viewContainer, @NonNull CalendarDay calendarDay) {
+				acceptedCount = 0;
+				needsActionCount = 0;
+				dateText = calendarDay.getDate().toString();
+
 				viewContainer.binding.calendarDayText.setText(String.valueOf(calendarDay.getDate().getDayOfMonth()));
 				if (calendarDay.getOwner() == DayOwner.THIS_MONTH) {
 					viewContainer.binding.calendarDayText.setTextColor(Color.BLACK);
@@ -154,12 +158,9 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 					}
 				});
 
-				acceptedCount = 0;
-				needsActionCount = 0;
-				dateText = calendarDay.getDate().toString();
-
 				if (eventsMap.containsKey(dateText)) {
 					eventList = eventsMap.get(dateText);
+					attendeeList = attendeesMap.get(dateText);
 
 					for (ContentValues event : eventList) {
 						if (attendeeList != null) {
@@ -186,17 +187,8 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 
 				}
 
-				if (acceptedCount > 0) {
-					viewContainer.binding.acceptedPromiseCount.setText(String.valueOf(acceptedCount));
-				} else {
-					viewContainer.binding.acceptedPromiseCount.setText(null);
-				}
-
-				if (needsActionCount > 0) {
-					viewContainer.binding.needsActionPromiseCount.setText(String.valueOf(needsActionCount));
-				} else {
-					viewContainer.binding.needsActionPromiseCount.setText(null);
-				}
+				viewContainer.binding.acceptedPromiseCount.setText(acceptedCount > 0 ? String.valueOf(acceptedCount) : null);
+				viewContainer.binding.needsActionPromiseCount.setText(needsActionCount > 0 ? String.valueOf(needsActionCount) : null);
 			}
 		});
 
@@ -225,16 +217,14 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 		});
 
 		binding.calendarView.setup(firstMonth, lastMonth, FIRST_DAY_OF_WEEK);
-
 		loadCalendar();
 	}
 
 	private void loadCalendar() {
-		final Account account = accountViewModel.lastSignInAccount().getAccount();
 		firstDateTime = ZonedDateTime.of(firstMonth.getYear(), firstMonth.getMonthValue(), 1, 0, 0, 0, 0, zoneId);
 		endDateTime = ZonedDateTime.of(lastMonth.getYear(), lastMonth.getMonthValue(), 1, 0, 0, 0, 0, zoneId);
 
-		CalendarRepository.loadCalendar(getContext(), account, new BackgroundCallback<ContentValues>() {
+		CalendarRepository.loadCalendar(getContext(), accountViewModel.lastSignInAccount().getAccount(), new BackgroundCallback<ContentValues>() {
 			@Override
 			public void onResultSuccessful(ContentValues e) {
 				calendar = e;
@@ -272,9 +262,9 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 				, new BackgroundCallback<List<ContentValues>>() {
 					@Override
 					public void onResultSuccessful(List<ContentValues> eventList) {
-						getActivity().runOnUiThread(new Runnable() {
+						CalendarRepository.loadAttendees(getContext(), firstDateTime, endDateTime, new BackgroundCallback<List<ContentValues>>() {
 							@Override
-							public void run() {
+							public void onResultSuccessful(List<ContentValues> attendeeList) {
 								String dateText = null;
 								ZonedDateTime eventDateTime = null;
 								final ZoneId zoneId = firstDateTime.getZone();
@@ -290,11 +280,34 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 									eventsMap.get(dateText).add(event);
 								}
 
-								binding.refreshLayout.setRefreshing(false);
-								binding.progressCircular.setVisibility(View.GONE);
-								binding.calendarView.notifyCalendarChanged();
+								for (ContentValues attendee : attendeeList) {
+									eventDateTime =
+											ZonedDateTime.ofInstant(Instant.ofEpochMilli(attendee.getAsLong(CalendarContract.Attendees.DTSTART)), zoneId);
+									dateText = eventDateTime.toLocalDate().toString();
+
+									if (!attendeesMap.containsKey(dateText)) {
+										attendeesMap.put(dateText, new ArrayList<>());
+									}
+									attendeesMap.get(dateText).add(attendee);
+								}
+
+								getActivity().runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										binding.refreshLayout.setRefreshing(false);
+										binding.progressCircular.setVisibility(View.GONE);
+										binding.calendarView.notifyCalendarChanged();
+									}
+								});
+							}
+
+							@Override
+							public void onResultFailed(Exception e) {
+
 							}
 						});
+
+
 					}
 
 					@Override

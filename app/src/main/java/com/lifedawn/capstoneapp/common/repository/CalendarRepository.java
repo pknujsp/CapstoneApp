@@ -482,11 +482,16 @@ public class CalendarRepository implements ICalendarRepository {
 
 
 	@SuppressLint("Range")
-	public static void loadAttendees(Context context, Long eventId, ZonedDateTime begin, ZonedDateTime end, BackgroundCallback<List<ContentValues>> callback) {
+	public static void loadAttendees(Context context, ZonedDateTime begin, ZonedDateTime end, BackgroundCallback<List<ContentValues>> callback) {
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
 			public void run() {
-				Cursor cursor = CalendarContract.Attendees.query(context.getContentResolver(), eventId, null);
+				final String selection = CalendarContract.Attendees.DTSTART + ">=? AND " +
+						CalendarContract.Attendees.DTEND + "<=?";
+				final String[] selectionArgs = {String.valueOf(begin.toInstant().getEpochSecond() * 1000L),
+						String.valueOf(end.toInstant().getEpochSecond() * 1000L)};
+				Cursor cursor = context.getContentResolver().query(CalendarContract.Attendees.CONTENT_URI, null, selection, selectionArgs,
+						null);
 				List<ContentValues> attendeeList = new ArrayList<>();
 
 				if (cursor != null) {
