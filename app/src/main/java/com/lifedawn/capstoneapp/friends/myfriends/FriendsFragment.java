@@ -41,34 +41,34 @@ public class FriendsFragment extends Fragment {
 	private Boolean backAfterItemClick;
 	private OnClickFriendItemListener onClickFriendItemListener;
 	private RecyclerViewAdapter adapter;
-	
+
 	public void setOnClickFriendItemListener(OnClickFriendItemListener onClickFriendItemListener) {
 		this.onClickFriendItemListener = onClickFriendItemListener;
 	}
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		if (getArguments() != null) {
 			Bundle bundle = getArguments();
 			fabVisible = bundle.getBoolean("fabVisible", false);
 			backAfterItemClick = bundle.getBoolean("backAfterItemClick", true);
 		}
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		binding = FragmentFriendsBinding.inflate(inflater);
 		return binding.getRoot();
 	}
-	
+
 	@Override
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		
+
 		friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
-		
+
 		if (fabVisible != null && !fabVisible) {
 			binding.floatingActionBtn.setVisibility(View.GONE);
 		}
@@ -83,14 +83,13 @@ public class FriendsFragment extends Fragment {
 						adapter.notifyDataSetChanged();
 					}
 				});
-				
 				addFriendDialogFragment.show(getChildFragmentManager(), AddFriendDialogFragment.class.getName());
 			}
 		});
-		
+
 		binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 		binding.recyclerView.addItemDecoration(new RecyclerViewItemDecoration(getContext()));
-		
+
 		adapter = new RecyclerViewAdapter();
 		adapter.setOnClickFriendItemListener(new OnClickFriendItemListener() {
 			@Override
@@ -98,23 +97,34 @@ public class FriendsFragment extends Fragment {
 				friendViewModel.delete(friend.getId(), new OnDbQueryCallback<Boolean>() {
 					@Override
 					public void onResult(Boolean e) {
-					
+
 					}
 				});
 				adapter.friends.remove(position);
 				adapter.notifyItemRemoved(position);
 			}
-			
+
 			@Override
 			public void onClickedFriend(FriendDto friend, int position) {
 				if (backAfterItemClick) {
 					onClickFriendItemListener.onClickedFriend(friend, position);
 					getParentFragmentManager().popBackStackImmediate();
+				} else {
+					FriendDto friendDto = adapter.friends.get(position);
+					AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+					builder.setTitle(R.string.friend).setMessage(new String(friendDto.getName() + "\n" +
+							friendDto.getEmail())).setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialogInterface, int i) {
+							dialogInterface.dismiss();
+						}
+					}).create();
+					builder.show();
 				}
 			}
 		});
 		binding.recyclerView.setAdapter(adapter);
-		
+
 		friendViewModel.getAll(new OnDbQueryCallback<List<FriendDto>>() {
 			@Override
 			public void onResult(List<FriendDto> e) {
@@ -129,90 +139,72 @@ public class FriendsFragment extends Fragment {
 				}
 			}
 		});
-		
+
 	}
-	
+
 	private class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 		OnClickFriendItemListener onClickFriendItemListener;
 		List<FriendDto> friends = new ArrayList<>();
-		
+
 		public void setFriends(List<FriendDto> friends) {
 			this.friends = friends;
 		}
-		
+
 		public void setOnClickFriendItemListener(OnClickFriendItemListener onClickFriendItemListener) {
 			this.onClickFriendItemListener = onClickFriendItemListener;
 		}
-		
+
 		@NonNull
 		@Override
 		public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 			return new RecyclerViewAdapter.ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_view_friend, null));
 		}
-		
+
 		@Override
 		public void onBindViewHolder(@NonNull RecyclerViewAdapter.ViewHolder holder, int position) {
 			holder.onBind();
 		}
-		
+
 		@Override
 		public void onViewRecycled(@NonNull RecyclerViewAdapter.ViewHolder holder) {
 			holder.clear();
 			super.onViewRecycled(holder);
 		}
-		
+
 		@Override
 		public int getItemCount() {
 			return friends.size();
 		}
-		
+
 		private class ViewHolder extends RecyclerView.ViewHolder {
 			private ItemViewFriendBinding binding;
-			
+
 			public ViewHolder(@NonNull View itemView) {
 				super(itemView);
 				binding = ItemViewFriendBinding.bind(itemView);
 			}
-			
+
 			public void clear() {
-			
+
 			}
-			
+
 			public void onBind() {
-				int position = getBindingAdapterPosition();
-				FriendDto friendDto = friends.get(position);
-				
 				binding.friend.setText(friends.get(getBindingAdapterPosition()).getName());
 
-				binding.friend.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View view) {
-						AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-						builder.setTitle(R.string.friend).setMessage(new String(friendDto.getName()+"\n"+
-								friendDto.getEmail())).setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialogInterface, int i) {
-								dialogInterface.dismiss();
-							}
-						}).create();
-						builder.show();
-					}
-				});
-				
 				binding.removeBtn.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						onClickFriendItemListener.onClickedRemove(friends.get(getBindingAdapterPosition()), getBindingAdapterPosition());
 					}
 				});
-				
-				binding.getRoot().setOnClickListener(new View.OnClickListener() {
+
+				binding.friendInfoLayout.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						onClickFriendItemListener.onClickedFriend(friends.get(getBindingAdapterPosition()), getBindingAdapterPosition());
 					}
 				});
-				
+
 			}
 		}
 	}
