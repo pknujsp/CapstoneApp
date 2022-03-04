@@ -16,9 +16,12 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
+import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.repositoryinterface.IAccountRepository;
 
 import java.util.Arrays;
@@ -59,6 +62,7 @@ public class AccountRepository implements IAccountRepository {
 		final GoogleSignInAccount lastSignInAccount = lastSignInAccount();
 
 		if (lastSignInAccount != null) {
+			//로그인 불필요
 			setGoogleAccountCredential(lastSignInAccount);
 			onSignCallback.onSignInSuccessful(lastSignInAccount, googleAccountCredential);
 			return;
@@ -66,16 +70,27 @@ public class AccountRepository implements IAccountRepository {
 			GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(
 					GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
 			GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(context, googleSignInOptions);
-			Intent intent = googleSignInClient.getSignInIntent();
-
-			googleAccountLifeCycleObserver.launchGoogleSignInIntent(intent, new ActivityResultCallback<ActivityResult>() {
+			googleAccountLifeCycleObserver.launchGoogleSignInIntent(googleSignInClient.getSignInIntent(), new ActivityResultCallback<ActivityResult>() {
 				@Override
 				public void onActivityResult(ActivityResult result) {
 					Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
 					try {
 						GoogleSignInAccount account = task.getResult(ApiException.class);
 						setGoogleAccountCredential(account);
-						onSignCallback.onSignInSuccessful(account, googleAccountCredential);
+
+						CalendarRepository calendarRepository = new CalendarRepository(context);
+						calendarRepository.createCalendarService(googleAccountCredential, googleAccountLifeCycleObserver, new BackgroundCallback<Calendar>() {
+							@Override
+							public void onResultSuccessful(Calendar e) {
+								onSignCallback.onSignInSuccessful(account, googleAccountCredential);
+							}
+
+							@Override
+							public void onResultFailed(Exception e) {
+								onSignCallback.onSignInSuccessful(null, googleAccountCredential);
+							}
+						});
+
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

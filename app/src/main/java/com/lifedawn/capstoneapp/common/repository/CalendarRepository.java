@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 
 public class CalendarRepository implements ICalendarRepository {
-	public static final String MAIN_CALENDAR_SUMMARY = "약속";
 	private static Calendar calendarService;
 
 	private Context context;

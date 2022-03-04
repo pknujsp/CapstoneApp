@@ -29,7 +29,7 @@ public class IntroFragment extends Fragment {
 	private FragmentIntroBinding binding;
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	private AccountViewModel accountViewModel;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -38,53 +38,55 @@ public class IntroFragment extends Fragment {
 				requireActivity());
 		getLifecycle().addObserver(googleAccountLifeCycleObserver);
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		binding = FragmentIntroBinding.inflate(inflater);
 		return binding.getRoot();
 	}
-	
+
 	@Override
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		
+
 		binding.signInGoogleBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				accountViewModel.signIn(googleAccountLifeCycleObserver, new AccountRepository.OnSignCallback() {
 					@Override
 					public void onSignInSuccessful(GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential) {
-						startMainFragment();
+						if (signInAccount != null) {
+							startMainFragment();
+						}
 					}
-					
+
 					@Override
 					public void onSignOutSuccessful(GoogleSignInAccount signOutAccount) {
-					
+
 					}
 				});
 			}
 		});
-		
+
 		binding.startWithoutGoogleBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				startMainFragment();
 			}
 		});
-		
+
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		getLifecycle().removeObserver(googleAccountLifeCycleObserver);
 		super.onDestroy();
 	}
-	
+
 	private void startMainFragment() {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 		sharedPreferences.edit().putBoolean(SharedPreferenceConstant.APP_INIT.name(), true).commit();
-		
+
 		MainTransactionFragment mainTransactionFragment = new MainTransactionFragment();
 		FragmentTransaction fragmentTransaction = getParentFragmentManager().beginTransaction();
 		fragmentTransaction.replace(R.id.fragmentContainerView, mainTransactionFragment, MainTransactionFragment.class.getName()).commit();
