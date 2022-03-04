@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    >
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
@@ -9,18 +10,21 @@
         android:layout_margin="4dp"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
-        app:cardElevation="4dp">
+        app:cardElevation="4dp"
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="12dp"
+            >
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="12dp"
+                >
 
                 <TextView
                     android:id="@+id/title"
@@ -34,7 +38,8 @@
                     android:maxLines="1"
                     android:text="약속제목"
                     android:textColor="@color/black"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    />
 
                 <TextView
                     android:id="@+id/dateTime"
@@ -45,7 +50,8 @@
                     android:fontFamily="sans-serif-light"
                     android:text="2022/01/07 월"
                     android:textColor="@color/black"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    />
             </RelativeLayout>
 
             <TextView
@@ -59,26 +65,29 @@
                 android:gravity="center_vertical"
                 android:text="만나는 사람1, 만나는 사람2"
                 android:textColor="@color/black"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                />
 
 
             <TextView
                 android:id="@+id/description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
+                android:layout_marginBottom="8dp"
                 android:drawableLeft="@drawable/ic_baseline_description_24"
                 android:drawablePadding="6dp"
                 android:fontFamily="sans-serif-light"
                 android:gravity="center_vertical"
                 android:text="@string/promiseDescription"
                 android:textColor="@color/black"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                />
 
             <RelativeLayout
                 android:id="@+id/btnLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                >
 
                 <TextView
                     android:id="@+id/editBtn"
@@ -88,7 +97,8 @@
                     android:layout_centerVertical="true"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
-                    android:text="@string/edit" />
+                    android:text="@string/edit"
+                    />
 
                 <TextView
                     android:id="@+id/location"
@@ -96,7 +106,10 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:text="@string/promise_location" />
+                    android:drawableLeft="@drawable/ic_baseline_place_24"
+                    android:gravity="center_vertical"
+                    android:text="@string/promise_location"
+                    />
             </RelativeLayout>
 
         </LinearLayout>

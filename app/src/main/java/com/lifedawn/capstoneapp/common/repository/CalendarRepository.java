@@ -24,8 +24,6 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.model.CalendarList;
-import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
@@ -41,7 +39,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 public class CalendarRepository implements ICalendarRepository {
 	public static final String MAIN_CALENDAR_SUMMARY = "약속";
@@ -54,7 +51,7 @@ public class CalendarRepository implements ICalendarRepository {
 	}
 
 	@Override
-	public void saveEvent(Calendar calendarService, Event newEvent, String calendarId, HttpCallback<Event> callback) {
+	public void saveEvent(Calendar calendarService, Event newEvent, HttpCallback<Event> callback) {
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -71,7 +68,7 @@ public class CalendarRepository implements ICalendarRepository {
 	}
 
 	@Override
-	public void updateEvent(Calendar calendarService, Event editEvent, String calendarId, HttpCallback<Event> callback) {
+	public void updateEvent(Calendar calendarService, Event editEvent, HttpCallback<Event> callback) {
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -89,7 +86,7 @@ public class CalendarRepository implements ICalendarRepository {
 	}
 
 	@Override
-	public void sendResponseForInvitedPromise(Calendar calendarService, String calendarId, String myEmail, Event event, boolean acceptance,
+	public void sendResponseForInvitedPromise(Calendar calendarService, String myEmail, Event event, boolean acceptance,
 	                                          BackgroundCallback<Boolean> callback) {
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
@@ -156,58 +153,6 @@ public class CalendarRepository implements ICalendarRepository {
 
 	public Calendar getCalendarService() {
 		return calendarService;
-	}
-
-	@Override
-	public void addPromiseCalendar(Calendar calendarService, BackgroundCallback<com.google.api.services.calendar.model.Calendar> callback) {
-		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
-			@Override
-			public void run() {
-				com.google.api.services.calendar.model.Calendar newCalendar = new com.google.api.services.calendar.model.Calendar();
-				newCalendar.setSummary(MAIN_CALENDAR_SUMMARY).setTimeZone(TimeZone.getDefault().getID());
-				com.google.api.services.calendar.model.Calendar createdCalendar = null;
-				try {
-					createdCalendar = calendarService.calendars().insert(newCalendar).execute();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-				callback.onResultSuccessful(createdCalendar);
-			}
-		});
-	}
-
-	@Override
-	public void existingPromiseCalendar(Calendar calendarService, BackgroundCallback<CalendarListEntry> callback) {
-		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					CalendarListEntry promiseCalendarListEntry = null;
-					String pageToken = null;
-
-					do {
-						CalendarList calendarList = null;
-						calendarList = calendarService.calendarList().list().setPageToken(pageToken).execute();
-
-						List<CalendarListEntry> items = calendarList.getItems();
-
-						for (CalendarListEntry entry : items) {
-							if (entry.getSummary().equals(MAIN_CALENDAR_SUMMARY)) {
-								promiseCalendarListEntry = entry;
-								break;
-							}
-						}
-						pageToken = calendarList.getNextPageToken();
-					} while (pageToken != null);
-					callback.onResultSuccessful(promiseCalendarListEntry);
-				} catch (Exception e) {
-					e.printStackTrace();
-					callback.onResultFailed(e);
-				}
-
-			}
-		});
 	}
 
 	@Override
@@ -303,7 +248,7 @@ public class CalendarRepository implements ICalendarRepository {
 	public static void loadMyEvents(Context context, Account account, String calendarId, BackgroundCallback<List<EventObj>> callback) {
 		String selection = CalendarContract.Events.CALENDAR_ID + "=? AND " + CalendarContract.Events.ACCOUNT_NAME + "=?";
 		String[] selectionArgs = new String[]{calendarId, account.name};
-		loadAllEvents(context, selection, selectionArgs, callback);
+		loadEvents(context, selection, selectionArgs, callback);
 	}
 
 	@SuppressLint("Range")
@@ -311,12 +256,12 @@ public class CalendarRepository implements ICalendarRepository {
 	                                                BackgroundCallback<List<EventObj>> callback) {
 		String selection = CalendarContract.Events.ORGANIZER + " LIKE '%@gmail.com' AND " + CalendarContract.Events.ORGANIZER + "!=?";
 		String[] selectionArgs = {account.name};
-		loadAllEvents(context, selection, selectionArgs, callback);
+		loadEvents(context, selection, selectionArgs, callback);
 	}
 
 	@SuppressLint("Range")
-	public static void loadAllEvents(Context context, String calendarId, ZonedDateTime begin, ZonedDateTime end,
-	                                 BackgroundCallback<List<ContentValues>> callback) {
+	public static void loadEvents(Context context, String calendarId, ZonedDateTime begin, ZonedDateTime end,
+	                              BackgroundCallback<List<ContentValues>> callback) {
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -461,14 +406,20 @@ public class CalendarRepository implements ICalendarRepository {
 	}
 
 
-	public static void loadAllEvents(Context context, String calendarId, BackgroundCallback<List<EventObj>> callback) {
+	public static void loadEvents(Context context, String calendarId, BackgroundCallback<List<EventObj>> callback) {
 		String[] selectionArgs = {calendarId};
 		String selection = CalendarContract.Events.CALENDAR_ID + "=?";
-		loadAllEvents(context, selection, selectionArgs, callback);
+		loadEvents(context, selection, selectionArgs, callback);
+	}
+
+	public static void loadEvent(Context context, String eventId, BackgroundCallback<List<EventObj>> callback) {
+		String[] selectionArgs = {eventId};
+		String selection = CalendarContract.Events._ID + "=?";
+		loadEvents(context, selection, selectionArgs, callback);
 	}
 
 	@SuppressLint("Range")
-	private static void loadAllEvents(Context context, String selection, String[] selectionArgs, BackgroundCallback<List<EventObj>> callback) {
+	private static void loadEvents(Context context, String selection, String[] selectionArgs, BackgroundCallback<List<EventObj>> callback) {
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -532,9 +483,16 @@ public class CalendarRepository implements ICalendarRepository {
 						}
 						cursor.close();
 						eventObjList.get(i).setAttendeeList(attendeeList);
+
+						ContentValues organizer = new ContentValues();
+						organizer.put(CalendarContract.Attendees.ATTENDEE_EMAIL,
+								eventObjList.get(i).event.getAsString(CalendarContract.Events.ORGANIZER));
+
+						attendeeList.add(0, organizer);
 						i++;
 					}
 				}
+
 
 				callback.onResultSuccessful(eventObjList);
 

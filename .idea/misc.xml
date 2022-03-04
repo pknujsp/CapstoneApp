@@ -3,8 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/drawable/dialog_background.xml" value="0.2535" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/calendar_day_layout.xml" value="0.17806484295845998" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/event_attendee_chip.xml" value="0.36614583333333334" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/event_dialog_fragment.xml" value="0.25364583333333335" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_calendar.xml" value="0.36614583333333334" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_edit_promise.xml" value="0.36614583333333334" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_fixed_promise.xml" value="0.36614583333333334" />
@@ -12,10 +14,12 @@
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_my_promise.xml" value="0.36614583333333334" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_promise_info.xml" value="0.36614583333333334" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_received_invitation.xml" value="0.36614583333333334" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/item_view_event_list.xml" value="0.25364583333333335" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/item_view_friend.xml" value="0.25364583333333335" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/item_view_invited_promise.xml" value="0.36614583333333334" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/item_view_promise.xml" value="0.36614583333333334" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/toolbar.xml" value="0.36614583333333334" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/view_event_dialog.xml" value="0.25364583333333335" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2265" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.2265" />
         <entry key="..\:/AndroidStudioSaveLocation/CapstoneApp/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.38229166666666664" />

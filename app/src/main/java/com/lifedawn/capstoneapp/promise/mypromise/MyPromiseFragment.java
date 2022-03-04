@@ -25,6 +25,7 @@ import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.interfaces.IRefreshCalendar;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
+import com.lifedawn.capstoneapp.common.interfaces.OnFragmentCallback;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
 import com.lifedawn.capstoneapp.common.util.AttendeeUtil;
 import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
@@ -84,6 +85,12 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 			@Override
 			public void onClickedEdit(CalendarRepository.EventObj event, int position) {
 				EditPromiseFragment editPromiseFragment = new EditPromiseFragment();
+				editPromiseFragment.setOnFragmentCallback(new OnFragmentCallback<Boolean>() {
+					@Override
+					public void onResult(Boolean e) {
+						syncCalendars();
+					}
+				});
 				Bundle bundle = new Bundle();
 				bundle.putString("eventId", event.getEvent().getAsString("_sync_id"));
 
@@ -100,7 +107,7 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 				PromiseInfoFragment promiseInfoFragment = new PromiseInfoFragment();
 
 				Bundle bundle = new Bundle();
-				bundle.putParcelable("event", event.getEvent());
+				bundle.putString("eventId", event.getEvent().getAsString(CalendarContract.Events._ID));
 				promiseInfoFragment.setArguments(bundle);
 
 				FragmentManager fragmentManager = getParentFragment().getParentFragment().getParentFragmentManager();
@@ -173,7 +180,6 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 											binding.refreshLayout.setRefreshing(false);
 											adapter.setEvents(e);
 											adapter.notifyDataSetChanged();
-
 										}
 									});
 								}
@@ -259,7 +265,9 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 					}
 				});
 
-				final ContentValues event = events.get(getBindingAdapterPosition()).getEvent();
+				CalendarRepository.EventObj eventObj = events.get(getBindingAdapterPosition());
+
+				final ContentValues event = eventObj.getEvent();
 				String dtStart = event.getAsString(CalendarContract.Events.DTSTART);
 				String eventTimeZone = event.getAsString(CalendarContract.Events.EVENT_TIMEZONE);
 				ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(dtStart)), ZoneId.of(eventTimeZone));
@@ -282,7 +290,9 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 					binding.location.setText(getContext().getString(R.string.no_promise_location));
 				}
 
-				binding.people.setText(AttendeeUtil.toListString(events.get(getBindingAdapterPosition()).getAttendeeList()));
+
+				String people = AttendeeUtil.toListString(eventObj.getAttendeeList());
+				binding.people.setText(people.isEmpty() ? getString(R.string.no_attendee) : people);
 			}
 		}
 	}

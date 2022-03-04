@@ -102,4 +102,5 @@
     <string name="promise_reminder_notification_channel_name">약속 알림</string>
     <string name="promise_reminder_notification_channel_description">약속 시간 이전에 알림을 표시합니다</string>
     <string name="no_response_to_invited_event">응답 대기</string>
+    <string name="no_attendee">참석자 없음</string>
 </resources>

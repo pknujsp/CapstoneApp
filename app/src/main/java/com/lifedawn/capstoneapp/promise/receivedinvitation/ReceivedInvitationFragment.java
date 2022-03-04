@@ -96,7 +96,7 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 				PromiseInfoFragment promiseInfoFragment = new PromiseInfoFragment();
 
 				Bundle bundle = new Bundle();
-				bundle.putParcelable("event", event.getEvent());
+				bundle.putString("eventId", event.getEvent().getAsString(CalendarContract.Events._ID));
 				promiseInfoFragment.setArguments(bundle);
 
 				FragmentManager fragmentManager = getParentFragment().getParentFragment().getParentFragmentManager();
@@ -162,6 +162,7 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 					getActivity().runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
+							binding.refreshLayout.setRefreshing(true);
 							syncCalendars();
 							Toast.makeText(getContext(), acceptance ? R.string.response_accept_to_invited_event : R.string.response_decline_to_invited_event,
 									Toast.LENGTH_SHORT).show();
@@ -327,12 +328,8 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 					binding.location.setText(getContext().getString(R.string.no_promise_location));
 				}
 
-				if (eventObj.getAttendeeList().size() > 0) {
-					String text = AttendeeUtil.toListString(eventObj.getAttendeeList());
-					binding.people.setText(text);
-				} else {
-					binding.people.setText(null);
-				}
+				String people = AttendeeUtil.toListString(eventObj.getAttendeeList());
+				binding.people.setText(people.isEmpty() ? getString(R.string.no_attendee) : people);
 
 				binding.invitee.setText(event.getAsString(CalendarContract.Events.ORGANIZER));
 

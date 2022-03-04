@@ -35,8 +35,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.TimeZone;
 
 public class AddPromiseFragment extends AbstractPromiseFragment {
@@ -120,7 +118,7 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 	}
 
 	private void saveNewEvent(Event event) {
-		calendarViewModel.saveEvent(calendarService, event, "primary", new HttpCallback<Event>() {
+		calendarViewModel.saveEvent(calendarService, event, new HttpCallback<Event>() {
 			@Override
 			public void onResponseSuccessful(Event result) {
 				getActivity().runOnUiThread(new Runnable() {

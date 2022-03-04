@@ -191,7 +191,7 @@ public abstract class AbstractPromiseFragment extends Fragment {
 			int index = 1;
 			for (EventAttendee eventAttendee : attendeeList) {
 				Chip chip = (Chip) getLayoutInflater().inflate(R.layout.event_attendee_chip, null);
-				chip.setText(eventAttendee.getDisplayName());
+				chip.setText(eventAttendee.getEmail());
 
 				int finalIndex = index;
 				chip.setOnClickListener(new View.OnClickListener() {

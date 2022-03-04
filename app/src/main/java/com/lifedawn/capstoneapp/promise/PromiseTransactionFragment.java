@@ -82,14 +82,6 @@ public class PromiseTransactionFragment extends Fragment {
 			}
 		});
 
-		calendarViewModel.getEditEventLiveData().observe(getViewLifecycleOwner(), new Observer<Event>() {
-			@Override
-			public void onChanged(Event event) {
-				if (!initializing) {
-					init();
-				}
-			}
-		});
 		calendarViewModel.getMainCalendarIdLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
 			@Override
 			public void onChanged(String id) {

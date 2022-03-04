@@ -88,7 +88,7 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 				PromiseInfoFragment promiseInfoFragment = new PromiseInfoFragment();
 
 				Bundle bundle = new Bundle();
-				bundle.putParcelable("event", event.getEvent());
+				bundle.putString("eventId", event.getEvent().getAsString(CalendarContract.Events._ID));
 				promiseInfoFragment.setArguments(bundle);
 
 				FragmentManager fragmentManager = getParentFragment().getParentFragment().getParentFragmentManager();
@@ -149,7 +149,7 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 		CalendarRepository.loadCalendar(getContext(), account, new BackgroundCallback<ContentValues>() {
 			@Override
 			public void onResultSuccessful(ContentValues e) {
-				CalendarRepository.loadAllEvents(getContext(), e.getAsString(CalendarContract.Calendars._ID),
+				CalendarRepository.loadEvents(getContext(), e.getAsString(CalendarContract.Calendars._ID),
 						new BackgroundCallback<List<CalendarRepository.EventObj>>() {
 							@Override
 							public void onResultSuccessful(List<CalendarRepository.EventObj> e) {
@@ -252,8 +252,7 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 
 				binding.dateTime.setText(start.format(DATE_TIME_FORMATTER));
 				binding.description.setText(event.getAsString(CalendarContract.Events.DESCRIPTION) == null ?
-						getContext().getString(R.string.noDescription) :
-						event.getAsString(CalendarContract.Events.DESCRIPTION));
+						getContext().getString(R.string.noDescription) : event.getAsString(CalendarContract.Events.DESCRIPTION));
 				binding.title.setText(event.getAsString(CalendarContract.Events.TITLE));
 
 				if (event.getAsString(CalendarContract.Events.EVENT_LOCATION) != null) {
@@ -268,9 +267,10 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 					binding.location.setText(getContext().getString(R.string.no_promise_location));
 				}
 
-				binding.people.setText(AttendeeUtil.toListString(eventObj.getAttendeeList()));
-
+				String people = AttendeeUtil.toListString(eventObj.getAttendeeList());
+				binding.people.setText(people.isEmpty() ? getString(R.string.no_attendee) : people);
 			}
 		}
 	}
+
 }

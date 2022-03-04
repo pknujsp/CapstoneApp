@@ -2,21 +2,30 @@ package com.lifedawn.capstoneapp.calendar.fragments;
 
 import android.accounts.Account;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.CalendarContract;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager2.widget.CompositePageTransformer;
+import androidx.viewpager2.widget.MarginPageTransformer;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.kizitonwose.calendarview.model.CalendarDay;
 import com.kizitonwose.calendarview.model.CalendarMonth;
@@ -24,6 +33,7 @@ import com.kizitonwose.calendarview.model.DayOwner;
 import com.kizitonwose.calendarview.ui.DayBinder;
 import com.kizitonwose.calendarview.ui.MonthHeaderFooterBinder;
 import com.kizitonwose.calendarview.ui.ViewContainer;
+import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.interfaces.IRefreshCalendar;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
@@ -31,12 +41,16 @@ import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.CalendarDayLayoutBinding;
 import com.lifedawn.capstoneapp.databinding.CalendarMonthHeaderLayoutBinding;
+import com.lifedawn.capstoneapp.databinding.EventDialogFragmentBinding;
 import com.lifedawn.capstoneapp.databinding.FragmentCalendarBinding;
+import com.lifedawn.capstoneapp.databinding.ItemViewEventListBinding;
+import com.lifedawn.capstoneapp.databinding.ViewEventDialogBinding;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -44,6 +58,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -149,10 +164,19 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 					viewContainer.binding.calendarDayText.setTextColor(Color.LTGRAY);
 				}
 
+				final LocalDate date = calendarDay.getDate();
+
 				viewContainer.binding.calendarDayText.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						Toast.makeText(getContext(), String.valueOf(calendarDay.getDate().getDayOfMonth()), Toast.LENGTH_SHORT).show();
+						Bundle bundle = new Bundle();
+						bundle.putSerializable("criteriaDate", date);
+
+						EventDialogFragment eventDialogFragment =
+								new EventDialogFragment();
+						eventDialogFragment.setArguments(bundle);
+
+						eventDialogFragment.show(getChildFragmentManager(), EventDialogFragment.class.getName());
 					}
 				});
 
@@ -250,7 +274,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 
 	@Override
 	public void refreshEvents() {
-		CalendarRepository.loadAllEvents(getContext(), calendar.getAsString(CalendarContract.Calendars._ID), firstDateTime, endDateTime
+		CalendarRepository.loadEvents(getContext(), calendar.getAsString(CalendarContract.Calendars._ID), firstDateTime, endDateTime
 				, new BackgroundCallback<List<ContentValues>>() {
 					@Override
 					public void onResultSuccessful(List<ContentValues> eventList) {
@@ -332,6 +356,209 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 			super(view);
 			this.binding = CalendarMonthHeaderLayoutBinding.bind(view);
 		}
+	}
+
+	public class EventDialogFragment extends DialogFragment {
+		private static final int FIRST_POSITION = Integer.MAX_VALUE / 2;
+		private final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy/M/d E");
+		private EventDialogFragmentBinding binding;
+		private CompositePageTransformer compositePageTransformer;
+		private LocalDate criteriaDate;
+		private Bundle bundle;
+
+		@Override
+		public void onAttach(@NonNull @NotNull Context context) {
+			super.onAttach(context);
+		}
+
+		@Override
+		public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+
+			bundle = savedInstanceState != null ? savedInstanceState : getArguments();
+			criteriaDate = (LocalDate) bundle.getSerializable("criteriaDate");
+		}
+
+		@Override
+		public void onSaveInstanceState(@NonNull Bundle outState) {
+			super.onSaveInstanceState(outState);
+			outState.putAll(bundle);
+		}
+
+		@NonNull
+		@Override
+		public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+			return new Dialog(getContext(), R.style.DialogTransparent);
+		}
+
+		@Nullable
+		@org.jetbrains.annotations.Nullable
+		@Override
+		public View onCreateView(@NonNull @NotNull LayoutInflater inflater, @Nullable @org.jetbrains.annotations.Nullable ViewGroup container, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+			binding = EventDialogFragmentBinding.inflate(inflater);
+			return binding.getRoot();
+		}
+
+		@Override
+		public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+			super.onViewCreated(view, savedInstanceState);
+			final int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, getResources().getDisplayMetrics());
+
+			binding.viewPager.setOffscreenPageLimit(2);
+			binding.viewPager.getChildAt(0).setOverScrollMode(View.OVER_SCROLL_NEVER);
+
+			compositePageTransformer = new CompositePageTransformer();
+			compositePageTransformer.addTransformer(new MarginPageTransformer(margin));
+			compositePageTransformer.addTransformer(new ViewPager2.PageTransformer() {
+				@Override
+				public void transformPage(@NonNull View page, float position) {
+					float r = 1 - Math.abs(position);
+					page.setScaleY(0.8f + r * 0.2f);
+				}
+			});
+			binding.viewPager.setPageTransformer(compositePageTransformer);
+			binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+				@Override
+				public void onPageSelected(int position) {
+					super.onPageSelected(position);
+				}
+			});
+
+			EventViewPagerAdapter adapter = new EventViewPagerAdapter(criteriaDate);
+
+			binding.viewPager.setAdapter(adapter);
+			binding.viewPager.setCurrentItem(FIRST_POSITION, false);
+			binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+				int lastPosition = FIRST_POSITION;
+
+				@Override
+				public void onPageSelected(int position) {
+					super.onPageSelected(position);
+
+					lastPosition = position;
+				}
+			});
+		}
+
+
+		@Override
+		public void onResume() {
+			super.onResume();
+			Window window = getDialog().getWindow();
+			window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+		}
+
+		@Override
+		public void onDestroy() {
+			super.onDestroy();
+		}
+
+		public class EventViewPagerAdapter extends RecyclerView.Adapter<EventViewPagerAdapter.ViewHolder> {
+			private LayoutInflater layoutInflater;
+			private final LocalDate criteriaDate;
+
+			public EventViewPagerAdapter(LocalDate criteriaDate) {
+				this.criteriaDate = criteriaDate;
+				layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			}
+
+			@NonNull
+			@NotNull
+			@Override
+			public CalendarFragment.EventDialogFragment.EventViewPagerAdapter.ViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
+				return new ViewHolder(layoutInflater.inflate(R.layout.view_event_dialog, parent, false));
+			}
+
+			@Override
+			public void onViewRecycled(@NonNull ViewHolder holder) {
+				holder.clear();
+				super.onViewRecycled(holder);
+			}
+
+			@Override
+			public void onBindViewHolder(@NonNull @NotNull CalendarFragment.EventDialogFragment.EventViewPagerAdapter.ViewHolder holder, int position) {
+				holder.onBind();
+			}
+
+			@Override
+			public int getItemCount() {
+				return Integer.MAX_VALUE;
+			}
+
+			private class ViewHolder extends RecyclerView.ViewHolder {
+				private ViewEventDialogBinding binding;
+				private LocalDate date;
+
+				public ViewHolder(@NonNull @NotNull View itemView) {
+					super(itemView);
+					binding = ViewEventDialogBinding.bind(itemView);
+					binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),
+							RecyclerView.VERTICAL, false));
+				}
+
+				public void clear() {
+
+				}
+
+				public void onBind() {
+					binding.recyclerView.setAdapter(null);
+
+					int position = getBindingAdapterPosition();
+					int dateAmount = position - FIRST_POSITION;
+
+					date = dateAmount > 0 ? criteriaDate.plusDays(dateAmount) :
+							criteriaDate.minusDays(dateAmount);
+
+					binding.date.setText(date.format(DATE_FORMATTER));
+					String dateText = date.toString();
+
+					if (eventsMap.containsKey(dateText)) {
+						EventListAdapter adapter = new EventListAdapter(eventsMap.get(dateText));
+						binding.recyclerView.setAdapter(adapter);
+					}
+				}
+
+
+				private class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.EventViewHolder> {
+					private List<ContentValues> eventList;
+
+					public EventListAdapter(List<ContentValues> eventList) {
+						this.eventList = eventList;
+					}
+
+					@NonNull
+					@Override
+					public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+						return new EventViewHolder(LayoutInflater.from(parent.getContext()).inflate(
+								R.layout.item_view_event_list, null));
+					}
+
+					@Override
+					public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
+						holder.onBind();
+					}
+
+					@Override
+					public int getItemCount() {
+						return eventList.size();
+					}
+
+					private class EventViewHolder extends RecyclerView.ViewHolder {
+						private ItemViewEventListBinding binding;
+
+						public EventViewHolder(@NonNull View itemView) {
+							super(itemView);
+							binding = ItemViewEventListBinding.bind(itemView);
+						}
+
+						public void onBind() {
+							binding.eventTitle.setText(eventList.get(getBindingAdapterPosition()).getAsString(CalendarContract.Events.TITLE));
+						}
+					}
+				}
+			}
+		}
+
 	}
 
 }

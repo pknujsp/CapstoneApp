@@ -13,7 +13,6 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.api.client.util.DateTime;
@@ -39,9 +38,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.TimeZone;
 
 public class EditPromiseFragment extends AbstractPromiseFragment {
@@ -50,6 +47,7 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 	private LocationDto locationDto;
 	private Calendar calendarService;
 	private String eventId;
+	private OnFragmentCallback<Boolean> onFragmentCallback;
 
 	private boolean initializing = true;
 
@@ -60,12 +58,16 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 	private boolean editLocation;
 	private boolean editReminders;
 
+	public EditPromiseFragment setOnFragmentCallback(OnFragmentCallback<Boolean> onFragmentCallback) {
+		this.onFragmentCallback = onFragmentCallback;
+		return this;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (getArguments() != null) {
 			Bundle bundle = getArguments();
-
 			eventId = bundle.getString("eventId");
 		}
 
@@ -101,7 +103,6 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 				});
 			}
 		});
-
 
 		binding.saveBtn.setText(R.string.update);
 		binding.saveBtn.setOnClickListener(new View.OnClickListener() {
@@ -167,14 +168,15 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 			editEvent.setDescription(binding.descriptionEditText.getText().toString());
 		}
 
-		calendarViewModel.updateEvent(calendarService, editEvent, calendarViewModel.getMainCalendarId(), new HttpCallback<Event>() {
+		calendarViewModel.updateEvent(calendarService, editEvent, new HttpCallback<Event>() {
 			@Override
 			public void onResponseSuccessful(Event result) {
 				if (getActivity() != null) {
 					getActivity().runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
-							getParentFragmentManager().popBackStackImmediate();
+							onFragmentCallback.onResult(true);
+							getParentFragmentManager().popBackStack();
 						}
 					});
 				}
@@ -281,6 +283,18 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 				if (e.isEmpty()) {
 					editEvent.setAttendees(null);
 				} else {
+					ArrayList<EventAttendee> lastList = (ArrayList<EventAttendee>) editEvent.getAttendees();
+
+					for (int i = 0; i < e.size(); i++) {
+						for (int j = 0; j < lastList.size(); j++) {
+							if (e.get(i).getEmail().equals(lastList.get(j).getEmail())) {
+								e.remove(j);
+								e.add(lastList.get(j));
+								break;
+							}
+						}
+					}
+
 					editEvent.setAttendees(e);
 				}
 				editAttendees = true;
