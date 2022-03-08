@@ -142,11 +142,21 @@
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/search_history_item.xml" value="0.264" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/menu/main_bottom_navigation.xml" value="0.20307017543859648" />
         <entry key="..\:/Users/Marx/AndroidStudioProjects/CapstoneApp/app/src/main/res/xml/persistent_bottom_sheet_default_attrs.xml" value="0.19786324786324785" />
+        <entry key="..\:/Users/daeho/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/event_reminder_chip.xml" value="0.2046875" />
+        <entry key="..\:/Users/daeho/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_edit_promise.xml" value="0.22" />
+        <entry key="..\:/Users/daeho/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_find_friend.xml" value="0.2046875" />
+        <entry key="..\:/Users/daeho/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/fragment_received_invitation.xml" value="0.2046875" />
+        <entry key="..\:/Users/daeho/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/item_view_event_list.xml" value="0.2046875" />
+        <entry key="..\:/Users/daeho/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/item_view_friend.xml" value="0.2046875" />
+        <entry key="..\:/Users/daeho/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/item_view_invited_promise.xml" value="0.2046875" />
+        <entry key="..\:/Users/daeho/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/item_view_notification.xml" value="0.2046875" />
+        <entry key="..\:/Users/daeho/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/item_view_promise.xml" value="0.3333333333333333" />
+        <entry key="..\:/Users/daeho/AndroidStudioProjects/CapstoneApp/app/src/main/res/layout/item_view_simpleprofile.xml" value="0.2046875" />
       </map>
     </option>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

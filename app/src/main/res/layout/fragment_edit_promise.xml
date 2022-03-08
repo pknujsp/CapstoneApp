@@ -259,7 +259,6 @@
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="0dp"
             android:layout_marginBottom="-1dp"
-            android:text="@string/save"
-            />
+            android:text="@string/save" />
     </RelativeLayout>
 </layout>

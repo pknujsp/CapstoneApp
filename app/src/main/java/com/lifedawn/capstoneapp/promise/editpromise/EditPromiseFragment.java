@@ -266,6 +266,7 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 				@Override
 				public void onSelected(KakaoLocalDocument kakaoLocalDocument, boolean remove) {
 					locationDto = LocationDto.toLocationDto(kakaoLocalDocument);
+					editEvent.setLocation(locationDto.toString());
 					onSelectedLocation(locationDto);
 				}
 			});
@@ -283,18 +284,19 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 				if (e.isEmpty()) {
 					editEvent.setAttendees(null);
 				} else {
-					ArrayList<EventAttendee> lastList = (ArrayList<EventAttendee>) editEvent.getAttendees();
+					if(editEvent.getAttendees() != null) {
+						ArrayList<EventAttendee> lastList = (ArrayList<EventAttendee>) editEvent.getAttendees();
 
-					for (int i = 0; i < e.size(); i++) {
-						for (int j = 0; j < lastList.size(); j++) {
-							if (e.get(i).getEmail().equals(lastList.get(j).getEmail())) {
-								e.remove(j);
-								e.add(lastList.get(j));
-								break;
+						for (int i = 0; i < e.size(); i++) {
+							for (int j = 0; j < lastList.size(); j++) {
+								if (e.get(i).getEmail().equals(lastList.get(j).getEmail())) {
+									e.remove(j);
+									e.add(lastList.get(j));
+									break;
+								}
 							}
 						}
 					}
-
 					editEvent.setAttendees(e);
 				}
 				editAttendees = true;
