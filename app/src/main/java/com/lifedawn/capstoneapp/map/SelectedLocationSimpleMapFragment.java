@@ -35,7 +35,7 @@ public class SelectedLocationSimpleMapFragment extends AbstractSimpleNaverMapFra
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		bundle = savedInstanceState != null ? savedInstanceState : getArguments();
-		if (bundle.containsKey("locationDto")) {
+		if (bundle != null && bundle.containsKey("locationDto")) {
 			locationDto = (LocationDto) bundle.getSerializable("locationDto");
 		}
 	}

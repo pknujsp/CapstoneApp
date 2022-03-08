@@ -135,7 +135,20 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 			}
 		});
 		binding.recyclerView.setAdapter(adapter);
+		adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+			@Override
+			public void onChanged() {
+				super.onChanged();
 
+				if (adapter.getItemCount() > 0) {
+					binding.warningLayout.getRoot().setVisibility(View.GONE);
+				} else {
+					binding.warningLayout.getRoot().setVisibility(View.VISIBLE);
+					binding.warningLayout.warningText.setText(R.string.empty_my_promises);
+					binding.warningLayout.btn.setVisibility(View.GONE);
+				}
+			}
+		});
 		binding.refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override
 			public void onRefresh() {
@@ -152,6 +165,8 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 			binding.refreshLayout.setRefreshing(true);
 			refreshEvents();
 		} else {
+			binding.warningLayout.btn.setVisibility(View.VISIBLE);
+			binding.warningLayout.btn.setText(R.string.check_permissions);
 			binding.warningLayout.getRoot().setVisibility(View.VISIBLE);
 
 			final ActivityResultCallback<Boolean> activityResultCallback = new ActivityResultCallback<Boolean>() {

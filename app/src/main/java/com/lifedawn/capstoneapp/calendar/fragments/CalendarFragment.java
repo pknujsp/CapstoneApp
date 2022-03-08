@@ -241,8 +241,9 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 
 		if (permissionsLifeCycleObserver.checkCalendarPermissions()) {
 			binding.refreshLayout.setRefreshing(true);
-			refreshEvents();
+			loadCalendar();
 		} else {
+			binding.warningLayout.btn.setText(R.string.check_permissions);
 			binding.warningLayout.getRoot().setVisibility(View.VISIBLE);
 
 			final ActivityResultCallback<Boolean> activityResultCallback = new ActivityResultCallback<Boolean>() {
@@ -251,7 +252,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 					if (result) {
 						binding.warningLayout.getRoot().setVisibility(View.GONE);
 						binding.refreshLayout.setRefreshing(true);
-						refreshEvents();
+						loadCalendar();
 					} else {
 						//권한 거부됨
 						binding.warningLayout.warningText.setText(R.string.needs_calendar_permission);

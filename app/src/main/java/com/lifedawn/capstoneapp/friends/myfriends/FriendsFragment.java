@@ -49,7 +49,6 @@ public class FriendsFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		if (getArguments() != null) {
 			Bundle bundle = getArguments();
 			fabVisible = bundle.getBoolean("fabVisible", false);
@@ -120,6 +119,20 @@ public class FriendsFragment extends Fragment {
 						}
 					}).create();
 					builder.show();
+				}
+			}
+		});
+		adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+			@Override
+			public void onChanged() {
+				super.onChanged();
+
+				if (adapter.getItemCount() > 0) {
+					binding.warningLayout.getRoot().setVisibility(View.GONE);
+				} else {
+					binding.warningLayout.getRoot().setVisibility(View.VISIBLE);
+					binding.warningLayout.warningText.setText(R.string.empty_friends);
+					binding.warningLayout.btn.setVisibility(View.GONE);
 				}
 			}
 		});
