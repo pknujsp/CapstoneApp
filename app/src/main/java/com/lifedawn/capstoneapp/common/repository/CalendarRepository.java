@@ -447,6 +447,28 @@ public class CalendarRepository implements ICalendarRepository {
 		});
 	}
 
+	@SuppressLint("Range")
+	public static void loadEvents(Context context, Long alarmTime, BackgroundCallback<List<ContentValues>> callback) {
+		String selection = CalendarContract.CalendarAlerts.ALARM_TIME + " = ?";
+		String[] selectionArgs = {alarmTime.toString()};
+
+		Cursor cursor = context.getContentResolver().query(CalendarContract.CalendarAlerts.CONTENT_URI, null, selection, selectionArgs, null);
+		List<ContentValues> eventList = new ArrayList<>();
+
+		while (cursor.moveToNext()) {
+			ContentValues event = new ContentValues();
+			String[] keys = cursor.getColumnNames();
+			for (String key : keys) {
+				event.put(key, cursor.getString(cursor.getColumnIndex(key)));
+			}
+
+			eventList.add(event);
+		}
+		cursor.close();
+
+		callback.onResultSuccessful(eventList);
+	}
+
 	public static class EventObj implements Parcelable {
 		private ContentValues event;
 		private List<ContentValues> attendeeList;

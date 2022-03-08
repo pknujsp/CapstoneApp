@@ -54,6 +54,12 @@
 
         </receiver>
 
+        <service
+            android:name=".reminder.notifications.PromiseNotificationJobService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="90mygyptxv" />

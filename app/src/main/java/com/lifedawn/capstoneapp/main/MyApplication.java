@@ -13,8 +13,5 @@ public class MyApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
-		NotificationHelper notificationHelper = new NotificationHelper(getApplicationContext());
-		notificationHelper.createNotificationChannel(NotificationHelper.NotificationType.PROMISE_REMINDER);
 	}
 }

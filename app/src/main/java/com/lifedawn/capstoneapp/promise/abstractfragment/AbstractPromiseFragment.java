@@ -252,13 +252,11 @@ public abstract class AbstractPromiseFragment extends Fragment {
 
 	//
 	protected final boolean isDuplicate(List<EventReminder> eventReminderList, EventReminder eventReminder) {
-		if (eventReminderList == null) {
-			return false;
-		}
-
-		for (EventReminder compEventReminder : eventReminderList) {
-			if (compEventReminder.getMinutes().equals(eventReminder.getMinutes())) {
-				return true;
+		if (eventReminderList != null) {
+			for (EventReminder compEventReminder : eventReminderList) {
+				if (compEventReminder.getMinutes().equals(eventReminder.getMinutes())) {
+					return true;
+				}
 			}
 		}
 		return false;

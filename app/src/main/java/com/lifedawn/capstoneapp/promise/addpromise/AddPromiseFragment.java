@@ -102,6 +102,7 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 					event.setAttendees(newEventAttendeeList);
 				}
 
+
 				//캘린더ID 지정
 				googleAccountLifeCycleObserver.setInstanceUserRecoverableAuthIntentActivityResultCallback(
 						new ActivityResultCallback<ActivityResult>() {

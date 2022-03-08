@@ -19,6 +19,7 @@ import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.ProfileFragment;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.calendar.fragments.CalendarTransactionFragment;
+import com.lifedawn.capstoneapp.common.util.NotificationHelper;
 import com.lifedawn.capstoneapp.common.util.PermissionsLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentMainTransactionBinding;
@@ -43,6 +44,9 @@ public class MainTransactionFragment extends Fragment {
 		googleAccountLifeCycleObserver = new GoogleAccountLifeCycleObserver(requireActivity().getActivityResultRegistry(),
 				requireActivity());
 		getLifecycle().addObserver(googleAccountLifeCycleObserver);
+
+		NotificationHelper notificationHelper = new NotificationHelper(getContext());
+		notificationHelper.createNotificationChannel(NotificationHelper.NotificationType.PROMISE_REMINDER);
 	}
 
 	@Override

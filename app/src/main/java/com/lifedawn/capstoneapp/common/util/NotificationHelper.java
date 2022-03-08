@@ -19,11 +19,10 @@ public class NotificationHelper {
 
 	public void createNotificationChannel(NotificationType notificationType) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-			final String channelId = notificationType.channelId;
+			NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
 
 			//알림 채널 생성 여부 확인
-			if (notificationManager.getNotificationChannel(channelId) != null) {
+			if (notificationManager.getNotificationChannel(notificationType.getChannelId()) == null) {
 				String notificationName = null;
 				String notificationDescription = null;
 				int importance = 0;
@@ -34,8 +33,9 @@ public class NotificationHelper {
 					importance = NotificationManager.IMPORTANCE_HIGH;
 				}
 
-				NotificationChannel notificationChannel = new NotificationChannel(channelId, notificationName, importance);
+				NotificationChannel notificationChannel = new NotificationChannel(notificationType.getChannelId(), notificationName, importance);
 				notificationChannel.setDescription(notificationDescription);
+				notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
 
 				notificationManager.createNotificationChannel(notificationChannel);
 			}
@@ -46,9 +46,12 @@ public class NotificationHelper {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			createNotificationChannel(notificationType);
 		}
-
-		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, notificationType.channelId);
 		NotificationItem notificationItem = new NotificationItem(notificationType);
+		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, notificationType.getChannelId());
+
+		if (notificationType == NotificationType.PROMISE_REMINDER) {
+			notificationBuilder.setPriority(NotificationCompat.PRIORITY_HIGH);
+		}
 		notificationItem.setBuilder(notificationBuilder);
 
 		return notificationItem;
@@ -84,6 +87,8 @@ public class NotificationHelper {
 			this.channelId = channelId;
 		}
 
-
+		public String getChannelId() {
+			return channelId;
+		}
 	}
 }

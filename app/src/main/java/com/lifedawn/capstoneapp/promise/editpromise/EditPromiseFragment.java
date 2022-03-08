@@ -52,7 +52,6 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 	private boolean initializing = true;
 
 	private boolean editSummary;
-	private boolean editDateTime;
 	private boolean editDescription;
 	private boolean editAttendees;
 	private boolean editLocation;
@@ -161,6 +160,9 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 	}
 
 	private void updateEvent() {
+		if (editEvent.getReminders() != null) {
+			editEvent.getReminders().setUseDefault(false);
+		}
 		if (editSummary) {
 			editEvent.setSummary(binding.titleEditText.getText().toString());
 		}
@@ -198,7 +200,6 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 		end.setDateTime(dateTime).setTimeZone(TimeZone.getDefault().getID());
 
 		editEvent.setStart(start).setEnd(end);
-		editDateTime = true;
 	}
 
 	@Override
@@ -210,7 +211,6 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 		end.setDateTime(dateTime).setTimeZone(TimeZone.getDefault().getID());
 
 		editEvent.setStart(start).setEnd(end);
-		editDateTime = true;
 	}
 
 	@Override
@@ -284,7 +284,7 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 				if (e.isEmpty()) {
 					editEvent.setAttendees(null);
 				} else {
-					if(editEvent.getAttendees() != null) {
+					if (editEvent.getAttendees() != null) {
 						ArrayList<EventAttendee> lastList = (ArrayList<EventAttendee>) editEvent.getAttendees();
 
 						for (int i = 0; i < e.size(); i++) {
@@ -330,10 +330,13 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 			@Override
 			public void onResultAddedReminder(EventReminder reminder) {
 				//중복검사
+				if (editEvent.getReminders() == null) {
+					Event.Reminders reminders = new Event.Reminders();
+					reminders.setOverrides(new ArrayList<>());
+					editEvent.setReminders(reminders);
+				}
+
 				if (!isDuplicate(editEvent.getReminders().getOverrides(), reminder)) {
-					if (editEvent.getReminders().getOverrides() == null) {
-						editEvent.getReminders().setOverrides(new ArrayList<>());
-					}
 					editReminders = true;
 					editEvent.getReminders().getOverrides().add(reminder);
 					initRemindersView(editEvent.getReminders().getOverrides());
