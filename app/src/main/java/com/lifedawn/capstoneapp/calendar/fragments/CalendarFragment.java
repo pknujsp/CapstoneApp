@@ -189,8 +189,6 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 					eventList = eventsMap.get(dateText);
 					eventCount = eventList.size();
 					attendeeList = attendeesMap.get(dateText);
-
-
 				}
 
 				viewContainer.binding.acceptedPromiseCount.setText(acceptedCount > 0 ? String.valueOf(acceptedCount) : null);
