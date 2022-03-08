@@ -297,8 +297,8 @@ public class CalendarRepository implements ICalendarRepository {
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
 			public void run() {
-				final String selection = CalendarContract.Calendars.ACCOUNT_NAME + "=? AND " + CalendarContract.Calendars.IS_PRIMARY + "=?";
-				final String[] selectionArgs = new String[]{account.name, "1"};
+				String selection = CalendarContract.Calendars.ACCOUNT_NAME + "=? AND " + CalendarContract.Calendars.IS_PRIMARY + "=?";
+				String[] selectionArgs = new String[]{account.name, "1"};
 				Cursor cursor = context.getContentResolver().query(CalendarContract.Calendars.CONTENT_URI, null, selection, selectionArgs, null);
 
 				ContentValues calendar = new ContentValues();
@@ -311,39 +311,13 @@ public class CalendarRepository implements ICalendarRepository {
 					}
 					cursor.close();
 				}
-
 				callback.onResultSuccessful(calendar);
 			}
 		});
 
 	}
 
-	@SuppressLint("Range")
-	public static void loadAttendees(Context context, Long eventId, BackgroundCallback<List<ContentValues>> callback) {
-		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
-			@Override
-			public void run() {
-				Cursor cursor = CalendarContract.Attendees.query(context.getContentResolver(), eventId, null);
-				List<ContentValues> attendeeList = new ArrayList<>();
 
-				if (cursor != null) {
-					while (cursor.moveToNext()) {
-						ContentValues attendee = new ContentValues();
-						String[] keys = cursor.getColumnNames();
-						for (String key : keys) {
-							attendee.put(key, cursor.getString(cursor.getColumnIndex(key)));
-						}
-
-						attendeeList.add(attendee);
-					}
-					cursor.close();
-				}
-
-				callback.onResultSuccessful(attendeeList);
-			}
-		});
-
-	}
 
 
 	@SuppressLint("Range")
@@ -422,7 +396,7 @@ public class CalendarRepository implements ICalendarRepository {
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
 			public void run() {
-				List<EventObj> eventObjList = new ArrayList<>();
+				final List<EventObj> eventObjList = new ArrayList<>();
 				Cursor cursor = context.getContentResolver().query(CalendarContract.Events.CONTENT_URI, null, selection, selectionArgs,
 						null);
 

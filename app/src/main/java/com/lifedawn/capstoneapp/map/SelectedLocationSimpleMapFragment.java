@@ -22,12 +22,21 @@ import org.jetbrains.annotations.NotNull;
 public class SelectedLocationSimpleMapFragment extends AbstractSimpleNaverMapFragment {
 	private Marker selectedLocationMarker;
 	private LocationDto locationDto;
-
+	private Bundle bundle;
 
 	public void replaceLocation(LocationDto locationDto) {
 		this.locationDto = locationDto;
 		if (mapFragment != null) {
 			showMarkerOfSelectedLocation();
+		}
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		bundle = savedInstanceState != null ? savedInstanceState : getArguments();
+		if (bundle.containsKey("locationDto")) {
+			locationDto = (LocationDto) bundle.getSerializable("locationDto");
 		}
 	}
 
@@ -46,6 +55,7 @@ public class SelectedLocationSimpleMapFragment extends AbstractSimpleNaverMapFra
 				return true;
 			}
 		});
+		replaceLocation(locationDto);
 		showMarkerOfSelectedLocation();
 	}
 

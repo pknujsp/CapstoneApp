@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
@@ -37,6 +38,7 @@ import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.interfaces.IRefreshCalendar;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
+import com.lifedawn.capstoneapp.common.util.PermissionsLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.CalendarDayLayoutBinding;
@@ -75,6 +77,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 	private FragmentCalendarBinding binding;
 	private AccountViewModel accountViewModel;
 	private CalendarViewModel calendarViewModel;
+	private PermissionsLifeCycleObserver permissionsLifeCycleObserver;
 
 	private String myEmail;
 
@@ -91,6 +94,8 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		permissionsLifeCycleObserver = new PermissionsLifeCycleObserver(requireActivity());
+		getLifecycle().addObserver(permissionsLifeCycleObserver);
 		accountViewModel = new ViewModelProvider(getActivity()).get(AccountViewModel.class);
 		calendarViewModel = new ViewModelProvider(getActivity()).get(CalendarViewModel.class);
 	}
@@ -233,7 +238,23 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 		});
 
 		binding.calendarView.setup(firstMonth, lastMonth, FIRST_DAY_OF_WEEK);
-		loadCalendar();
+
+		if (permissionsLifeCycleObserver.checkCalendarPermissions()) {
+			binding.refreshLayout.setRefreshing(true);
+			refreshEvents();
+		} else {
+			permissionsLifeCycleObserver.launchCalendarPermissionsLauncher(new ActivityResultCallback<Boolean>() {
+				@Override
+				public void onActivityResult(Boolean result) {
+					if (result) {
+						binding.refreshLayout.setRefreshing(true);
+						refreshEvents();
+					} else {
+						//권한 거부됨
+					}
+				}
+			});
+		}
 	}
 
 	private void loadCalendar() {

@@ -72,45 +72,55 @@ public class PromiseInfoFragment extends Fragment {
 			}
 		});
 		binding.toolbar.fragmentTitle.setText(R.string.promise_info);
-		mapFragment = new SelectedLocationSimpleMapFragment();
-		getChildFragmentManager().beginTransaction().add(binding.naverMap.getId(), mapFragment).commit();
+
 
 		CalendarRepository.loadEvent(getContext(), eventId,
 				new BackgroundCallback<List<CalendarRepository.EventObj>>() {
 					@Override
 					public void onResultSuccessful(List<CalendarRepository.EventObj> e) {
-						final CalendarRepository.EventObj eventObj = e.get(0);
-						originalEvent = eventObj.getEvent();
-						binding.title.setText(originalEvent.getAsString(CalendarContract.Events.TITLE));
+						getActivity().runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								final CalendarRepository.EventObj eventObj = e.get(0);
+								originalEvent = eventObj.getEvent();
+								binding.title.setText(originalEvent.getAsString(CalendarContract.Events.TITLE));
+
+								String dtStart = originalEvent.getAsString(CalendarContract.Events.DTSTART);
+								String eventTimeZone = originalEvent.getAsString(CalendarContract.Events.EVENT_TIMEZONE);
+								ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(dtStart)), ZoneId.of(eventTimeZone));
+
+								binding.dateTime.setText(start.format(START_DATETIME_FORMATTER));
+								binding.description.setText(originalEvent.getAsString(CalendarContract.Events.DESCRIPTION));
+
+								if (originalEvent.getAsString(CalendarContract.Events.EVENT_LOCATION) != null) {
+									locationDto = LocationDto.toLocationDto(originalEvent.getAsString(CalendarContract.Events.EVENT_LOCATION));
+								}
+
+								mapFragment = new SelectedLocationSimpleMapFragment();
+								Bundle bundle = new Bundle();
+
+								//장소
+								if (locationDto != null) {
+									mapFragment.replaceLocation(locationDto);
+									bundle.putSerializable("locationDto", locationDto);
+
+									if (locationDto != null) {
+										binding.placeName.setText(locationDto.getLocationType() == Constant.PLACE ? locationDto.getPlaceName() : locationDto.getAddressName());
+										binding.naverMap.setVisibility(View.VISIBLE);
+									}
+								} else {
+									binding.placeName.setText(R.string.no_promise_location);
+									binding.naverMap.setVisibility(View.GONE);
+								}
+								mapFragment.setArguments(bundle);
+								getChildFragmentManager().beginTransaction().add(binding.naverMap.getId(), mapFragment).commit();
 
 
-						String dtStart = originalEvent.getAsString(CalendarContract.Events.DTSTART);
-						String eventTimeZone = originalEvent.getAsString(CalendarContract.Events.EVENT_TIMEZONE);
-						ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(dtStart)), ZoneId.of(eventTimeZone));
-
-						binding.dateTime.setText(start.format(START_DATETIME_FORMATTER));
-						binding.description.setText(originalEvent.getAsString(CalendarContract.Events.DESCRIPTION));
-
-						if (originalEvent.getAsString(CalendarContract.Events.EVENT_LOCATION) != null) {
-							locationDto = LocationDto.toLocationDto(originalEvent.getAsString(CalendarContract.Events.EVENT_LOCATION));
-						}
-
-						//장소
-						if (locationDto != null) {
-							mapFragment.replaceLocation(locationDto);
-
-							if (locationDto != null) {
-								binding.placeName.setText(locationDto.getLocationType() == Constant.PLACE ? locationDto.getPlaceName() : locationDto.getAddressName());
-								binding.naverMap.setVisibility(View.VISIBLE);
+								initAttendeesView(eventObj.getAttendeeList());
+								initRemindersView(eventObj.getReminderList());
 							}
-						} else {
-							binding.placeName.setText(R.string.no_promise_location);
-							binding.naverMap.setVisibility(View.GONE);
-						}
+						});
 
-
-						initAttendeesView(eventObj.getAttendeeList());
-						initRemindersView(eventObj.getReminderList());
 					}
 
 					@Override

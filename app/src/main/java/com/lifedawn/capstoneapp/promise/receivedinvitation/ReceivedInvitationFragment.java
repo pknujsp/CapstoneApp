@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -31,6 +32,7 @@ import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
 import com.lifedawn.capstoneapp.common.util.AttendeeUtil;
+import com.lifedawn.capstoneapp.common.util.PermissionsLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.util.ReminderUtil;
 import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
@@ -57,6 +59,8 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 	private CalendarViewModel calendarViewModel;
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	private RecyclerViewAdapter adapter;
+	private PermissionsLifeCycleObserver permissionsLifeCycleObserver;
+
 	private String myEmail;
 
 	private boolean initializing = true;
@@ -67,6 +71,8 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 		googleAccountLifeCycleObserver = new GoogleAccountLifeCycleObserver(requireActivity().getActivityResultRegistry(),
 				requireActivity());
 		getLifecycle().addObserver(googleAccountLifeCycleObserver);
+		permissionsLifeCycleObserver = new PermissionsLifeCycleObserver(requireActivity());
+		getLifecycle().addObserver(permissionsLifeCycleObserver);
 		accountViewModel = new ViewModelProvider(requireActivity()).get(AccountViewModel.class);
 		calendarViewModel = new ViewModelProvider(requireActivity()).get(CalendarViewModel.class);
 	}
@@ -125,9 +131,23 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 		});
 
 		initializing = false;
-		binding.refreshLayout.setRefreshing(true);
 
-		refreshEvents();
+		if (permissionsLifeCycleObserver.checkCalendarPermissions()) {
+			binding.refreshLayout.setRefreshing(true);
+			refreshEvents();
+		} else {
+			permissionsLifeCycleObserver.launchCalendarPermissionsLauncher(new ActivityResultCallback<Boolean>() {
+				@Override
+				public void onActivityResult(Boolean result) {
+					if (result) {
+						binding.refreshLayout.setRefreshing(true);
+						refreshEvents();
+					} else {
+						//권한 거부됨
+					}
+				}
+			});
+		}
 	}
 
 	private void responseToInvitationEvent(String eventId, boolean acceptance) {

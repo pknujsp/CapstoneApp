@@ -1,17 +1,21 @@
 package com.lifedawn.capstoneapp.promise.fixedpromise;
 
+import android.Manifest;
 import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
@@ -27,6 +31,7 @@ import com.lifedawn.capstoneapp.common.interfaces.IRefreshCalendar;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
 import com.lifedawn.capstoneapp.common.util.AttendeeUtil;
+import com.lifedawn.capstoneapp.common.util.PermissionsLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
@@ -51,6 +56,8 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 	private CalendarViewModel calendarViewModel;
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	private RecyclerViewAdapter adapter;
+	private PermissionsLifeCycleObserver permissionsLifeCycleObserver;
+
 	private boolean initializing = true;
 
 	@Override
@@ -58,6 +65,9 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 		super.onCreate(savedInstanceState);
 		googleAccountLifeCycleObserver = new GoogleAccountLifeCycleObserver(requireActivity().getActivityResultRegistry(),
 				requireActivity());
+		permissionsLifeCycleObserver = new PermissionsLifeCycleObserver(requireActivity());
+		getLifecycle().addObserver(permissionsLifeCycleObserver);
+
 		getLifecycle().addObserver(googleAccountLifeCycleObserver);
 		accountViewModel = new ViewModelProvider(requireActivity()).get(AccountViewModel.class);
 		calendarViewModel = new ViewModelProvider(requireActivity()).get(CalendarViewModel.class);
@@ -117,9 +127,24 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 		});
 
 		initializing = false;
-		binding.refreshLayout.setRefreshing(true);
 
-		refreshEvents();
+		if (permissionsLifeCycleObserver.checkCalendarPermissions()) {
+			binding.refreshLayout.setRefreshing(true);
+			refreshEvents();
+		} else {
+			permissionsLifeCycleObserver.launchCalendarPermissionsLauncher(new ActivityResultCallback<Boolean>() {
+				@Override
+				public void onActivityResult(Boolean result) {
+					if (result) {
+						binding.refreshLayout.setRefreshing(true);
+						refreshEvents();
+					} else {
+						//권한 거부됨
+					}
+				}
+			});
+		}
+
 	}
 
 
