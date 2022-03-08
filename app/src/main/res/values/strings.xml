@@ -112,4 +112,5 @@
     <string name="empty_promises">약속이 없습니다</string>
     <string name="go_to_today">오늘로 이동</string>
     <string name="go_to_first_selected_position">선택한 날짜로 이동</string>
+    <string name="promise_reminder">약속 알림</string>
 </resources>

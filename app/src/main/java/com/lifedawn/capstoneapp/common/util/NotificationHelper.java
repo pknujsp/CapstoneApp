@@ -20,10 +20,10 @@ public class NotificationHelper {
 	public void createNotificationChannel(NotificationType notificationType) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-			final String notificationId = notificationType.channelId;
+			final String channelId = notificationType.channelId;
 
 			//알림 채널 생성 여부 확인
-			if (notificationManager.getNotificationChannel(notificationId) != null) {
+			if (notificationManager.getNotificationChannel(channelId) != null) {
 				String notificationName = null;
 				String notificationDescription = null;
 				int importance = 0;
@@ -34,7 +34,7 @@ public class NotificationHelper {
 					importance = NotificationManager.IMPORTANCE_HIGH;
 				}
 
-				NotificationChannel notificationChannel = new NotificationChannel(notificationId, notificationName, importance);
+				NotificationChannel notificationChannel = new NotificationChannel(channelId, notificationName, importance);
 				notificationChannel.setDescription(notificationDescription);
 
 				notificationManager.createNotificationChannel(notificationChannel);
@@ -47,7 +47,7 @@ public class NotificationHelper {
 			createNotificationChannel(notificationType);
 		}
 
-		Notification.Builder notificationBuilder = new Notification.Builder(context, notificationType.channelId);
+		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, notificationType.channelId);
 		NotificationItem notificationItem = new NotificationItem(notificationType);
 		notificationItem.setBuilder(notificationBuilder);
 
@@ -56,17 +56,17 @@ public class NotificationHelper {
 
 	public static class NotificationItem {
 		private final NotificationType notificationType;
-		private Notification.Builder builder;
+		private NotificationCompat.Builder builder;
 
 		public NotificationItem(NotificationType notificationType) {
 			this.notificationType = notificationType;
 		}
 
-		public void setBuilder(Notification.Builder builder) {
+		public void setBuilder(NotificationCompat.Builder builder) {
 			this.builder = builder;
 		}
 
-		public Notification.Builder getBuilder() {
+		public NotificationCompat.Builder getBuilder() {
 			return builder;
 		}
 
@@ -76,7 +76,7 @@ public class NotificationHelper {
 	}
 
 	public enum NotificationType {
-		PROMISE_REMINDER("100");
+		PROMISE_REMINDER("1000");
 
 		private final String channelId;
 

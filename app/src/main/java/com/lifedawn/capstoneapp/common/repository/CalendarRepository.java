@@ -366,7 +366,7 @@ public class CalendarRepository implements ICalendarRepository {
 	}
 
 	@SuppressLint("Range")
-	private static void loadEvents(Context context, String selection, String[] selectionArgs, BackgroundCallback<List<EventObj>> callback) {
+	public static void loadEvents(Context context, String selection, String[] selectionArgs, BackgroundCallback<List<EventObj>> callback) {
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
 			public void run() {
