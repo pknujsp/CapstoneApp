@@ -193,21 +193,6 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 					eventCount = eventList.size();
 					attendeeList = attendeesMap.get(dateText);
 
-					for (ContentValues event : eventList) {
-						if (attendeeList != null) {
-
-							for (ContentValues attendee : attendeeList) {
-								if (attendee.getAsString(CalendarContract.Attendees.ATTENDEE_EMAIL).equals(myEmail)) {
-									if (attendee.getAsInteger(CalendarContract.Attendees.ATTENDEE_STATUS).equals(CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED)) {
-										acceptedCount++;
-									}
-
-								}
-
-							}
-
-						}
-					}
 
 				}
 
@@ -335,10 +320,6 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 							eventsMap.get(dateText).add(event);
 
 							for (ContentValues attendee : eventObj.getAttendeeList()) {
-								eventDateTime =
-										ZonedDateTime.ofInstant(Instant.ofEpochMilli(attendee.getAsLong(CalendarContract.Attendees.DTSTART)), zoneId);
-								dateText = eventDateTime.toLocalDate().toString();
-
 								if (!attendeesMap.containsKey(dateText)) {
 									attendeesMap.put(dateText, new ArrayList<>());
 								}
