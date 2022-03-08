@@ -109,4 +109,7 @@
     <string name="empty_my_promises">내가 만든 약속이 없습니다</string>
     <string name="empty_received_invitation_promises">초대받은 약속이 없습니다</string>
     <string name="empty_friends">친구 목록이 비었습니다</string>
+    <string name="empty_promises">약속이 없습니다</string>
+    <string name="go_to_today">오늘로 이동</string>
+    <string name="go_to_first_selected_position">선택한 날짜로 이동</string>
 </resources>

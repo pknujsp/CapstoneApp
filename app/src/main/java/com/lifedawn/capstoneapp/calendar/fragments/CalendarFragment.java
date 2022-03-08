@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.CalendarContract;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,6 +59,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.Date;
@@ -65,6 +67,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -310,57 +313,47 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 	@Override
 	public void refreshEvents() {
 		CalendarRepository.loadEvents(getContext(), calendar.getAsString(CalendarContract.Calendars._ID), firstDateTime, endDateTime
-				, new BackgroundCallback<List<ContentValues>>() {
+				, new BackgroundCallback<List<CalendarRepository.EventObj>>() {
 					@Override
-					public void onResultSuccessful(List<ContentValues> eventList) {
-						CalendarRepository.loadAttendees(getContext(), firstDateTime, endDateTime, new BackgroundCallback<List<ContentValues>>() {
-							@Override
-							public void onResultSuccessful(List<ContentValues> attendeeList) {
-								String dateText = null;
-								ZonedDateTime eventDateTime = null;
-								final ZoneId zoneId = firstDateTime.getZone();
+					public void onResultSuccessful(List<CalendarRepository.EventObj> e) {
+						String dateText = null;
+						ZonedDateTime eventDateTime = null;
+						final ZoneId zoneId = firstDateTime.getZone();
 
-								eventsMap.clear();
-								attendeesMap.clear();
+						eventsMap.clear();
+						attendeesMap.clear();
 
-								for (ContentValues event : eventList) {
-									eventDateTime =
-											ZonedDateTime.ofInstant(Instant.ofEpochMilli(event.getAsLong(CalendarContract.Events.DTSTART)), zoneId);
-									dateText = eventDateTime.toLocalDate().toString();
+						for (CalendarRepository.EventObj eventObj : e) {
+							ContentValues event = eventObj.getEvent();
+							eventDateTime =
+									ZonedDateTime.ofInstant(Instant.ofEpochMilli(event.getAsLong(CalendarContract.Events.DTSTART)), zoneId);
+							dateText = eventDateTime.toLocalDate().toString();
 
-									if (!eventsMap.containsKey(dateText)) {
-										eventsMap.put(dateText, new ArrayList<>());
-									}
-									eventsMap.get(dateText).add(event);
-								}
-
-								for (ContentValues attendee : attendeeList) {
-									eventDateTime =
-											ZonedDateTime.ofInstant(Instant.ofEpochMilli(attendee.getAsLong(CalendarContract.Attendees.DTSTART)), zoneId);
-									dateText = eventDateTime.toLocalDate().toString();
-
-									if (!attendeesMap.containsKey(dateText)) {
-										attendeesMap.put(dateText, new ArrayList<>());
-									}
-									attendeesMap.get(dateText).add(attendee);
-								}
-
-								getActivity().runOnUiThread(new Runnable() {
-									@Override
-									public void run() {
-										binding.refreshLayout.setRefreshing(false);
-										binding.progressCircular.setVisibility(View.GONE);
-										binding.calendarView.notifyCalendarChanged();
-									}
-								});
+							if (!eventsMap.containsKey(dateText)) {
+								eventsMap.put(dateText, new ArrayList<>());
 							}
+							eventsMap.get(dateText).add(event);
 
+							for (ContentValues attendee : eventObj.getAttendeeList()) {
+								eventDateTime =
+										ZonedDateTime.ofInstant(Instant.ofEpochMilli(attendee.getAsLong(CalendarContract.Attendees.DTSTART)), zoneId);
+								dateText = eventDateTime.toLocalDate().toString();
+
+								if (!attendeesMap.containsKey(dateText)) {
+									attendeesMap.put(dateText, new ArrayList<>());
+								}
+								attendeesMap.get(dateText).add(attendee);
+							}
+						}
+
+						getActivity().runOnUiThread(new Runnable() {
 							@Override
-							public void onResultFailed(Exception e) {
-
+							public void run() {
+								binding.refreshLayout.setRefreshing(false);
+								binding.progressCircular.setVisibility(View.GONE);
+								binding.calendarView.notifyCalendarChanged();
 							}
 						});
-
 
 					}
 
@@ -379,7 +372,6 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 		public DayViewContainer(@NonNull View view) {
 			super(view);
 			binding = CalendarDayLayoutBinding.bind(view);
-
 		}
 	}
 
@@ -474,12 +466,30 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 				@Override
 				public void onPageSelected(int position) {
 					super.onPageSelected(position);
-
 					lastPosition = position;
 				}
 			});
-		}
 
+			binding.goToTodayBtn.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					LocalDate criteria = LocalDate.parse(criteriaDate.toString());
+					LocalDate now = LocalDate.now();
+
+					int newPos = FIRST_POSITION - (int) (criteria.toEpochDay() - now.toEpochDay());
+					// 10 ,9 -> -1
+					// 9, 10 -> +1
+					binding.viewPager.setCurrentItem(newPos, true);
+				}
+			});
+
+			binding.goToSelectedPositionBtn.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					binding.viewPager.setCurrentItem(FIRST_POSITION, true);
+				}
+			});
+		}
 
 		@Override
 		public void onResume() {
@@ -517,7 +527,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 
 			@Override
 			public void onBindViewHolder(@NonNull @NotNull CalendarFragment.EventDialogFragment.EventViewPagerAdapter.ViewHolder holder, int position) {
-				holder.onBind();
+				holder.onBind(position);
 			}
 
 			@Override
@@ -537,23 +547,33 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 				}
 
 				public void clear() {
-
+					binding.recyclerView.setAdapter(null);
 				}
 
-				public void onBind() {
-					binding.recyclerView.setAdapter(null);
-
-					int position = getBindingAdapterPosition();
+				public void onBind(int position) {
 					int dateAmount = position - FIRST_POSITION;
+					Log.e("position", position + ", " + FIRST_POSITION);
 
-					date = dateAmount > 0 ? criteriaDate.plusDays(dateAmount) :
-							criteriaDate.minusDays(dateAmount);
+					date = criteriaDate.plusDays(dateAmount);
 
 					binding.date.setText(date.format(DATE_FORMATTER));
 					String dateText = date.toString();
 
 					if (eventsMap.containsKey(dateText)) {
 						EventListAdapter adapter = new EventListAdapter(eventsMap.get(dateText));
+						adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+							@Override
+							public void onChanged() {
+								super.onChanged();
+								if (adapter.getItemCount() > 0) {
+									binding.warningLayout.getRoot().setVisibility(View.GONE);
+								} else {
+									binding.warningLayout.btn.setVisibility(View.GONE);
+									binding.warningLayout.warningText.setText(R.string.empty_promises);
+									binding.warningLayout.getRoot().setVisibility(View.VISIBLE);
+								}
+							}
+						});
 						binding.recyclerView.setAdapter(adapter);
 					}
 				}

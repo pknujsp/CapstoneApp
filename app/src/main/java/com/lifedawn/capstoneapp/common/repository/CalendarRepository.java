@@ -258,37 +258,13 @@ public class CalendarRepository implements ICalendarRepository {
 		loadEvents(context, selection, selectionArgs, callback);
 	}
 
-	@SuppressLint("Range")
 	public static void loadEvents(Context context, String calendarId, ZonedDateTime begin, ZonedDateTime end,
-	                              BackgroundCallback<List<ContentValues>> callback) {
-		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
-			@Override
-			public void run() {
-				final String selection = CalendarContract.Events.CALENDAR_ID + "=? AND " + CalendarContract.Events.DTSTART + ">=? AND " +
-						CalendarContract.Events.DTEND + "<=?";
-				final String[] selectionArgs = {calendarId, String.valueOf(begin.toInstant().getEpochSecond() * 1000L),
-						String.valueOf(end.toInstant().getEpochSecond() * 1000L)};
-
-				Cursor cursor = context.getContentResolver().query(CalendarContract.Events.CONTENT_URI, null, selection, selectionArgs,
-						null);
-
-				List<ContentValues> eventList = new ArrayList<>();
-
-				if (cursor != null) {
-					while (cursor.moveToNext()) {
-						ContentValues event = new ContentValues();
-						String[] keys = cursor.getColumnNames();
-						for (String key : keys) {
-							event.put(key, cursor.getString(cursor.getColumnIndex(key)));
-						}
-						eventList.add(event);
-					}
-					cursor.close();
-				}
-				callback.onResultSuccessful(eventList);
-			}
-		});
-
+	                              BackgroundCallback<List<EventObj>> callback) {
+		String selection = CalendarContract.Events.CALENDAR_ID + "=? AND " + CalendarContract.Events.DTSTART + ">=? AND " +
+				CalendarContract.Events.DTEND + "<=?";
+		String[] selectionArgs = {calendarId, String.valueOf(begin.toInstant().getEpochSecond() * 1000L),
+				String.valueOf(end.toInstant().getEpochSecond() * 1000L)};
+		loadEvents(context, selection, selectionArgs, callback);
 	}
 
 
@@ -316,8 +292,6 @@ public class CalendarRepository implements ICalendarRepository {
 		});
 
 	}
-
-
 
 
 	@SuppressLint("Range")
