@@ -21,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,6 +39,7 @@ import com.kizitonwose.calendarview.ui.ViewContainer;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.interfaces.IRefreshCalendar;
+import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
 import com.lifedawn.capstoneapp.common.util.PermissionsLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
@@ -48,6 +50,8 @@ import com.lifedawn.capstoneapp.databinding.EventDialogFragmentBinding;
 import com.lifedawn.capstoneapp.databinding.FragmentCalendarBinding;
 import com.lifedawn.capstoneapp.databinding.ItemViewEventListBinding;
 import com.lifedawn.capstoneapp.databinding.ViewEventDialogBinding;
+import com.lifedawn.capstoneapp.main.MainTransactionFragment;
+import com.lifedawn.capstoneapp.promise.promiseinfo.PromiseInfoFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -71,8 +75,7 @@ import kotlin.jvm.functions.Function1;
 
 public class CalendarFragment extends Fragment implements IRefreshCalendar {
 	private final DayOfWeek FIRST_DAY_OF_WEEK = WeekFields.of(Locale.getDefault()).getFirstDayOfWeek();
-	private final Map<String, List<ContentValues>> eventsMap = new HashMap<>();
-	private final Map<String, List<ContentValues>> attendeesMap = new HashMap<>();
+	private final Map<String, List<CalendarRepository.EventObj>> eventsMap = new HashMap<>();
 
 	private FragmentCalendarBinding binding;
 	private AccountViewModel accountViewModel;
@@ -145,8 +148,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 		// 날짜표시와 밑에 파란색으로 약속 카운팅도 하기
 		binding.calendarView.setDayBinder(new DayBinder<DayViewContainer>() {
 			String dateText;
-			List<ContentValues> eventList;
-			List<ContentValues> attendeeList;
+			List<CalendarRepository.EventObj> eventObjList;
 			int acceptedCount;
 			int eventCount;
 
@@ -186,9 +188,25 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 				});
 
 				if (eventsMap.containsKey(dateText)) {
-					eventList = eventsMap.get(dateText);
-					eventCount = eventList.size();
-					attendeeList = attendeesMap.get(dateText);
+					eventObjList = eventsMap.get(dateText);
+					eventCount = eventObjList.size();
+
+					for (CalendarRepository.EventObj eventObj : eventObjList) {
+						boolean fixed = true;
+
+						for (ContentValues attendee : eventObj.getAttendeeList()) {
+							if (attendee.getAsInteger(CalendarContract.Attendees.ATTENDEE_STATUS)
+									!= CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED) {
+								fixed = false;
+								break;
+							}
+						}
+
+						if (fixed) {
+							acceptedCount++;
+						}
+
+					}
 				}
 
 				viewContainer.binding.acceptedPromiseCount.setText(acceptedCount > 0 ? String.valueOf(acceptedCount) : null);
@@ -301,7 +319,6 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 						final ZoneId zoneId = firstDateTime.getZone();
 
 						eventsMap.clear();
-						attendeesMap.clear();
 
 						for (CalendarRepository.EventObj eventObj : e) {
 							ContentValues event = eventObj.getEvent();
@@ -312,14 +329,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 							if (!eventsMap.containsKey(dateText)) {
 								eventsMap.put(dateText, new ArrayList<>());
 							}
-							eventsMap.get(dateText).add(event);
-
-							for (ContentValues attendee : eventObj.getAttendeeList()) {
-								if (!attendeesMap.containsKey(dateText)) {
-									attendeesMap.put(dateText, new ArrayList<>());
-								}
-								attendeesMap.get(dateText).add(attendee);
-							}
+							eventsMap.get(dateText).add(eventObj);
 						}
 
 						getActivity().runOnUiThread(new Runnable() {
@@ -368,9 +378,9 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 		private CompositePageTransformer compositePageTransformer;
 		private LocalDate criteriaDate;
 		private Bundle bundle;
-		private Map<String, List<ContentValues>> eventsMap;
+		private Map<String, List<CalendarRepository.EventObj>> eventsMap;
 
-		public EventDialogFragment setEventsMap(Map<String, List<ContentValues>> eventsMap) {
+		public EventDialogFragment setEventsMap(Map<String, List<CalendarRepository.EventObj>> eventsMap) {
 			this.eventsMap = eventsMap;
 			return this;
 		}
@@ -433,6 +443,37 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 			});
 
 			EventViewPagerAdapter adapter = new EventViewPagerAdapter(criteriaDate);
+			adapter.setOnClickPromiseItemListener(new OnClickPromiseItemListener() {
+				@Override
+				public void onClickedEdit(CalendarRepository.EventObj event, int position) {
+
+				}
+
+				@Override
+				public void onClickedEvent(CalendarRepository.EventObj event, int position) {
+					PromiseInfoFragment promiseInfoFragment = new PromiseInfoFragment();
+
+					Bundle bundle = new Bundle();
+					bundle.putString("eventId", event.getEvent().getAsString(CalendarContract.Events._ID));
+					promiseInfoFragment.setArguments(bundle);
+
+					FragmentManager fragmentManager =
+							getParentFragment().getParentFragment().getParentFragment().getParentFragmentManager();
+					fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName())).add(
+							R.id.fragmentContainerView, promiseInfoFragment, PromiseInfoFragment.class.getName()).addToBackStack(
+							PromiseInfoFragment.class.getName()).commit();
+				}
+
+				@Override
+				public void onClickedRefusal(CalendarRepository.EventObj event, int position) {
+
+				}
+
+				@Override
+				public void onClickedAcceptance(CalendarRepository.EventObj event, int position) {
+
+				}
+			});
 
 			binding.viewPager.setAdapter(adapter);
 			binding.viewPager.setCurrentItem(FIRST_POSITION, false);
@@ -482,6 +523,12 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 		private class EventViewPagerAdapter extends RecyclerView.Adapter<EventViewPagerAdapter.ViewHolder> {
 			private LayoutInflater layoutInflater;
 			private final LocalDate criteriaDate;
+			private OnClickPromiseItemListener onClickPromiseItemListener;
+
+			public EventViewPagerAdapter setOnClickPromiseItemListener(OnClickPromiseItemListener onClickPromiseItemListener) {
+				this.onClickPromiseItemListener = onClickPromiseItemListener;
+				return this;
+			}
 
 			public EventViewPagerAdapter(LocalDate criteriaDate) {
 				this.criteriaDate = criteriaDate;
@@ -554,6 +601,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 
 					if (eventsMap.containsKey(dateText)) {
 						adapter = new EventListAdapter(eventsMap.get(dateText));
+						adapter.setOnClickPromiseItemListener(onClickPromiseItemListener);
 						adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
 							@Override
 							public void onChanged() {
@@ -570,9 +618,15 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 
 
 				private class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.EventViewHolder> {
-					private List<ContentValues> eventList;
+					private List<CalendarRepository.EventObj> eventList;
+					private OnClickPromiseItemListener onClickPromiseItemListener;
 
-					public EventListAdapter(List<ContentValues> eventList) {
+					public EventListAdapter setOnClickPromiseItemListener(OnClickPromiseItemListener onClickPromiseItemListener) {
+						this.onClickPromiseItemListener = onClickPromiseItemListener;
+						return this;
+					}
+
+					public EventListAdapter(List<CalendarRepository.EventObj> eventList) {
 						this.eventList = eventList;
 					}
 
@@ -602,7 +656,13 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 						}
 
 						public void onBind() {
-							binding.eventTitle.setText(eventList.get(getBindingAdapterPosition()).getAsString(CalendarContract.Events.TITLE));
+							binding.getRoot().setOnClickListener(new View.OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									onClickPromiseItemListener.onClickedEvent(eventList.get(getBindingAdapterPosition()), getBindingAdapterPosition());
+								}
+							});
+							binding.eventTitle.setText(eventList.get(getBindingAdapterPosition()).getEvent().getAsString(CalendarContract.Events.TITLE));
 						}
 					}
 				}
