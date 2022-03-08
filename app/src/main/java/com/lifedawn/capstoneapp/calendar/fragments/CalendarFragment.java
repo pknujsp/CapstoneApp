@@ -195,8 +195,9 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 						boolean fixed = true;
 
 						for (ContentValues attendee : eventObj.getAttendeeList()) {
-							if (attendee.getAsInteger(CalendarContract.Attendees.ATTENDEE_STATUS)
-									!= CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED) {
+							if (attendee.containsKey(CalendarContract.Attendees.ATTENDEE_STATUS) &&
+									attendee.getAsInteger(CalendarContract.Attendees.ATTENDEE_STATUS)
+											!= CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED) {
 								fixed = false;
 								break;
 							}
