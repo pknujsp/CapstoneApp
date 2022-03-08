@@ -38,6 +38,14 @@
           }
         },
         {
+          "client_id": "302828824120-dq5fi9hbd4jkgsfcbb3o92rhk8fd8gb5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lifedawn.capstoneapp",
+            "certificate_hash": "428c5fa805f789eb7f34d71c6a6f1a14864c2c98"
+          }
+        },
+        {
           "client_id": "302828824120-gcbt9te81cmgb4ljs8tn5jn0mifhn06d.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
