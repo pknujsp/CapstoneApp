@@ -180,7 +180,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 						EventDialogFragment eventDialogFragment =
 								new EventDialogFragment();
 						eventDialogFragment.setArguments(bundle);
-
+						eventDialogFragment.setEventsMap(eventsMap);
 						eventDialogFragment.show(getChildFragmentManager(), EventDialogFragment.class.getName());
 					}
 				});
@@ -393,13 +393,19 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 		}
 	}
 
-	public class EventDialogFragment extends DialogFragment {
+	public static class EventDialogFragment extends DialogFragment {
 		private static final int FIRST_POSITION = Integer.MAX_VALUE / 2;
 		private final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy/M/d E");
 		private EventDialogFragmentBinding binding;
 		private CompositePageTransformer compositePageTransformer;
 		private LocalDate criteriaDate;
 		private Bundle bundle;
+		private Map<String, List<ContentValues>> eventsMap;
+
+		public EventDialogFragment setEventsMap(Map<String, List<ContentValues>> eventsMap) {
+			this.eventsMap = eventsMap;
+			return this;
+		}
 
 		@Override
 		public void onAttach(@NonNull @NotNull Context context) {
@@ -409,7 +415,6 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 		@Override
 		public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
-
 			bundle = savedInstanceState != null ? savedInstanceState : getArguments();
 			criteriaDate = (LocalDate) bundle.getSerializable("criteriaDate");
 		}
@@ -488,7 +493,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 			super.onDestroy();
 		}
 
-		public class EventViewPagerAdapter extends RecyclerView.Adapter<EventViewPagerAdapter.ViewHolder> {
+		private class EventViewPagerAdapter extends RecyclerView.Adapter<EventViewPagerAdapter.ViewHolder> {
 			private LayoutInflater layoutInflater;
 			private final LocalDate criteriaDate;
 
