@@ -59,15 +59,12 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -519,6 +516,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 			private class ViewHolder extends RecyclerView.ViewHolder {
 				private ViewEventDialogBinding binding;
 				private LocalDate date;
+				private EventListAdapter adapter;
 
 				public ViewHolder(@NonNull @NotNull View itemView) {
 					super(itemView);
@@ -531,6 +529,22 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 					binding.recyclerView.setAdapter(null);
 				}
 
+				private void setEmptyInfo() {
+					if (adapter != null) {
+						if (adapter.getItemCount() > 0) {
+							binding.warningLayout.getRoot().setVisibility(View.GONE);
+						} else {
+							binding.warningLayout.btn.setVisibility(View.GONE);
+							binding.warningLayout.warningText.setText(R.string.empty_promises);
+							binding.warningLayout.getRoot().setVisibility(View.VISIBLE);
+						}
+					} else {
+						binding.warningLayout.btn.setVisibility(View.GONE);
+						binding.warningLayout.warningText.setText(R.string.empty_promises);
+						binding.warningLayout.getRoot().setVisibility(View.VISIBLE);
+					}
+				}
+
 				public void onBind(int position) {
 					int dateAmount = position - FIRST_POSITION;
 					Log.e("position", position + ", " + FIRST_POSITION);
@@ -541,22 +555,19 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 					String dateText = date.toString();
 
 					if (eventsMap.containsKey(dateText)) {
-						EventListAdapter adapter = new EventListAdapter(eventsMap.get(dateText));
+						adapter = new EventListAdapter(eventsMap.get(dateText));
 						adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
 							@Override
 							public void onChanged() {
 								super.onChanged();
-								if (adapter.getItemCount() > 0) {
-									binding.warningLayout.getRoot().setVisibility(View.GONE);
-								} else {
-									binding.warningLayout.btn.setVisibility(View.GONE);
-									binding.warningLayout.warningText.setText(R.string.empty_promises);
-									binding.warningLayout.getRoot().setVisibility(View.VISIBLE);
-								}
+								setEmptyInfo();
 							}
 						});
+
 						binding.recyclerView.setAdapter(adapter);
 					}
+
+					setEmptyInfo();
 				}
 
 
