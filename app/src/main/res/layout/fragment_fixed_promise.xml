@@ -23,5 +23,8 @@
                 />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+        <include layout="@layout/view_warning"
+            android:id="@+id/warningLayout"
+            android:visibility="gone"/>
     </FrameLayout>
 </layout>

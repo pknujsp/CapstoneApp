@@ -147,21 +147,35 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 		initializing = false;
 
 
+
 		if (permissionsLifeCycleObserver.checkCalendarPermissions()) {
 			binding.refreshLayout.setRefreshing(true);
 			refreshEvents();
 		} else {
-			permissionsLifeCycleObserver.launchCalendarPermissionsLauncher(new ActivityResultCallback<Boolean>() {
+			binding.warningLayout.getRoot().setVisibility(View.VISIBLE);
+
+			final ActivityResultCallback<Boolean> activityResultCallback = new ActivityResultCallback<Boolean>() {
 				@Override
 				public void onActivityResult(Boolean result) {
 					if (result) {
+						binding.warningLayout.getRoot().setVisibility(View.GONE);
 						binding.refreshLayout.setRefreshing(true);
 						refreshEvents();
 					} else {
 						//권한 거부됨
+						binding.warningLayout.warningText.setText(R.string.needs_calendar_permission);
+						ActivityResultCallback<Boolean> activityResultCallback = this;
+						binding.warningLayout.btn.setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								permissionsLifeCycleObserver.launchCalendarPermissionsLauncher(activityResultCallback);
+							}
+						});
 					}
 				}
-			});
+			};
+
+			permissionsLifeCycleObserver.launchCalendarPermissionsLauncher(activityResultCallback);
 		}
 
 
