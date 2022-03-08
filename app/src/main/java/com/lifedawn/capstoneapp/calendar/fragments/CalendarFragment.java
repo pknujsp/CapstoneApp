@@ -173,7 +173,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 
 				final LocalDate date = calendarDay.getDate();
 
-				viewContainer.binding.calendarDayText.setOnClickListener(new View.OnClickListener() {
+				viewContainer.binding.getRoot().setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						Bundle bundle = new Bundle();
@@ -452,6 +452,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 
 				@Override
 				public void onClickedEvent(CalendarRepository.EventObj event, int position) {
+					dismiss();
 					PromiseInfoFragment promiseInfoFragment = new PromiseInfoFragment();
 
 					Bundle bundle = new Bundle();
