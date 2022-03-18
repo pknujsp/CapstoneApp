@@ -27,7 +27,7 @@ public class AddressItemDataSource extends PositionalDataSource<AddressResponse.
 	
 	@Override
 	public void loadInitial(@NonNull LoadInitialParams params, @NonNull LoadInitialCallback<AddressResponse.Documents> callback) {
-		queries = RetrofitClient.getApiService(RetrofitClient.KAKAO_LOCAL);
+		queries = RetrofitClient.getApiService(RetrofitClient.ServiceType.KAKAO_LOCAL);
 		Map<String, String> queryMap = localApiPlaceParameter.getParameterMap();
 		Call<AddressResponse> call = queries.getAddress(queryMap);
 		
@@ -57,7 +57,7 @@ public class AddressItemDataSource extends PositionalDataSource<AddressResponse.
 	
 	@Override
 	public void loadRange(@NonNull LoadRangeParams params, @NonNull LoadRangeCallback<AddressResponse.Documents> callback) {
-		queries = RetrofitClient.getApiService(RetrofitClient.KAKAO_LOCAL);
+		queries = RetrofitClient.getApiService(RetrofitClient.ServiceType.KAKAO_LOCAL);
 		
 		if (!addressMeta.isEnd()) {
 			localApiPlaceParameter.setPage(Integer.toString(Integer.parseInt(localApiPlaceParameter.getPage()) + 1));

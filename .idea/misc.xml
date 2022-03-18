@@ -3,7 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/drawable/day_clear.xml" value="0.2535" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/drawable/dialog_background.xml" value="0.2535" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/drawable/night_partly_cloudy.xml" value="0.2535" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/drawable/overcast.xml" value="0.2535" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/drawable/showers.xml" value="0.2535" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/drawable/snow.xml" value="0.2535" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/calendar_day_layout.xml" value="0.17806484295845998" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/event_attendee_chip.xml" value="0.36614583333333334" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/event_dialog_fragment.xml" value="0.25364583333333335" />
@@ -156,7 +161,7 @@
     </option>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

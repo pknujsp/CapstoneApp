@@ -119,6 +119,43 @@
                         android:textColor="@color/black"
                         />
 
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:id="@+id/weatherLayout"
+                        >
+
+                        <ImageView
+                            android:id="@+id/weatherIcon"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_marginRight="8dp"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/day_clear"
+                            />
+
+                        <TextView
+                            android:id="@+id/weatherDescription"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="상태"
+                            android:textColor="@color/black"
+                            android:textSize="26sp"
+                            />
+
+                        <TextView
+                            android:id="@+id/temperature"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="기온"
+                            android:textColor="@color/black"
+                            android:textSize="26sp"
+                            />
+
+                    </LinearLayout>
+
                 </LinearLayout>
 
 
