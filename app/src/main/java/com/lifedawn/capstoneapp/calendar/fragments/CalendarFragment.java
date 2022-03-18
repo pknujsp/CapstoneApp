@@ -446,7 +446,6 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 			adapter.setOnClickPromiseItemListener(new OnClickPromiseItemListener() {
 				@Override
 				public void onClickedEdit(CalendarRepository.EventObj event, int position) {
-
 				}
 
 				@Override

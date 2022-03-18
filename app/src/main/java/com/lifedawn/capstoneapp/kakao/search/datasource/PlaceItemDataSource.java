@@ -27,7 +27,7 @@ public class PlaceItemDataSource extends PositionalDataSource<PlaceResponse.Docu
 	
 	@Override
 	public void loadInitial(@NonNull LoadInitialParams params, @NonNull LoadInitialCallback<PlaceResponse.Documents> callback) {
-		queries = RetrofitClient.getApiService(RetrofitClient.KAKAO_LOCAL);
+		queries = RetrofitClient.getApiService(RetrofitClient.ServiceType.KAKAO_LOCAL);
 		Map<String, String> queryMap = localApiPlaceParameter.getParameterMap();
 		Call<PlaceResponse> call = queries.getPlaceKeyword(queryMap);
 		
@@ -57,7 +57,7 @@ public class PlaceItemDataSource extends PositionalDataSource<PlaceResponse.Docu
 	
 	@Override
 	public void loadRange(@NonNull LoadRangeParams params, @NonNull LoadRangeCallback<PlaceResponse.Documents> callback) {
-		queries = RetrofitClient.getApiService(RetrofitClient.KAKAO_LOCAL);
+		queries = RetrofitClient.getApiService(RetrofitClient.ServiceType.KAKAO_LOCAL);
 		
 		if (!placeMeta.isEnd()) {
 			localApiPlaceParameter.setPage(Integer.toString(Integer.parseInt(localApiPlaceParameter.getPage()) + 1));

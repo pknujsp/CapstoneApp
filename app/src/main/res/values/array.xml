@@ -4,4 +4,163 @@
         <item>거리 순서</item>
         <item>정확도 순서</item>
     </string-array>
+
+    <string-array name="KmaSkyIconCodes">
+        <item>1</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+
+    <string-array name="KmaSkyIconDescriptionsForCode">
+        <item>@string/kma_sky_1_clear</item>
+        <item>@string/kma_sky_3_mostly_cloudy</item>
+        <item>@string/kma_sky_4_overcast</item>
+    </string-array>
+
+    <integer-array name="KmaSkyWeatherIconForCode">
+        <item>@drawable/day_clear</item>
+        <item>@drawable/day_mostly_cloudy</item>
+        <item>@drawable/overcast</item>
+    </integer-array>
+
+
+
+    <string-array name="KmaPtyIconCodes">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+    </string-array>
+
+    <string-array name="KmaPtyIconTextCodes">
+        <item>강수없음</item>
+        <item>비</item>
+        <item>비/눈</item>
+        <item>눈</item>
+        <item>소나기</item>
+        <item>빗방울</item>
+        <item>빗방울눈날림</item>
+        <item>눈날림</item>
+    </string-array>
+
+    <string-array name="KmaPtyIconDescriptionsForCode">
+        <item>@string/kma_pty_0_not</item>
+        <item>@string/kma_pty_1_rain</item>
+        <item>@string/kma_pty_2_rain_and_snow</item>
+        <item>@string/kma_pty_3_snow</item>
+        <item>@string/kma_pty_4_showers</item>
+        <item>@string/kma_pty_5_raindrop</item>
+        <item>@string/kma_pty_6_raindrop_and_snow_blizzard</item>
+        <item>@string/kma_pty_7_snow_blizzard</item>
+    </string-array>
+
+    <integer-array name="KmaPtyWeatherIconForCode">
+        <item>@drawable/day_clear</item>
+        <item>@drawable/rain</item>
+        <item>@drawable/sleet</item>
+        <item>@drawable/snow</item>
+        <item>@drawable/showers</item>
+        <item>@drawable/rain</item>
+        <item>@drawable/sleet</item>
+        <item>@drawable/snow</item>
+    </integer-array>
+
+
+    <string-array name="KmaMidIconDescriptionsForCode">
+        <item>@string/kma_mid_clear</item>
+        <item>@string/kma_mid_mostly_cloudy</item>
+        <item>@string/kma_mid_mostly_cloudy_rain</item>
+        <item>@string/kma_mid_mostly_cloudy_snow</item>
+        <item>@string/kma_mid_mostly_cloudy_rain_and_snow</item>
+        <item>@string/kma_mid_mostly_cloudy_shower</item>
+        <item>@string/kma_mid_overcast</item>
+        <item>@string/kma_mid_overcast_rain</item>
+        <item>@string/kma_mid_overcast_snow</item>
+        <item>@string/kma_mid_overcast_rain_and_snow</item>
+        <item>@string/kma_mid_overcast_shower</item>
+        <item>@string/kma_mid_shower</item>
+        <item>@string/kma_pty_1_rain</item>
+        <item>@string/kma_pty_3_snow</item>
+        <item>@string/kma_mid_sleet</item>
+    </string-array>
+
+    <string-array name="KmaMidIconCodes">
+        <item>맑음</item>
+        <item>구름많음</item>
+        <item>구름많고 비</item>
+        <item>구름많고 눈</item>
+        <item>구름많고 비/눈</item>
+        <item>구름많고 소나기</item>
+        <item>흐림</item>
+        <item>흐리고 비</item>
+        <item>흐리고 눈</item>
+        <item>흐리고 비/눈</item>
+        <item>흐리고 소나기</item>
+        <item>소나기</item>
+        <item>비</item>
+        <item>눈</item>
+        <item>비/눈</item>
+    </string-array>
+
+    <integer-array name="KmaMidWeatherIconForCode">
+        <item>@drawable/day_clear</item>
+        <item>@drawable/day_mostly_cloudy</item>
+        <item>@drawable/rain</item>
+        <item>@drawable/snow</item>
+        <item>@drawable/sleet</item>
+        <item>@drawable/showers</item>
+        <item>@drawable/overcast</item>
+        <item>@drawable/rain</item>
+        <item>@drawable/snow</item>
+        <item>@drawable/sleet</item>
+        <item>@drawable/showers</item>
+        <item>@drawable/showers</item>
+        <item>@drawable/rain</item>
+        <item>@drawable/snow</item>
+        <item>@drawable/sleet</item>
+    </integer-array>
+
+    <string-array name="KmaWeatherDescriptionCodes">
+        <item>맑음</item>
+        <item>구름 많음</item>
+        <item>흐림</item>
+        <item>비</item>
+        <item>비/눈</item>
+        <item>눈</item>
+        <item>소나기</item>
+        <item>빗방울</item>
+        <item>빗방울/눈날림</item>
+        <item>눈날림</item>
+    </string-array>
+
+    <string-array name="KmaWeatherDescriptions">
+        <item>@string/kma_sky_1_clear</item>
+        <item>@string/kma_sky_3_mostly_cloudy</item>
+        <item>@string/kma_mid_overcast</item>
+        <item>@string/kma_pty_1_rain</item>
+        <item>@string/kma_pty_2_rain_and_snow</item>
+        <item>@string/kma_pty_3_snow</item>
+        <item>@string/kma_pty_4_showers</item>
+        <item>@string/kma_pty_5_raindrop</item>
+        <item>@string/kma_pty_6_raindrop_and_snow_blizzard</item>
+        <item>@string/kma_pty_7_snow_blizzard</item>
+    </string-array>
+
+    <integer-array name="KmaWeatherIconForDescriptionCode">
+        <item>@drawable/day_clear</item>
+        <item>@drawable/day_mostly_cloudy</item>
+        <item>@drawable/overcast</item>
+        <item>@drawable/rain</item>
+        <item>@drawable/sleet</item>
+        <item>@drawable/snow</item>
+        <item>@drawable/showers</item>
+        <item>@drawable/rain</item>
+        <item>@drawable/sleet</item>
+        <item>@drawable/snow</item>
+    </integer-array>
+
 </resources>

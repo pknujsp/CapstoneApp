@@ -15,8 +15,16 @@ public interface Queries {
 	@Headers({"Authorization: " + RetrofitClient.KAKAO_APP_KEY})
 	@GET("search/address.json")
 	Call<AddressResponse> getAddress(@QueryMap(encoded = true) Map<String, String> queryMap);
-	
+
 	@Headers({"Authorization: " + RetrofitClient.KAKAO_APP_KEY})
 	@GET("search/keyword.json")
 	Call<PlaceResponse> getPlaceKeyword(@QueryMap(encoded = true) Map<String, String> queryMap);
+
+	// kma web html --------------------------------------------------------------------------------------------
+	@GET("current-weather.do")
+	Call<String> getKmaCurrentConditions(@QueryMap(encoded = true) Map<String, String> queryMap);
+
+	@GET("digital-forecast.do")
+	Call<String> getKmaHourlyAndDailyForecast(@QueryMap(encoded = true) Map<String, String> queryMap);
+
 }
