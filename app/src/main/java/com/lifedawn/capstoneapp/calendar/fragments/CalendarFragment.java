@@ -221,7 +221,6 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 				if ((calendarMonth.getYearMonth().compareTo(firstMonth) <= 3) || (calendarMonth.getYearMonth().compareTo(
 						lastMonth) >= -3)) {
 					binding.progressCircular.setVisibility(View.VISIBLE);
-
 					firstMonth = firstMonth.minusMonths(10);
 					lastMonth = lastMonth.plusMonths(10);
 					binding.calendarView.updateMonthRangeAsync(firstMonth, lastMonth);
