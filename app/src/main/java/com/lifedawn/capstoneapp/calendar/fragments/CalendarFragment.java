@@ -10,10 +10,13 @@ import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultCallback;
@@ -40,6 +43,7 @@ import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.interfaces.IRefreshCalendar;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
+import com.lifedawn.capstoneapp.common.interfaces.OnFragmentCallback;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
 import com.lifedawn.capstoneapp.common.util.PermissionsLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
@@ -51,6 +55,7 @@ import com.lifedawn.capstoneapp.databinding.FragmentCalendarBinding;
 import com.lifedawn.capstoneapp.databinding.ItemViewEventListBinding;
 import com.lifedawn.capstoneapp.databinding.ViewEventDialogBinding;
 import com.lifedawn.capstoneapp.main.MainTransactionFragment;
+import com.lifedawn.capstoneapp.promise.editpromise.EditPromiseFragment;
 import com.lifedawn.capstoneapp.promise.promiseinfo.PromiseInfoFragment;
 
 import org.jetbrains.annotations.NotNull;
@@ -76,13 +81,14 @@ import kotlin.jvm.functions.Function1;
 public class CalendarFragment extends Fragment implements IRefreshCalendar {
 	private final DayOfWeek FIRST_DAY_OF_WEEK = WeekFields.of(Locale.getDefault()).getFirstDayOfWeek();
 	private final Map<String, List<CalendarRepository.EventObj>> eventsMap = new HashMap<>();
+	public static String myEmail;
+
 
 	private FragmentCalendarBinding binding;
 	private AccountViewModel accountViewModel;
 	private CalendarViewModel calendarViewModel;
 	private PermissionsLifeCycleObserver permissionsLifeCycleObserver;
 
-	private String myEmail;
 
 	private ZonedDateTime firstDateTime;
 	private ZonedDateTime endDateTime;
@@ -445,7 +451,29 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 			EventViewPagerAdapter adapter = new EventViewPagerAdapter(criteriaDate);
 			adapter.setOnClickPromiseItemListener(new OnClickPromiseItemListener() {
 				@Override
+				public void onClickedRemoveEvent(CalendarRepository.EventObj event, int position) {
+
+				}
+
+				@Override
 				public void onClickedEdit(CalendarRepository.EventObj event, int position) {
+					EditPromiseFragment editPromiseFragment = new EditPromiseFragment();
+					editPromiseFragment.setOnFragmentCallback(new OnFragmentCallback<Boolean>() {
+						@Override
+						public void onResult(Boolean e) {
+							//목록 새로고침
+						}
+					});
+					Bundle bundle = new Bundle();
+					bundle.putString("eventId", event.getEvent().getAsString("_sync_id"));
+
+					editPromiseFragment.setArguments(bundle);
+
+					FragmentManager fragmentManager =
+							getParentFragment().getParentFragment().getParentFragment().getParentFragmentManager();
+					fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName())).add(
+							R.id.fragmentContainerView, editPromiseFragment, EditPromiseFragment.class.getName()).addToBackStack(
+							EditPromiseFragment.class.getName()).commit();
 				}
 
 				@Override
@@ -478,7 +506,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 			binding.viewPager.setAdapter(adapter);
 			binding.viewPager.setCurrentItem(FIRST_POSITION, false);
 			binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-				int lastPosition = FIRST_POSITION;
+				private int lastPosition = FIRST_POSITION;
 
 				@Override
 				public void onPageSelected(int position) {
@@ -660,6 +688,35 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 								@Override
 								public void onClick(View v) {
 									onClickPromiseItemListener.onClickedEvent(eventList.get(getBindingAdapterPosition()), getBindingAdapterPosition());
+								}
+							});
+							binding.getRoot().setOnLongClickListener(new View.OnLongClickListener() {
+								@Override
+								public boolean onLongClick(View v) {
+									CalendarRepository.EventObj eventObj = eventList.get(getBindingAdapterPosition());
+									if (eventObj.getEvent().getAsString(CalendarContract.Events.ACCOUNT_NAME).equals(
+											CalendarFragment.myEmail)) {
+										PopupMenu popupMenu = new PopupMenu(getContext(), binding.eventTitle);
+										popupMenu.getMenuInflater().inflate(R.menu.event_menu, popupMenu.getMenu());
+										popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+											@Override
+											public boolean onMenuItemClick(MenuItem item) {
+												if (item.getItemId() == R.id.action_edit) {
+													//수정
+													onClickPromiseItemListener.onClickedEdit(eventObj, getBindingAdapterPosition());
+												} else if (item.getItemId() == R.id.action_delete) {
+													onClickPromiseItemListener.onClickedRemoveEvent(eventObj, getBindingAdapterPosition());
+													//삭제
+												}
+												return false;
+											}
+										});
+
+										popupMenu.show();
+
+									}
+
+									return true;
 								}
 							});
 							binding.eventTitle.setText(eventList.get(getBindingAdapterPosition()).getEvent().getAsString(CalendarContract.Events.TITLE));

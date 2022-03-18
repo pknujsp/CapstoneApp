@@ -94,6 +94,12 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 			}
 
 			@Override
+			public void onClickedRemoveEvent(CalendarRepository.EventObj event, int position) {
+
+			}
+
+
+			@Override
 			public void onClickedEvent(CalendarRepository.EventObj event, int position) {
 				PromiseInfoFragment promiseInfoFragment = new PromiseInfoFragment();
 

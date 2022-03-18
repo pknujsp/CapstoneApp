@@ -7,8 +7,10 @@ import android.content.Context;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
@@ -109,6 +111,11 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 			}
 
 			@Override
+			public void onClickedRemoveEvent(CalendarRepository.EventObj event, int position) {
+
+			}
+
+			@Override
 			public void onClickedEvent(CalendarRepository.EventObj event, int position) {
 				PromiseInfoFragment promiseInfoFragment = new PromiseInfoFragment();
 
@@ -160,7 +167,6 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 		initializing = false;
 
 
-
 		if (permissionsLifeCycleObserver.checkCalendarPermissions()) {
 			binding.refreshLayout.setRefreshing(true);
 			refreshEvents();
@@ -192,7 +198,6 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 
 			permissionsLifeCycleObserver.launchCalendarPermissionsLauncher(activityResultCallback);
 		}
-
 
 	}
 
@@ -249,6 +254,7 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 			}
 		});
 	}
+
 
 	private class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 		private List<CalendarRepository.EventObj> events = new ArrayList<>();
@@ -312,10 +318,28 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 				binding.editBtn.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						onClickPromiseItemListener.onClickedEdit(events.get(getBindingAdapterPosition()), getBindingAdapterPosition());
+
+						PopupMenu popupMenu = new PopupMenu(getContext(), binding.editBtn);
+						popupMenu.getMenuInflater().inflate(R.menu.event_menu, popupMenu.getMenu());
+						popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+							@Override
+							public boolean onMenuItemClick(MenuItem item) {
+								if (item.getItemId() == R.id.action_edit) {
+									//수정
+									onClickPromiseItemListener.onClickedEdit(events.get(getBindingAdapterPosition()), getBindingAdapterPosition());
+								} else if (item.getItemId() == R.id.action_delete) {
+									onClickPromiseItemListener.onClickedRemoveEvent(events.get(getBindingAdapterPosition()), getBindingAdapterPosition());
+
+									//삭제
+								}
+								return false;
+							}
+						});
+
+						popupMenu.show();
+
 					}
 				});
-
 				CalendarRepository.EventObj eventObj = events.get(getBindingAdapterPosition());
 
 				final ContentValues event = eventObj.getEvent();
@@ -340,7 +364,6 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 				} else {
 					binding.location.setText(getContext().getString(R.string.no_promise_location));
 				}
-
 
 				String people = AttendeeUtil.toListString(eventObj.getAttendeeList());
 				binding.people.setText(people.isEmpty() ? getString(R.string.no_attendee) : people);

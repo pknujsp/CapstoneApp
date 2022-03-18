@@ -10,4 +10,6 @@ public interface OnClickPromiseItemListener {
 	void onClickedRefusal(CalendarRepository.EventObj event, int position);
 
 	void onClickedAcceptance(CalendarRepository.EventObj event, int position);
+
+	void onClickedRemoveEvent(CalendarRepository.EventObj event, int position);
 }

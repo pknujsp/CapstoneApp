@@ -89,17 +89,17 @@
                 android:layout_height="wrap_content"
                 >
 
-                <TextView
+                <ImageButton
                     android:id="@+id/editBtn"
-                    android:textSize="19sp"
-                    android:textColor="@color/red"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     android:layout_alignParentLeft="true"
                     android:layout_centerVertical="true"
                     android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:text="@string/edit" />
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_baseline_more_horiz_24"
+                    app:tint="@color/design_default_color_primary_dark"
+                    />
 
                 <TextView
                     android:id="@+id/location"

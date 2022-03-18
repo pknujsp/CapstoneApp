@@ -50,7 +50,7 @@ public class NotificationHelper {
 		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, notificationType.getChannelId());
 
 		if (notificationType == NotificationType.PROMISE_REMINDER) {
-			notificationBuilder.setPriority(NotificationCompat.PRIORITY_HIGH);
+			notificationBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
 		}
 		notificationItem.setBuilder(notificationBuilder);
 

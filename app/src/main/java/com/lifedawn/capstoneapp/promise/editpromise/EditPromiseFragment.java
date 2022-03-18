@@ -330,7 +330,7 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 			@Override
 			public void onResultAddedReminder(EventReminder reminder) {
 				//중복검사
-				if (editEvent.getReminders() == null) {
+				if (editEvent.getReminders() == null || editEvent.getReminders().getOverrides() == null) {
 					Event.Reminders reminders = new Event.Reminders();
 					reminders.setOverrides(new ArrayList<>());
 					editEvent.setReminders(reminders);
@@ -390,6 +390,9 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 				public void onResultModifiedReminder(EventReminder reminder, int previousMinutes) {
 					editEvent.getReminders().getOverrides().add(reminder);
 					initRemindersView(editEvent.getReminders().getOverrides());
+					if (editEvent.getReminders().getOverrides().isEmpty()) {
+						editEvent.setReminders(null);
+					}
 				}
 
 				@Override
@@ -406,7 +409,11 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 							break;
 						}
 					}
+
 					initRemindersView(editEvent.getReminders().getOverrides());
+					if (editEvent.getReminders().getOverrides().isEmpty()) {
+						editEvent.setReminders(null);
+					}
 				}
 			});
 			eventReminderFragment.setArguments(bundle);
