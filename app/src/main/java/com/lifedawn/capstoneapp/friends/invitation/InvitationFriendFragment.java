@@ -185,8 +185,9 @@ public class InvitationFriendFragment extends Fragment {
 			}
 			
 			public void onBind() {
-				binding.friend.setText(eventAttendeeList.get(getBindingAdapterPosition()).getDisplayName());
-				
+				binding.name.setText(eventAttendeeList.get(getBindingAdapterPosition()).getDisplayName());
+				binding.email.setText(eventAttendeeList.get(getBindingAdapterPosition()).getEmail());
+
 				binding.removeBtn.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -54,14 +55,24 @@ public class IntroFragment extends Fragment {
 			public void onClick(View view) {
 				accountViewModel.signIn(googleAccountLifeCycleObserver, new AccountRepository.OnSignCallback() {
 					@Override
-					public void onSignInSuccessful(GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential) {
-						if (signInAccount != null) {
-							startMainFragment();
+					public void onSignInResult(boolean succeed, GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential, Exception e) {
+						if (getActivity() != null) {
+							getActivity().runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									if (succeed) {
+										startMainFragment();
+									} else {
+										Toast.makeText(getContext(), new String(getString(R.string.failed_signin_account) + "\n" + e.getLocalizedMessage()), Toast.LENGTH_SHORT).show();
+									}
+								}
+							});
 						}
+
 					}
 
 					@Override
-					public void onSignOutSuccessful(GoogleSignInAccount signOutAccount) {
+					public void onSignOutResult(boolean succeed, GoogleSignInAccount signOutAccount) {
 
 					}
 				});
@@ -74,7 +85,6 @@ public class IntroFragment extends Fragment {
 				startMainFragment();
 			}
 		});
-
 	}
 
 	@Override
@@ -85,10 +95,10 @@ public class IntroFragment extends Fragment {
 
 	private void startMainFragment() {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		sharedPreferences.edit().putBoolean(SharedPreferenceConstant.APP_INIT.name(), true).commit();
+		sharedPreferences.edit().putBoolean(SharedPreferenceConstant.APP_INIT.name(), true).apply();
 
 		MainTransactionFragment mainTransactionFragment = new MainTransactionFragment();
 		FragmentTransaction fragmentTransaction = getParentFragmentManager().beginTransaction();
-		fragmentTransaction.replace(R.id.fragmentContainerView, mainTransactionFragment, MainTransactionFragment.class.getName()).commit();
+		fragmentTransaction.replace(R.id.fragmentContainerView, mainTransactionFragment, MainTransactionFragment.class.getName()).commitAllowingStateLoss();
 	}
 }

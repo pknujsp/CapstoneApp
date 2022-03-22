@@ -50,11 +50,11 @@ public class MainActivity extends AppCompatActivity {
 			//maintransactionfragment
 			MainTransactionFragment mainTransactionFragment = new MainTransactionFragment();
 			fragmentTransaction.add(binding.fragmentContainerView.getId(), mainTransactionFragment,
-					MainTransactionFragment.class.getName()).commit();
+					MainTransactionFragment.class.getName()).commitAllowingStateLoss();
 		} else {
 			//intro
 			IntroFragment introFragment = new IntroFragment();
-			fragmentTransaction.add(binding.fragmentContainerView.getId(), introFragment, IntroFragment.class.getName()).commit();
+			fragmentTransaction.add(binding.fragmentContainerView.getId(), introFragment, IntroFragment.class.getName()).commitAllowingStateLoss();
 		}
 	}
 

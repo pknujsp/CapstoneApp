@@ -1,6 +1,5 @@
 package com.lifedawn.capstoneapp.promise.receivedinvitation;
 
-import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
@@ -16,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,10 +33,10 @@ import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
 import com.lifedawn.capstoneapp.common.util.AttendeeUtil;
 import com.lifedawn.capstoneapp.common.util.PermissionsLifeCycleObserver;
-import com.lifedawn.capstoneapp.common.util.ReminderUtil;
 import com.lifedawn.capstoneapp.common.view.RecyclerViewItemDecoration;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
+import com.lifedawn.capstoneapp.common.viewmodel.FriendViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentReceivedInvitationBinding;
 import com.lifedawn.capstoneapp.databinding.ItemViewInvitedPromiseBinding;
 import com.lifedawn.capstoneapp.main.MainTransactionFragment;
@@ -60,6 +60,7 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	private RecyclerViewAdapter adapter;
 	private PermissionsLifeCycleObserver permissionsLifeCycleObserver;
+	private FriendViewModel friendViewModel;
 
 	private String myEmail;
 
@@ -75,6 +76,7 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 		getLifecycle().addObserver(permissionsLifeCycleObserver);
 		accountViewModel = new ViewModelProvider(requireActivity()).get(AccountViewModel.class);
 		calendarViewModel = new ViewModelProvider(requireActivity()).get(CalendarViewModel.class);
+		friendViewModel = new ViewModelProvider(requireActivity()).get(FriendViewModel.class);
 	}
 
 	@Override
@@ -155,6 +157,13 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 		if (permissionsLifeCycleObserver.checkCalendarPermissions()) {
 			binding.refreshLayout.setRefreshing(true);
 			refreshEvents();
+
+			calendarViewModel.getSyncCalendarLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+				@Override
+				public void onChanged(Boolean aBoolean) {
+					refreshEvents();
+				}
+			});
 		} else {
 			binding.warningLayout.btn.setVisibility(View.VISIBLE);
 			binding.warningLayout.btn.setText(R.string.check_permissions);
@@ -232,10 +241,7 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 
 	@Override
 	public void syncCalendars() {
-		Account account = accountViewModel.lastSignInAccount().getAccount();
-		myEmail = account.name;
-
-		calendarViewModel.syncCalendars(account, new BackgroundCallback<Boolean>() {
+		calendarViewModel.syncCalendars(accountViewModel.getCurrentSignInAccount(), new BackgroundCallback<Boolean>() {
 			@SuppressLint("Range")
 			@Override
 			public void onResultSuccessful(Boolean e) {
@@ -244,53 +250,84 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 
 			@Override
 			public void onResultFailed(Exception e) {
-
+				Toast.makeText(getContext(), R.string.failed_sync_calendar, Toast.LENGTH_SHORT).show();
+				binding.refreshLayout.setRefreshing(false);
 			}
 		});
 	}
 
 	@Override
 	public void refreshEvents() {
-		Account account = accountViewModel.lastSignInAccount().getAccount();
-		myEmail = account.name;
-		CalendarRepository.loadCalendar(getContext(), account, new BackgroundCallback<ContentValues>() {
+		myEmail = accountViewModel.getLastSignInAccountName();
+		CalendarRepository.loadCalendar(getContext(), myEmail, new BackgroundCallback<ContentValues>() {
 			@Override
 			public void onResultSuccessful(ContentValues e) {
-				CalendarRepository.loadReceivedInvitationEvents(getContext(), account, new BackgroundCallback<List<CalendarRepository.EventObj>>() {
-					@Override
-					public void onResultSuccessful(List<CalendarRepository.EventObj> e) {
-
-						getActivity().runOnUiThread(new Runnable() {
+				CalendarRepository.loadReceivedInvitationEvents(getContext(), myEmail,
+						new BackgroundCallback<List<CalendarRepository.EventObj>>() {
 							@Override
-							public void run() {
-								binding.refreshLayout.setRefreshing(false);
-								adapter.setEvents(e);
-								adapter.notifyDataSetChanged();
+							public void onResultSuccessful(List<CalendarRepository.EventObj> eventObjList) {
+								List<Integer> removeIndexList = new ArrayList<>();
+
+								for (int i = eventObjList.size() - 1; i >= 0; i--) {
+									List<ContentValues> attendeeList = eventObjList.get(i).getAttendeeList();
+									boolean invited = false;
+									for (ContentValues attendee : attendeeList) {
+										if (attendee.getAsString(CalendarContract.Attendees.ATTENDEE_EMAIL).equals(myEmail)) {
+											invited = true;
+											break;
+										}
+									}
+
+									if (!invited) {
+										removeIndexList.add(i);
+									}
+								}
+
+								for (int index : removeIndexList) {
+									eventObjList.remove(index);
+								}
+
+								getActivity().runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										binding.refreshLayout.setRefreshing(false);
+										adapter.setEvents(eventObjList);
+										adapter.notifyDataSetChanged();
+									}
+								});
+							}
+
+							@Override
+							public void onResultFailed(Exception e) {
+
 							}
 						});
-					}
-
-					@Override
-					public void onResultFailed(Exception e) {
-
-					}
-				});
 			}
 
 			@Override
 			public void onResultFailed(Exception e) {
+				if (getActivity() != null) {
+					getActivity().runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							binding.refreshLayout.setRefreshing(false);
+						}
+					});
+				}
 
 			}
 		});
 	}
 
-	private class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+	private final class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 		private List<CalendarRepository.EventObj> events = new ArrayList<>();
 		private OnClickPromiseItemListener onClickPromiseItemListener;
 		private DateTimeFormatter DATE_TIME_FORMATTER;
+		private String signInAccountEmail;
 
 		public RecyclerViewAdapter(Context context) {
 			DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(context.getString(R.string.promiseDateTimeFormat));
+			signInAccountEmail = accountViewModel.getLastSignInAccountName();
 		}
 
 		public void setOnClickPromiseItemListener(OnClickPromiseItemListener onClickPromiseItemListener) {
@@ -367,27 +404,43 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 				ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(dtStart)), ZoneId.of(eventTimeZone));
 
 				binding.dateTime.setText(start.format(DATE_TIME_FORMATTER));
-				binding.description.setText(event.getAsString(CalendarContract.Events.DESCRIPTION) == null ?
+				binding.description.setText(event.getAsString(CalendarContract.Events.DESCRIPTION) == null ||
+						event.getAsString(CalendarContract.Events.DESCRIPTION).isEmpty() ?
 						getContext().getString(R.string.noDescription) :
 						event.getAsString(CalendarContract.Events.DESCRIPTION));
-				binding.title.setText(event.getAsString(CalendarContract.Events.TITLE));
+				binding.title.setText(event.getAsString(CalendarContract.Events.TITLE) == null ? getString(R.string.no_title) :
+						event.getAsString(CalendarContract.Events.TITLE));
 
 				if (event.getAsString(CalendarContract.Events.EVENT_LOCATION) != null) {
-					LocationDto locationDto = LocationDto.toLocationDto(event.getAsString(CalendarContract.Events.EVENT_LOCATION));
-					if (locationDto != null) {
-						binding.location.setText(
-								locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName());
+					if (event.getAsString(CalendarContract.Events.EVENT_LOCATION).isEmpty()) {
+						binding.location.setText(getContext().getString(R.string.no_promise_location));
 					} else {
-						binding.location.setTag(event.getAsString(CalendarContract.Events.EVENT_LOCATION));
+						LocationDto locationDto = LocationDto.toLocationDto(event.getAsString(CalendarContract.Events.EVENT_LOCATION));
+						if (locationDto != null) {
+							binding.location.setText(
+									locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName());
+						} else {
+							binding.location.setText(event.getAsString(CalendarContract.Events.EVENT_LOCATION));
+						}
 					}
 				} else {
 					binding.location.setText(getContext().getString(R.string.no_promise_location));
 				}
 
-				String people = AttendeeUtil.toListString(eventObj.getAttendeeList());
+				List<String> attendeeNameList = new ArrayList<>();
+
+				for (ContentValues attendee : eventObj.getAttendeeList()) {
+					if (attendee.getAsString(CalendarContract.Attendees.ATTENDEE_EMAIL).equals(signInAccountEmail)) {
+						attendeeNameList.add(getString(R.string.me));
+					} else {
+						attendeeNameList.add(friendViewModel.getName(attendee));
+					}
+				}
+
+				String people = AttendeeUtil.toListString(attendeeNameList);
 				binding.people.setText(people.isEmpty() ? getString(R.string.no_attendee) : people);
 
-				binding.invitee.setText(event.getAsString(CalendarContract.Events.ORGANIZER));
+				binding.invitee.setText(friendViewModel.getName(event));
 
 				List<ContentValues> attendeeList = eventObj.getAttendeeList();
 				for (ContentValues attendee : attendeeList) {
@@ -402,7 +455,7 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 							binding.acceptanceBtn.setVisibility(View.VISIBLE);
 							binding.refusalBtn.setVisibility(View.GONE);
 							break;
-						} else if (attendee.getAsInteger(CalendarContract.Attendees.ATTENDEE_STATUS).equals(CalendarContract.Attendees.ATTENDEE_STATUS_INVITED)) {
+						} else {
 							binding.status.setText(getString(R.string.no_response_to_invited_event));
 							binding.acceptanceBtn.setVisibility(View.VISIBLE);
 							binding.refusalBtn.setVisibility(View.VISIBLE);

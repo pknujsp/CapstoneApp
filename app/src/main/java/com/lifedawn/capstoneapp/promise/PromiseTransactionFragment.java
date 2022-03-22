@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,6 +44,7 @@ public class PromiseTransactionFragment extends Fragment {
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	private boolean initializing = true;
 	private Integer lastIndexViewPager;
+	private ViewPagerAdapter adapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -73,6 +75,10 @@ public class PromiseTransactionFragment extends Fragment {
 		binding.floatingActionBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if (accountViewModel.getCurrentSignInAccount() == null) {
+					Toast.makeText(getContext(), R.string.no_signin_account, Toast.LENGTH_SHORT).show();
+					return;
+				}
 				AddPromiseFragment addPromiseFragment = new AddPromiseFragment();
 
 				getParentFragment().getParentFragmentManager().beginTransaction().hide(
@@ -82,14 +88,6 @@ public class PromiseTransactionFragment extends Fragment {
 			}
 		});
 
-		calendarViewModel.getMainCalendarIdLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
-			@Override
-			public void onChanged(String id) {
-				if (!initializing) {
-					init();
-				}
-			}
-		});
 		accountViewModel.getSignInLiveData().observe(getViewLifecycleOwner(), new Observer<GoogleSignInAccount>() {
 			@Override
 			public void onChanged(GoogleSignInAccount googleSignInAccount) {
@@ -98,30 +96,17 @@ public class PromiseTransactionFragment extends Fragment {
 				}
 			}
 		});
-		if (calendarViewModel.getCalendarService() == null) {
-			if (accountViewModel.getUsingAccountType() == Constant.ACCOUNT_GOOGLE) {
-				calendarViewModel.createCalendarService(accountViewModel.getGoogleAccountCredential(), googleAccountLifeCycleObserver,
-						new BackgroundCallback<Calendar>() {
-							@Override
-							public void onResultSuccessful(Calendar e) {
 
-							}
-
-							@Override
-							public void onResultFailed(Exception e) {
-
-							}
-						});
-			}
-		}
 
 		init();
+		initializing = false;
+
 	}
 
 	private void init() {
 		lastIndexViewPager = binding.tabLayout.getSelectedTabPosition() == -1 ? 0 : binding.tabLayout.getSelectedTabPosition();
 
-		ViewPagerAdapter adapter = new ViewPagerAdapter(this);
+		adapter = new ViewPagerAdapter(this);
 		adapter.addFragment(new FixedPromiseFragment());
 		adapter.addFragment(new MyPromiseFragment());
 		adapter.addFragment(new ReceivedInvitationFragment());
@@ -142,7 +127,6 @@ public class PromiseTransactionFragment extends Fragment {
 			}
 		}).attach();
 		binding.tabLayout.selectTab(binding.tabLayout.getTabAt(lastIndexViewPager));
-		initializing = false;
 	}
 
 	private static class ViewPagerAdapter extends FragmentStateAdapter {

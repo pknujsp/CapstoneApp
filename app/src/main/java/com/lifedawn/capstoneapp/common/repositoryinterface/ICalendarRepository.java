@@ -1,10 +1,8 @@
 package com.lifedawn.capstoneapp.common.repositoryinterface;
 
-import android.accounts.Account;
-
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.interfaces.HttpCallback;
@@ -21,5 +19,5 @@ public interface ICalendarRepository {
 	void createCalendarService(GoogleAccountCredential googleAccountCredential, GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver
 			, BackgroundCallback<Calendar> callback);
 
-	void syncCalendars(Account account, BackgroundCallback<Boolean> callback);
+	void syncCalendars(GoogleSignInAccount account, BackgroundCallback<Boolean> callback);
 }

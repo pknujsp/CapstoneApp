@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -89,7 +90,6 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 	private CalendarViewModel calendarViewModel;
 	private PermissionsLifeCycleObserver permissionsLifeCycleObserver;
 
-
 	private ZonedDateTime firstDateTime;
 	private ZonedDateTime endDateTime;
 	private final ZoneId zoneId = ZoneId.systemDefault();
@@ -118,7 +118,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 	@Override
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		myEmail = accountViewModel.lastSignInAccount().getEmail();
+		myEmail = accountViewModel.getLastSignInAccount().getEmail();
 
 		binding.calendarView.setMonthHeaderBinder(new MonthHeaderFooterBinder<MonthHeaderViewContainer>() {
 			final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy M");
@@ -249,6 +249,13 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 		if (permissionsLifeCycleObserver.checkCalendarPermissions()) {
 			binding.refreshLayout.setRefreshing(true);
 			loadCalendar();
+
+			calendarViewModel.getSyncCalendarLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+				@Override
+				public void onChanged(Boolean aBoolean) {
+					loadCalendar();
+				}
+			});
 		} else {
 			binding.warningLayout.btn.setText(R.string.check_permissions);
 			binding.warningLayout.getRoot().setVisibility(View.VISIBLE);
@@ -282,7 +289,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 		firstDateTime = ZonedDateTime.of(firstMonth.getYear(), firstMonth.getMonthValue(), 1, 0, 0, 0, 0, zoneId);
 		endDateTime = ZonedDateTime.of(lastMonth.getYear(), lastMonth.getMonthValue(), 1, 0, 0, 0, 0, zoneId);
 
-		CalendarRepository.loadCalendar(getContext(), accountViewModel.lastSignInAccount().getAccount(), new BackgroundCallback<ContentValues>() {
+		CalendarRepository.loadCalendar(getContext(), accountViewModel.getLastSignInAccountName(), new BackgroundCallback<ContentValues>() {
 			@Override
 			public void onResultSuccessful(ContentValues e) {
 				calendar = e;
@@ -291,15 +298,21 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 
 			@Override
 			public void onResultFailed(Exception e) {
-
+				if (getActivity() != null) {
+					getActivity().runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							binding.refreshLayout.setRefreshing(false);
+						}
+					});
+				}
 			}
 		});
 	}
 
 	@Override
 	public void syncCalendars() {
-		final Account account = accountViewModel.lastSignInAccount().getAccount();
-		calendarViewModel.syncCalendars(account, new BackgroundCallback<Boolean>() {
+		calendarViewModel.syncCalendars(accountViewModel.getCurrentSignInAccount(), new BackgroundCallback<Boolean>() {
 			@SuppressLint("Range")
 			@Override
 			public void onResultSuccessful(Boolean e) {
@@ -308,7 +321,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 
 			@Override
 			public void onResultFailed(Exception e) {
-
+				Toast.makeText(getContext(), R.string.failed_sync_calendar, Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
@@ -474,11 +487,12 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 					fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName())).add(
 							R.id.fragmentContainerView, editPromiseFragment, EditPromiseFragment.class.getName()).addToBackStack(
 							EditPromiseFragment.class.getName()).commit();
+
+					dismiss();
 				}
 
 				@Override
 				public void onClickedEvent(CalendarRepository.EventObj event, int position) {
-					dismiss();
 					PromiseInfoFragment promiseInfoFragment = new PromiseInfoFragment();
 
 					Bundle bundle = new Bundle();
@@ -490,6 +504,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 					fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName())).add(
 							R.id.fragmentContainerView, promiseInfoFragment, PromiseInfoFragment.class.getName()).addToBackStack(
 							PromiseInfoFragment.class.getName()).commit();
+					dismiss();
 				}
 
 				@Override

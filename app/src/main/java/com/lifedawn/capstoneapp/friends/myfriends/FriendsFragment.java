@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,7 @@ import com.lifedawn.capstoneapp.common.viewmodel.FriendViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentFriendsBinding;
 import com.lifedawn.capstoneapp.databinding.ItemViewFriendBinding;
 import com.lifedawn.capstoneapp.friends.AddFriendDialogFragment;
+import com.lifedawn.capstoneapp.friends.AttendeeInfoDialog;
 import com.lifedawn.capstoneapp.room.dto.FriendDto;
 
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +40,7 @@ public class FriendsFragment extends Fragment {
 	private FragmentFriendsBinding binding;
 	private FriendViewModel friendViewModel;
 	private Boolean fabVisible;
-	private Boolean backAfterItemClick;
+	private boolean backAfterItemClick;
 	private OnClickFriendItemListener onClickFriendItemListener;
 	private RecyclerViewAdapter adapter;
 
@@ -54,6 +56,8 @@ public class FriendsFragment extends Fragment {
 			fabVisible = bundle.getBoolean("fabVisible", false);
 			backAfterItemClick = bundle.getBoolean("backAfterItemClick", true);
 		}
+		friendViewModel = new ViewModelProvider(requireActivity()).get(FriendViewModel.class);
+
 	}
 
 	@Override
@@ -65,8 +69,6 @@ public class FriendsFragment extends Fragment {
 	@Override
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-
-		friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
 
 		if (fabVisible != null && !fabVisible) {
 			binding.floatingActionBtn.setVisibility(View.GONE);
@@ -107,18 +109,10 @@ public class FriendsFragment extends Fragment {
 			public void onClickedFriend(FriendDto friend, int position) {
 				if (backAfterItemClick) {
 					onClickFriendItemListener.onClickedFriend(friend, position);
-					getParentFragmentManager().popBackStackImmediate();
+					getParentFragmentManager().popBackStack();
 				} else {
 					FriendDto friendDto = adapter.friends.get(position);
-					AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-					builder.setTitle(R.string.friend).setMessage(new String(friendDto.getName() + "\n" +
-							friendDto.getEmail())).setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialogInterface, int i) {
-							dialogInterface.dismiss();
-						}
-					}).create();
-					builder.show();
+					AttendeeInfoDialog.show(requireActivity(), friendDto.getName(), friendDto.getEmail());
 				}
 			}
 		});
@@ -202,7 +196,8 @@ public class FriendsFragment extends Fragment {
 			}
 
 			public void onBind() {
-				binding.friend.setText(friends.get(getBindingAdapterPosition()).getName());
+				binding.name.setText(friends.get(getBindingAdapterPosition()).getName());
+				binding.email.setText(friends.get(getBindingAdapterPosition()).getEmail());
 
 				binding.removeBtn.setOnClickListener(new View.OnClickListener() {
 					@Override

@@ -1,41 +1,43 @@
 package com.lifedawn.capstoneapp.common.viewmodel;
 
-import android.accounts.Account;
 import android.app.Application;
+import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.preference.PreferenceManager;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
+import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
 import com.lifedawn.capstoneapp.common.interfaces.HttpCallback;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
 import com.lifedawn.capstoneapp.common.repositoryinterface.ICalendarRepository;
 
+import java.time.ZonedDateTime;
+
 public class CalendarViewModel extends AndroidViewModel implements ICalendarRepository {
 	private CalendarRepository calendarRepository;
-	private MutableLiveData<String> mainCalendarIdLiveData = new MutableLiveData<>();
+	private MutableLiveData<Boolean> syncCalendarLiveData = new MutableLiveData<>();
 
 	public CalendarViewModel(@NonNull Application application) {
 		super(application);
-		this.calendarRepository = new CalendarRepository(application.getApplicationContext());
+		this.calendarRepository = CalendarRepository.getInstance();
 	}
 
+	public LiveData<Boolean> getSyncCalendarLiveData() {
+		return syncCalendarLiveData;
+	}
 
 	public Calendar getCalendarService() {
 		return calendarRepository.getCalendarService();
 	}
-
-
-	public LiveData<String> getMainCalendarIdLiveData() {
-		return mainCalendarIdLiveData;
-	}
-
 
 	@Override
 	public void saveEvent(Calendar calendarService, Event newEvent, HttpCallback<Event> callback) {
@@ -89,7 +91,22 @@ public class CalendarViewModel extends AndroidViewModel implements ICalendarRepo
 
 
 	@Override
-	public void syncCalendars(Account account, BackgroundCallback<Boolean> callback) {
-		calendarRepository.syncCalendars(account, callback);
+	public void syncCalendars(GoogleSignInAccount account, BackgroundCallback<Boolean> callback) {
+		calendarRepository.syncCalendars(account, new BackgroundCallback<Boolean>() {
+			@Override
+			public void onResultSuccessful(Boolean e) {
+				ZonedDateTime now = ZonedDateTime.now();
+				SharedPreferences.Editor editor =
+						PreferenceManager.getDefaultSharedPreferences(getApplication().getApplicationContext()).edit();
+				editor.putString(SharedPreferenceConstant.LAST_UPDATE_DATETIME.getVal(), now.toString()).commit();
+				callback.onResultSuccessful(e);
+				syncCalendarLiveData.setValue(true);
+			}
+
+			@Override
+			public void onResultFailed(Exception e) {
+				callback.onResultFailed(e);
+			}
+		});
 	}
 }

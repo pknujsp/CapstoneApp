@@ -5,23 +5,30 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.services.calendar.Calendar;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.ProfileFragment;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.calendar.fragments.CalendarTransactionFragment;
+import com.lifedawn.capstoneapp.common.constants.Constant;
+import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
+import com.lifedawn.capstoneapp.common.repository.AccountRepository;
 import com.lifedawn.capstoneapp.common.util.NotificationHelper;
-import com.lifedawn.capstoneapp.common.util.PermissionsLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
+import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentMainTransactionBinding;
 import com.lifedawn.capstoneapp.friends.FriendTransactionFragment;
 import com.lifedawn.capstoneapp.promise.PromiseTransactionFragment;
@@ -30,16 +37,19 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class MainTransactionFragment extends Fragment {
 	private FragmentMainTransactionBinding binding;
 	private AccountViewModel accountViewModel;
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
+	private CalendarViewModel calendarViewModel;
 	private boolean initializing = true;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		calendarViewModel = new ViewModelProvider(requireActivity()).get(CalendarViewModel.class);
 		accountViewModel = new ViewModelProvider(requireActivity()).get(AccountViewModel.class);
 		googleAccountLifeCycleObserver = new GoogleAccountLifeCycleObserver(requireActivity().getActivityResultRegistry(),
 				requireActivity());
@@ -152,26 +162,64 @@ public class MainTransactionFragment extends Fragment {
 		fragmentTransaction.add(binding.fragmentContainerView.getId(), promiseTransactionFragment,
 				PromiseTransactionFragment.class.getName()).setPrimaryNavigationFragment(promiseTransactionFragment).commit();
 
+		final GoogleSignInAccount currentSignInAccount = accountViewModel.getCurrentSignInAccount();
+		if (currentSignInAccount == null) {
+			if (accountViewModel.getLastSignInAccount() != null) {
+				accountViewModel.signIn(googleAccountLifeCycleObserver, new AccountRepository.OnSignCallback() {
+					@Override
+					public void onSignInResult(boolean succeed, @Nullable GoogleSignInAccount signInAccount, @Nullable GoogleAccountCredential googleAccountCredential, @Nullable Exception e) {
+						if (getActivity() != null) {
+							getActivity().runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									if (succeed) {
+										onSignIn(signInAccount);
+									} else {
+										Toast.makeText(getContext(), new String(getString(R.string.failed_signin_account) + "\n" + Objects.requireNonNull(e).getLocalizedMessage()), Toast.LENGTH_SHORT).show();
+									}
+								}
+							});
+						}
 
-		final GoogleSignInAccount lastSignInAccount = accountViewModel.lastSignInAccount();
-		if (lastSignInAccount == null) {
-			//계정이 없거나 로그아웃된 상태
-			onSignOut();
+					}
+
+					@Override
+					public void onSignOutResult(boolean succeed, @Nullable GoogleSignInAccount signOutAccount) {
+
+					}
+				});
+			} else {
+				onSignOut();
+			}
 		} else {
-			//로그인을 이전에 하였던 경우
-			onSignIn(lastSignInAccount);
+			onSignIn(currentSignInAccount);
 		}
 
 		initializing = false;
 	}
 
 	private void onSignIn(GoogleSignInAccount account) {
-		binding.simpleProfileView.profileImg.setVisibility(View.VISIBLE);
 		binding.simpleProfileView.profileName.setText(account.getDisplayName());
+
+		if (calendarViewModel.getCalendarService() == null) {
+			if (accountViewModel.getUsingAccountType() == Constant.ACCOUNT_GOOGLE) {
+				calendarViewModel.createCalendarService(accountViewModel.getGoogleAccountCredential(), googleAccountLifeCycleObserver,
+						new BackgroundCallback<Calendar>() {
+							@Override
+							public void onResultSuccessful(Calendar e) {
+
+							}
+
+							@Override
+							public void onResultFailed(Exception e) {
+
+							}
+						});
+			}
+		}
 	}
 
 	private void onSignOut() {
-		binding.simpleProfileView.profileImg.setVisibility(View.GONE);
 		binding.simpleProfileView.profileName.setText(R.string.local);
 	}
 

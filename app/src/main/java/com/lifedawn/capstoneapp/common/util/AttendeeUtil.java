@@ -1,9 +1,10 @@
 package com.lifedawn.capstoneapp.common.util;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.provider.CalendarContract;
 
-import com.google.api.services.calendar.model.EventAttendee;
+import com.lifedawn.capstoneapp.common.viewmodel.FriendViewModel;
 
 import java.util.List;
 
@@ -11,21 +12,22 @@ public class AttendeeUtil {
 	private AttendeeUtil() {
 	}
 
-	public static String toListString(List<ContentValues> eventAttendeeList) {
+	public static String toListString(List<String> attendeeList) {
 		StringBuilder stringBuilder = new StringBuilder();
 		final String divider = ", ";
 
-		final int totalCount = eventAttendeeList.size();
+		final int totalCount = attendeeList.size();
 		int count = 1;
 
-		for (ContentValues eventAttendee : eventAttendeeList) {
-			stringBuilder.append(eventAttendee.getAsString(CalendarContract.Attendees.ATTENDEE_EMAIL));
+		String val = null;
+
+		for (String attendee : attendeeList) {
+			stringBuilder.append(attendee);
 			if (count < totalCount) {
 				stringBuilder.append(divider);
 			}
 			count++;
 		}
-
 		return stringBuilder.toString();
 	}
 }

@@ -18,71 +18,69 @@ public class AccountViewModel extends AndroidViewModel implements IAccountReposi
 	private Constant usingAccountType;
 	private AccountRepository accountRepository;
 
-	private MutableLiveData<GoogleSignInAccount> signInLiveData = new MutableLiveData<>();
-	private MutableLiveData<GoogleSignInAccount> signOutLiveData = new MutableLiveData<>();
-
-
 	public AccountViewModel(@NonNull Application application) {
 		super(application);
-		this.accountRepository = new AccountRepository(application);
+		this.accountRepository = AccountRepository.getInstance(application);
 	}
 
 
 	public LiveData<GoogleSignInAccount> getSignOutLiveData() {
-		return signOutLiveData;
+		return accountRepository.getSignOutLiveData();
 	}
 
 	public LiveData<GoogleSignInAccount> getSignInLiveData() {
-		return signInLiveData;
+		return accountRepository.getSignInLiveData();
 	}
 
-	private void setUsingAccountType(Constant usingAccountType) {
-		this.usingAccountType = usingAccountType;
-	}
 
+	public String getLastSignInAccountName() {
+		return accountRepository.getLastSignInAccountName();
+	}
 
 	public Constant getUsingAccountType() {
 		return usingAccountType;
 	}
 
+	public GoogleSignInAccount getCurrentSignInAccount() {
+		return accountRepository.getCurrentSignInAccount();
+	}
 
 	@Override
 	public void signIn(GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver, AccountRepository.OnSignCallback onSignCallback) {
 		accountRepository.signIn(googleAccountLifeCycleObserver, new AccountRepository.OnSignCallback() {
 			@Override
-			public void onSignInSuccessful(GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential) {
-				signInLiveData.setValue(signInAccount);
-				onSignCallback.onSignInSuccessful(signInAccount, googleAccountCredential);
-				setUsingAccountType(Constant.ACCOUNT_GOOGLE);
+			public void onSignInResult(boolean succeed, GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential, Exception e) {
+				if (succeed) {
+					usingAccountType = Constant.ACCOUNT_GOOGLE;
+				}
+				onSignCallback.onSignInResult(succeed, signInAccount, googleAccountCredential, e);
 			}
 
 			@Override
-			public void onSignOutSuccessful(GoogleSignInAccount signOutAccount) {
-
+			public void onSignOutResult(boolean succeed, GoogleSignInAccount signOutAccount) {
 			}
 		});
 	}
 
 	@Override
-	public void signOut(GoogleSignInAccount account, AccountRepository.OnSignCallback onSignCallback) {
-		accountRepository.signOut(account, new AccountRepository.OnSignCallback() {
+	public void signOut(AccountRepository.OnSignCallback onSignCallback) {
+		accountRepository.signOut(new AccountRepository.OnSignCallback() {
 			@Override
-			public void onSignInSuccessful(GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential) {
+			public void onSignInResult(boolean succeed, GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential, Exception e) {
 
 			}
 
 			@Override
-			public void onSignOutSuccessful(GoogleSignInAccount signOutAccount) {
-				signOutLiveData.setValue(signOutAccount);
-				onSignCallback.onSignOutSuccessful(signOutAccount);
-				setUsingAccountType(Constant.ACCOUNT_LOCAL_WITHOUT_GOOGLE);
+			public void onSignOutResult(boolean succeed, GoogleSignInAccount signOutAccount) {
+				usingAccountType = Constant.ACCOUNT_LOCAL_WITHOUT_GOOGLE;
+				onSignCallback.onSignOutResult(succeed, signOutAccount);
 			}
 		});
 	}
 
 	@Override
-	public GoogleSignInAccount lastSignInAccount() {
-		GoogleSignInAccount lastSignInAccount = accountRepository.lastSignInAccount();
+	public GoogleSignInAccount getLastSignInAccount() {
+		GoogleSignInAccount lastSignInAccount = accountRepository.getLastSignInAccount();
 		if (lastSignInAccount != null) {
 			usingAccountType = Constant.ACCOUNT_GOOGLE;
 		}

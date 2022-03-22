@@ -17,6 +17,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.HttpTransport;
@@ -42,11 +43,16 @@ import java.util.Map;
 
 public class CalendarRepository implements ICalendarRepository {
 	private static Calendar calendarService;
+	private static CalendarRepository instance;
 
-	private Context context;
+	private CalendarRepository() {
+	}
 
-	public CalendarRepository(Context context) {
-		this.context = context;
+	public static CalendarRepository getInstance() {
+		if (instance == null) {
+			instance = new CalendarRepository();
+		}
+		return instance;
 	}
 
 	@Override
@@ -115,7 +121,6 @@ public class CalendarRepository implements ICalendarRepository {
 	@Override
 	public void createCalendarService(GoogleAccountCredential googleAccountCredential, GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver
 			, BackgroundCallback<Calendar> callback) {
-
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -126,6 +131,7 @@ public class CalendarRepository implements ICalendarRepository {
 					calendarService = new Calendar.Builder(httpTransport, jsonFactory, googleAccountCredential).setApplicationName(
 							"promise").build();
 					calendarService.events().list("primary").execute();
+					callback.onResultSuccessful(calendarService);
 				} catch (Exception e) {
 					if (e instanceof UserRecoverableAuthIOException) {
 						googleAccountLifeCycleObserver.launchUserRecoverableAuthIntent(((UserRecoverableAuthIOException) e).getIntent(),
@@ -137,14 +143,14 @@ public class CalendarRepository implements ICalendarRepository {
 													.setApplicationName("promise").build();
 											callback.onResultSuccessful(calendarService);
 										} else {
-											callback.onResultFailed(new Exception("rejected google calendar permission"));
+											calendarService = null;
+											callback.onResultFailed(e);
 										}
 
 									}
 								});
 					}
 				}
-				callback.onResultSuccessful(calendarService);
 			}
 		});
 
@@ -155,17 +161,22 @@ public class CalendarRepository implements ICalendarRepository {
 	}
 
 	@Override
-	public void syncCalendars(Account account, BackgroundCallback<Boolean> callback) {
+	public void syncCalendars(GoogleSignInAccount account, BackgroundCallback<Boolean> callback) {
+		if (account == null) {
+			callback.onResultFailed(new Exception("Account is null"));
+			return;
+		}
+
 		CalendarSyncStatusObserver calendarSyncStatusObserver = new CalendarSyncStatusObserver();
 
 		calendarSyncStatusObserver.setProviderHandle(ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, calendarSyncStatusObserver));
 		calendarSyncStatusObserver.setSyncCallback(callback);
-		calendarSyncStatusObserver.setAccount(account);
+		calendarSyncStatusObserver.setAccount(account.getAccount());
 
 		Bundle arguments = new Bundle();
 		arguments.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
 		arguments.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-		ContentResolver.requestSync(account, CalendarContract.AUTHORITY, arguments);
+		ContentResolver.requestSync(account.getAccount(), CalendarContract.AUTHORITY, arguments);
 	}
 
 
@@ -244,17 +255,17 @@ public class CalendarRepository implements ICalendarRepository {
 	}
 
 
-	public static void loadMyEvents(Context context, Account account, String calendarId, BackgroundCallback<List<EventObj>> callback) {
+	public static void loadMyEvents(Context context, String accountName, String calendarId, BackgroundCallback<List<EventObj>> callback) {
 		String selection = CalendarContract.Events.CALENDAR_ID + "=? AND " + CalendarContract.Events.ACCOUNT_NAME + "=?";
-		String[] selectionArgs = new String[]{calendarId, account.name};
+		String[] selectionArgs = new String[]{calendarId, accountName};
 		loadEvents(context, selection, selectionArgs, callback);
 	}
 
 	@SuppressLint("Range")
-	public static void loadReceivedInvitationEvents(Context context, Account account,
+	public static void loadReceivedInvitationEvents(Context context, String accountName,
 	                                                BackgroundCallback<List<EventObj>> callback) {
 		String selection = CalendarContract.Events.ORGANIZER + " LIKE '%@gmail.com' AND " + CalendarContract.Events.ORGANIZER + "!=?";
-		String[] selectionArgs = {account.name};
+		String[] selectionArgs = {accountName};
 		loadEvents(context, selection, selectionArgs, callback);
 	}
 
@@ -269,12 +280,17 @@ public class CalendarRepository implements ICalendarRepository {
 
 
 	@SuppressLint("Range")
-	public static void loadCalendar(Context context, Account account, BackgroundCallback<ContentValues> callback) {
+	public static void loadCalendar(Context context, String accountName, BackgroundCallback<ContentValues> callback) {
 		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
 			@Override
 			public void run() {
+				if (accountName == null) {
+					callback.onResultFailed(new Exception("accountName is null"));
+					return;
+				}
+
 				String selection = CalendarContract.Calendars.ACCOUNT_NAME + "=? AND " + CalendarContract.Calendars.IS_PRIMARY + "=?";
-				String[] selectionArgs = new String[]{account.name, "1"};
+				String[] selectionArgs = new String[]{accountName, "1"};
 				Cursor cursor = context.getContentResolver().query(CalendarContract.Calendars.CONTENT_URI, null, selection, selectionArgs, null);
 
 				ContentValues calendar = new ContentValues();
@@ -376,12 +392,17 @@ public class CalendarRepository implements ICalendarRepository {
 
 				List<ContentValues> eventList = new ArrayList<>();
 
+				String value = null;
+
 				if (cursor != null) {
 					while (cursor.moveToNext()) {
 						ContentValues event = new ContentValues();
 						String[] keys = cursor.getColumnNames();
 						for (String key : keys) {
-							event.put(key, cursor.getString(cursor.getColumnIndex(key)));
+							value = cursor.getString(cursor.getColumnIndex(key));
+							if (value != null && !value.isEmpty()) {
+								event.put(key, value);
+							}
 						}
 						eventList.add(event);
 						EventObj eventObj = new EventObj();
@@ -403,7 +424,10 @@ public class CalendarRepository implements ICalendarRepository {
 							ContentValues reminder = new ContentValues();
 							String[] keys = cursor.getColumnNames();
 							for (String key : keys) {
-								reminder.put(key, cursor.getString(cursor.getColumnIndex(key)));
+								value = cursor.getString(cursor.getColumnIndex(key));
+								if (value != null && !value.isEmpty()) {
+									reminder.put(key, value);
+								}
 							}
 							reminderList.add(reminder);
 						}
@@ -423,19 +447,16 @@ public class CalendarRepository implements ICalendarRepository {
 							ContentValues attendee = new ContentValues();
 							String[] keys = cursor.getColumnNames();
 							for (String key : keys) {
-								attendee.put(key, cursor.getString(cursor.getColumnIndex(key)));
+								value = cursor.getString(cursor.getColumnIndex(key));
+								if (value != null && !value.isEmpty()) {
+									attendee.put(key, value);
+								}
 							}
 
 							attendeeList.add(attendee);
 						}
 						cursor.close();
 						eventObjList.get(i).setAttendeeList(attendeeList);
-
-						ContentValues organizer = new ContentValues();
-						organizer.put(CalendarContract.Attendees.ATTENDEE_EMAIL,
-								eventObjList.get(i).event.getAsString(CalendarContract.Events.ORGANIZER));
-
-						attendeeList.add(0, organizer);
 						i++;
 					}
 				}
@@ -449,7 +470,7 @@ public class CalendarRepository implements ICalendarRepository {
 
 	@SuppressLint("Range")
 	public static void loadEvents(Context context, Long alarmTime, BackgroundCallback<List<ContentValues>> callback) {
-		String selection = CalendarContract.CalendarAlerts.ALARM_TIME + " = ?";
+		String selection = CalendarContract.CalendarAlerts.ALARM_TIME + "=?";
 		String[] selectionArgs = {alarmTime.toString()};
 
 		Cursor cursor = context.getContentResolver().query(CalendarContract.CalendarAlerts.CONTENT_URI, null, selection, selectionArgs, null);

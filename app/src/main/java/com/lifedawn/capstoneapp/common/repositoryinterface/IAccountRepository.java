@@ -5,11 +5,11 @@ import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.repository.AccountRepository;
 
 public interface IAccountRepository {
-	
-	
+
+
 	void signIn(GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver, AccountRepository.OnSignCallback onSignCallback);
-	
-	void signOut(GoogleSignInAccount account, AccountRepository.OnSignCallback onSignCallback);
-	
-	GoogleSignInAccount lastSignInAccount();
+
+	void signOut(AccountRepository.OnSignCallback onSignCallback);
+
+	GoogleSignInAccount getLastSignInAccount();
 }

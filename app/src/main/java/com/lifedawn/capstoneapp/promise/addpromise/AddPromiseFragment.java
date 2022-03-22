@@ -66,7 +66,7 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 		binding.date.setTag(now.toLocalDate());
 		binding.time.setText(now.format(START_TIME_FORMATTER));
 		binding.time.setTag(now.toLocalTime());
-		setAccount(accountViewModel.getUsingAccountType(), accountViewModel.lastSignInAccount());
+		setAccount(accountViewModel.getUsingAccountType(), accountViewModel.getLastSignInAccount());
 
 		binding.saveBtn.setOnClickListener(new View.OnClickListener() {
 			@Override

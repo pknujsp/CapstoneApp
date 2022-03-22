@@ -7,36 +7,30 @@ import android.util.ArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.chip.Chip;
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.EventAttendee;
-import com.google.api.services.calendar.model.EventDateTime;
-import com.google.api.services.calendar.model.EventReminder;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.constants.Constant;
-import com.lifedawn.capstoneapp.common.constants.ValueUnits;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
-import com.lifedawn.capstoneapp.common.repositoryinterface.ICalendarRepository;
 import com.lifedawn.capstoneapp.common.util.ReminderUtil;
+import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
+import com.lifedawn.capstoneapp.common.viewmodel.FriendViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentPromiseInfoBinding;
-import com.lifedawn.capstoneapp.main.MyApplication;
+import com.lifedawn.capstoneapp.friends.AttendeeInfoDialog;
 import com.lifedawn.capstoneapp.map.LocationDto;
 import com.lifedawn.capstoneapp.map.SelectedLocationSimpleMapFragment;
-import com.lifedawn.capstoneapp.promise.abstractfragment.AbstractPromiseFragment;
 import com.lifedawn.capstoneapp.retrofits.MultipleRestApiDownloader;
 import com.lifedawn.capstoneapp.retrofits.RetrofitClient;
 import com.lifedawn.capstoneapp.retrofits.response.kma.KmaCurrentConditions;
 import com.lifedawn.capstoneapp.retrofits.response.kma.KmaDailyForecast;
 import com.lifedawn.capstoneapp.retrofits.response.kma.KmaHourlyForecast;
-import com.lifedawn.capstoneapp.weather.WeatherDataType;
 import com.lifedawn.capstoneapp.weather.WeatherProviderType;
 import com.lifedawn.capstoneapp.weather.model.CurrentConditionsDto;
 import com.lifedawn.capstoneapp.weather.model.DailyForecastDto;
@@ -44,20 +38,13 @@ import com.lifedawn.capstoneapp.weather.model.HourlyForecastDto;
 import com.lifedawn.capstoneapp.weather.request.WeatherRequest;
 import com.lifedawn.capstoneapp.weather.response.KmaResponseProcessor;
 
-import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 public class PromiseInfoFragment extends Fragment {
 	private FragmentPromiseInfoBinding binding;
@@ -65,7 +52,10 @@ public class PromiseInfoFragment extends Fragment {
 	private ContentValues originalEvent;
 	private LocationDto locationDto;
 	private SelectedLocationSimpleMapFragment mapFragment;
+	private FriendViewModel friendViewModel;
+	private AccountViewModel accountViewModel;
 
+	private MultipleRestApiDownloader weatherMultipleRestApiDownloader;
 	private final DateTimeFormatter START_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy M/d E a h:mm");
 
 
@@ -75,6 +65,8 @@ public class PromiseInfoFragment extends Fragment {
 		Bundle bundle = getArguments();
 
 		eventId = bundle.getString("eventId");
+		friendViewModel = new ViewModelProvider(requireActivity()).get(FriendViewModel.class);
+		accountViewModel = new ViewModelProvider(requireActivity()).get(AccountViewModel.class);
 	}
 
 	@Nullable
@@ -98,6 +90,9 @@ public class PromiseInfoFragment extends Fragment {
 		});
 		binding.toolbar.fragmentTitle.setText(R.string.promise_info);
 
+		binding.weatherLayout.setVisibility(View.GONE);
+		binding.progressLayout.setVisibility(View.GONE);
+
 
 		CalendarRepository.loadEvent(getContext(), eventId,
 				new BackgroundCallback<List<CalendarRepository.EventObj>>() {
@@ -108,7 +103,9 @@ public class PromiseInfoFragment extends Fragment {
 							public void run() {
 								final CalendarRepository.EventObj eventObj = e.get(0);
 								originalEvent = eventObj.getEvent();
-								binding.title.setText(originalEvent.getAsString(CalendarContract.Events.TITLE));
+
+								binding.title.setText(originalEvent.getAsString(CalendarContract.Events.TITLE) == null ?
+										getString(R.string.no_title) : originalEvent.getAsString(CalendarContract.Events.TITLE));
 
 								String dtStart = originalEvent.getAsString(CalendarContract.Events.DTSTART);
 								String eventTimeZone = originalEvent.getAsString(CalendarContract.Events.EVENT_TIMEZONE);
@@ -132,8 +129,9 @@ public class PromiseInfoFragment extends Fragment {
 									if (locationDto != null) {
 										binding.placeName.setText(locationDto.getLocationType() == Constant.PLACE ? locationDto.getPlaceName() : locationDto.getAddressName());
 										binding.naverMap.setVisibility(View.VISIBLE);
+										binding.progressLayout.setVisibility(View.VISIBLE);
 
-										WeatherRequest.requestWeatherData(getContext(),
+										weatherMultipleRestApiDownloader = WeatherRequest.requestWeatherData(getContext(),
 												Double.parseDouble(locationDto.getLatitude()),
 												Double.parseDouble(locationDto.getLongitude()),
 												new BackgroundCallback<WeatherRequest.WeatherResponseResult>() {
@@ -144,12 +142,15 @@ public class PromiseInfoFragment extends Fragment {
 
 													@Override
 													public void onResultFailed(Exception e) {
-														getActivity().runOnUiThread(new Runnable() {
-															@Override
-															public void run() {
-																Toast.makeText(getContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-															}
-														});
+														if (getActivity() != null) {
+															getActivity().runOnUiThread(new Runnable() {
+																@Override
+																public void run() {
+																	binding.progressCircular.setVisibility(View.GONE);
+																	binding.progressMsg.setText(R.string.failed_loading_weather_data);
+																}
+															});
+														}
 													}
 												});
 									}
@@ -159,7 +160,6 @@ public class PromiseInfoFragment extends Fragment {
 								}
 								mapFragment.setArguments(bundle);
 								getChildFragmentManager().beginTransaction().add(binding.naverMap.getId(), mapFragment).commit();
-
 
 								initAttendeesView(eventObj.getAttendeeList());
 								initRemindersView(eventObj.getReminderList());
@@ -175,16 +175,62 @@ public class PromiseInfoFragment extends Fragment {
 				});
 	}
 
+	@Override
+	public void onDestroy() {
+		if (weatherMultipleRestApiDownloader != null) {
+			if (weatherMultipleRestApiDownloader.getCallMap().size() > 0) {
+				weatherMultipleRestApiDownloader.cancel();
+			}
+		}
+		super.onDestroy();
+	}
+
 	protected void initAttendeesView(List<ContentValues> attendeeList) {
 		if (attendeeList != null) {
 			ContentValues organizer = new ContentValues();
 			organizer.put(CalendarContract.Attendees.ATTENDEE_EMAIL, originalEvent.getAsString(CalendarContract.Events.ORGANIZER));
 			attendeeList.add(organizer);
 
+			String status = null;
+			String txt = null;
+			boolean isOrganizer = false;
+
 			for (ContentValues eventAttendee : attendeeList) {
 				Chip chip = (Chip) getLayoutInflater().inflate(R.layout.event_attendee_chip, null);
-				chip.setText(eventAttendee.getAsString(CalendarContract.Attendees.ATTENDEE_EMAIL));
+				chip.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						String name =
+								eventAttendee.getAsString(CalendarContract.Attendees.ATTENDEE_EMAIL).equals(accountViewModel.getLastSignInAccountName()) ? getString(R.string.me) :
+										friendViewModel.getName(eventAttendee);
+						String email = eventAttendee.getAsString(CalendarContract.Attendees.ATTENDEE_EMAIL);
+						AttendeeInfoDialog.show(requireActivity(), name, email);
+					}
+				});
+
+				isOrganizer =
+						originalEvent.getAsString(CalendarContract.Events.ORGANIZER).equals(eventAttendee.getAsString(CalendarContract.Attendees.ATTENDEE_EMAIL));
+
+				if (!isOrganizer && eventAttendee.containsKey(CalendarContract.Attendees.ATTENDEE_STATUS)) {
+					switch (eventAttendee.getAsInteger(CalendarContract.Attendees.ATTENDEE_STATUS)) {
+						case CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED:
+							status = getString(R.string.acceptance);
+							break;
+						case CalendarContract.Attendees.ATTENDEE_STATUS_DECLINED:
+							status = getString(R.string.declined);
+							break;
+						default:
+							status = getString(R.string.no_response);
+					}
+				} else {
+					status = getString(R.string.invitee);
+				}
+				txt = status + " - " + (eventAttendee.getAsString(CalendarContract.Attendees.ATTENDEE_EMAIL).equals(accountViewModel.getLastSignInAccountName()) ? getString(R.string.me) :
+						friendViewModel.getName(eventAttendee));
+
+				chip.setText(txt);
 				chip.setCloseIconVisible(false);
+				chip.setCheckable(false);
 				binding.attendeeChipGroup.addView(chip);
 			}
 		}
@@ -196,31 +242,23 @@ public class PromiseInfoFragment extends Fragment {
 				Chip chip = (Chip) getLayoutInflater().inflate(R.layout.event_reminder_chip, null);
 				chip.setText(ReminderUtil.makeReminderText(ReminderUtil.make(eventReminder.getAsInteger(CalendarContract.Reminders.MINUTES)), getContext()));
 				chip.setCloseIconVisible(false);
+				chip.setClickable(false);
+				chip.setFocusable(false);
 				binding.reminderChipGroup.addView(chip);
 			}
-		} else {
 		}
 	}
 
 	private void onResultWeather(WeatherRequest.WeatherResponseResult weatherResponseResult) {
-		Set<WeatherProviderType> weatherProviderTypeSet = weatherResponseResult.getWeatherProviderTypeSet();
 		MultipleRestApiDownloader multipleRestApiDownloader = weatherResponseResult.getMultipleRestApiDownloader();
 		Double latitude = weatherResponseResult.getLatitude();
 		Double longitude = weatherResponseResult.getLongitude();
 
 		Map<WeatherProviderType, ArrayMap<RetrofitClient.ServiceType, MultipleRestApiDownloader.ResponseResult>> responseMap = multipleRestApiDownloader.getResponseMap();
-		ArrayMap<RetrofitClient.ServiceType, MultipleRestApiDownloader.ResponseResult> arrayMap = null;
-
-		CurrentConditionsDto currentConditionsDto = null;
-		List<HourlyForecastDto> hourlyForecastDtoList = null;
-		List<DailyForecastDto> dailyForecastDtoList = null;
+		ArrayMap<RetrofitClient.ServiceType, MultipleRestApiDownloader.ResponseResult> arrayMap = responseMap.get(WeatherProviderType.KMA_WEB);
 
 
-		String currentConditionsWeatherVal = null;
-		ZoneId zoneId = null;
-
-		if (weatherProviderTypeSet.contains(WeatherProviderType.KMA_WEB)) {
-			arrayMap = responseMap.get(WeatherProviderType.KMA_WEB);
+		if (arrayMap.get(RetrofitClient.ServiceType.KMA_WEB_CURRENT_CONDITIONS).isSuccessful()) {
 
 			KmaCurrentConditions kmaCurrentConditions = (KmaCurrentConditions) arrayMap.get(RetrofitClient.ServiceType.KMA_WEB_CURRENT_CONDITIONS).getResponseObj();
 			Object[] forecasts = (Object[]) arrayMap.get(RetrofitClient.ServiceType.KMA_WEB_FORECASTS).getResponseObj();
@@ -228,29 +266,33 @@ public class PromiseInfoFragment extends Fragment {
 			ArrayList<KmaHourlyForecast> kmaHourlyForecasts = (ArrayList<KmaHourlyForecast>) forecasts[0];
 			ArrayList<KmaDailyForecast> kmaDailyForecasts = (ArrayList<KmaDailyForecast>) forecasts[1];
 
-			currentConditionsDto = KmaResponseProcessor.makeCurrentConditionsDtoOfWEB(getContext(),
+			final CurrentConditionsDto currentConditionsDto = KmaResponseProcessor.makeCurrentConditionsDtoOfWEB(getContext(),
 					kmaCurrentConditions, kmaHourlyForecasts.get(0), latitude, longitude);
 
-			hourlyForecastDtoList = KmaResponseProcessor.makeHourlyForecastDtoListOfWEB(getContext(),
+			final List<HourlyForecastDto> hourlyForecastDtoList = KmaResponseProcessor.makeHourlyForecastDtoListOfWEB(getContext(),
 					kmaHourlyForecasts, latitude, longitude);
 
-			dailyForecastDtoList = KmaResponseProcessor.makeDailyForecastDtoListOfWEB(kmaDailyForecasts);
+			final List<DailyForecastDto> dailyForecastDtoList = KmaResponseProcessor.makeDailyForecastDtoListOfWEB(kmaDailyForecasts);
 
-			String pty = kmaCurrentConditions.getPty();
-
-			currentConditionsWeatherVal = pty.isEmpty() ? kmaHourlyForecasts.get(0).getWeatherDescription() : pty;
-			zoneId = KmaResponseProcessor.getZoneId();
+			CurrentConditionsDto finalCurrentConditionsDto = currentConditionsDto;
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					binding.progressLayout.setVisibility(View.GONE);
+					binding.weatherLayout.setVisibility(View.VISIBLE);
+					binding.weatherIcon.setImageResource(finalCurrentConditionsDto.getWeatherIcon());
+					binding.weatherDescription.setText(finalCurrentConditionsDto.getWeatherDescription());
+					binding.temperature.setText(finalCurrentConditionsDto.getTemp());
+				}
+			});
+		} else {
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					binding.progressCircular.setVisibility(View.GONE);
+					binding.progressMsg.setText(R.string.failed_loading_weather_data);
+				}
+			});
 		}
-
-		CurrentConditionsDto finalCurrentConditionsDto = currentConditionsDto;
-		getActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				binding.weatherLayout.setVisibility(View.VISIBLE);
-				binding.weatherIcon.setImageResource(finalCurrentConditionsDto.getWeatherIcon());
-				binding.weatherDescription.setText(finalCurrentConditionsDto.getWeatherDescription());
-				binding.temperature.setText(finalCurrentConditionsDto.getTemp());
-			}
-		});
 	}
 }
