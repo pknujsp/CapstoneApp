@@ -116,7 +116,17 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 
 			@Override
 			public void onClickedRemoveEvent(CalendarRepository.EventObj event, int position) {
+				CalendarRepository.removeEvent(getContext(), event.getEvent(), new BackgroundCallback<ContentValues>() {
+					@Override
+					public void onResultSuccessful(ContentValues e) {
+						refreshEvents();
+					}
 
+					@Override
+					public void onResultFailed(Exception e) {
+
+					}
+				});
 			}
 
 			@Override
