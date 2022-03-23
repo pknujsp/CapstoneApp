@@ -344,6 +344,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 							eventDateTime =
 									ZonedDateTime.ofInstant(Instant.ofEpochMilli(event.getAsLong(CalendarContract.Events.DTSTART)), zoneId);
 							dateText = eventDateTime.toLocalDate().toString();
+							eventObj.setDate(dateText);
 
 							if (!eventsMap.containsKey(dateText)) {
 								eventsMap.put(dateText, new ArrayList<>());
@@ -390,7 +391,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 		}
 	}
 
-	public static class EventDialogFragment extends DialogFragment {
+	private class EventDialogFragment extends DialogFragment {
 		private static final int FIRST_POSITION = Integer.MAX_VALUE / 2;
 		private final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy/M/d E");
 		private EventDialogFragmentBinding binding;
@@ -461,11 +462,28 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 				}
 			});
 
-			EventViewPagerAdapter adapter = new EventViewPagerAdapter(criteriaDate);
+			final EventViewPagerAdapter adapter = new EventViewPagerAdapter(criteriaDate);
 			adapter.setOnClickPromiseItemListener(new OnClickPromiseItemListener() {
 				@Override
 				public void onClickedRemoveEvent(CalendarRepository.EventObj event, int position) {
+					CalendarRepository.removeEvent(getContext(), event.getEvent(), new BackgroundCallback<ContentValues>() {
+						@Override
+						public void onResultSuccessful(ContentValues e) {
+							getActivity().runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									eventsMap.get(event.getDate()).remove(event);
+									adapter.notifyDataSetChanged();
+									refreshEvents();
+								}
+							});
+						}
 
+						@Override
+						public void onResultFailed(Exception e) {
+
+						}
+					});
 				}
 
 				@Override
@@ -474,7 +492,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 					editPromiseFragment.setOnFragmentCallback(new OnFragmentCallback<Boolean>() {
 						@Override
 						public void onResult(Boolean e) {
-							//목록 새로고침
+							refreshEvents();
 						}
 					});
 					Bundle bundle = new Bundle();
@@ -676,8 +694,11 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 					@NonNull
 					@Override
 					public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-						return new EventViewHolder(LayoutInflater.from(parent.getContext()).inflate(
-								R.layout.item_view_event_list, null));
+						ItemViewEventListBinding binding = ItemViewEventListBinding.inflate(LayoutInflater.from(parent.getContext()));
+						binding.getRoot().setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+								ViewGroup.LayoutParams.WRAP_CONTENT));
+
+						return new EventViewHolder(binding);
 					}
 
 					@Override
@@ -693,9 +714,9 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 					private class EventViewHolder extends RecyclerView.ViewHolder {
 						private ItemViewEventListBinding binding;
 
-						public EventViewHolder(@NonNull View itemView) {
-							super(itemView);
-							binding = ItemViewEventListBinding.bind(itemView);
+						public EventViewHolder(ItemViewEventListBinding binding) {
+							super(binding.getRoot());
+							this.binding = binding;
 						}
 
 						public void onBind() {

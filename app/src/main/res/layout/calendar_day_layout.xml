@@ -18,7 +18,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="2dp"
             android:gravity="center"
+            android:includeFontPadding="false"
             android:textSize="16sp"
+            android:textStyle="bold"
             tools:text="22"
             />
 
@@ -30,7 +32,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:textColor="@color/blue"
-            android:textSize="15sp"
+            android:textSize="13sp"
             />
 
         <TextView
@@ -40,7 +42,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:textColor="@color/brown"
-            android:textSize="15sp"
+            android:textSize="13sp"
             />
     </LinearLayout>
 
