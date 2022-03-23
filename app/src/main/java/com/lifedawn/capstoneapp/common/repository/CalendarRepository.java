@@ -4,10 +4,12 @@ import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncStatusObserver;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -488,6 +490,17 @@ public class CalendarRepository implements ICalendarRepository {
 		cursor.close();
 
 		callback.onResultSuccessful(eventList);
+	}
+
+	public static void removeEvent(Context context, ContentValues event, BackgroundCallback<ContentValues> callback) {
+		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
+			@Override
+			public void run() {
+				int result = context.getContentResolver().delete(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, event.getAsLong(CalendarContract.Events._ID))
+						, null, null);
+				callback.onResultSuccessful(event);
+			}
+		});
 	}
 
 	public static class EventObj implements Parcelable {

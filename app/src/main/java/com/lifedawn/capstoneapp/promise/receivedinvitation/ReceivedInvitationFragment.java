@@ -3,6 +3,7 @@ package com.lifedawn.capstoneapp.promise.receivedinvitation;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
@@ -21,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
@@ -85,10 +88,19 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 		return binding.getRoot();
 	}
 
+	private void showResponseDialog(String msg, DialogInterface.OnClickListener onClickListener) {
+		new MaterialAlertDialogBuilder(requireActivity()).setTitle(R.string.response)
+				.setMessage(msg).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		}).setPositiveButton(R.string.ok, onClickListener).create().show();
+	}
+
 	@Override
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-
 		binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 		binding.recyclerView.addItemDecoration(new RecyclerViewItemDecoration(getContext()));
 
@@ -101,7 +113,18 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 
 			@Override
 			public void onClickedRemoveEvent(CalendarRepository.EventObj event, int position) {
+				CalendarRepository.removeEvent(getContext(), event.getEvent(), new BackgroundCallback<ContentValues>() {
+					@Override
+					public void onResultSuccessful(ContentValues e) {
+						binding.refreshLayout.setRefreshing(true);
+						refreshEvents();
+					}
 
+					@Override
+					public void onResultFailed(Exception e) {
+
+					}
+				});
 			}
 
 			@Override
@@ -120,12 +143,24 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 
 			@Override
 			public void onClickedRefusal(CalendarRepository.EventObj event, int position) {
-				responseToInvitationEvent(event.getEvent().getAsString("_sync_id"), false);
+				showResponseDialog(getString(R.string.msg_refusal_response_to_promise), new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						responseToInvitationEvent(event.getEvent().getAsString("_sync_id"), false);
+						dialog.dismiss();
+					}
+				});
 			}
 
 			@Override
 			public void onClickedAcceptance(CalendarRepository.EventObj event, int position) {
-				responseToInvitationEvent(event.getEvent().getAsString("_sync_id"), true);
+				showResponseDialog(getString(R.string.msg_accept_response_to_promise), new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						responseToInvitationEvent(event.getEvent().getAsString("_sync_id"), true);
+						dialog.dismiss();
+					}
+				});
 			}
 		});
 		adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
