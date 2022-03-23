@@ -98,8 +98,7 @@
                     android:background="?attr/selectableItemBackground"
                     android:scaleType="fitXY"
                     android:src="@drawable/ic_baseline_more_horiz_24"
-                    app:tint="@color/design_default_color_primary_dark"
-                    />
+                    app:tint="@color/design_default_color_primary_dark" />
 
                 <TextView
                     android:id="@+id/location"
