@@ -188,6 +188,58 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 						EventDialogFragment eventDialogFragment =
 								new EventDialogFragment();
 						eventDialogFragment.setArguments(bundle);
+						eventDialogFragment.setOnClickPromiseItemListener(new OnClickPromiseItemListener() {
+							@Override
+							public void onClickedEdit(CalendarRepository.EventObj event, int position) {
+								EditPromiseFragment editPromiseFragment = new EditPromiseFragment();
+								editPromiseFragment.setOnFragmentCallback(new OnFragmentCallback<Boolean>() {
+									@Override
+									public void onResult(Boolean e) {
+										refreshEvents();
+									}
+								});
+								Bundle bundle = new Bundle();
+								bundle.putString("eventId", event.getEvent().getAsString("_sync_id"));
+
+								editPromiseFragment.setArguments(bundle);
+
+								FragmentManager fragmentManager =
+										getParentFragment().getParentFragment().getParentFragmentManager();
+								fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName())).add(
+										R.id.fragmentContainerView, editPromiseFragment, EditPromiseFragment.class.getName()).addToBackStack(
+										EditPromiseFragment.class.getName()).commit();
+							}
+
+							@Override
+							public void onClickedEvent(CalendarRepository.EventObj event, int position) {
+
+							}
+
+							@Override
+							public void onClickedRefusal(CalendarRepository.EventObj event, int position) {
+
+							}
+
+							@Override
+							public void onClickedAcceptance(CalendarRepository.EventObj event, int position) {
+
+							}
+
+							@Override
+							public void onClickedRemoveEvent(CalendarRepository.EventObj event, int position) {
+								CalendarRepository.removeEvent(getContext(), event.getEvent(), new BackgroundCallback<ContentValues>() {
+									@Override
+									public void onResultSuccessful(ContentValues e) {
+										refreshEvents();
+									}
+
+									@Override
+									public void onResultFailed(Exception e) {
+
+									}
+								});
+							}
+						});
 						eventDialogFragment.setEventsMap(eventsMap);
 						eventDialogFragment.show(getChildFragmentManager(), EventDialogFragment.class.getName());
 					}
@@ -360,7 +412,6 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 								binding.calendarView.notifyCalendarChanged();
 							}
 						});
-
 					}
 
 					@Override
@@ -391,7 +442,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 		}
 	}
 
-	private class EventDialogFragment extends DialogFragment {
+	public static class EventDialogFragment extends DialogFragment {
 		private static final int FIRST_POSITION = Integer.MAX_VALUE / 2;
 		private final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy/M/d E");
 		private EventDialogFragmentBinding binding;
@@ -399,6 +450,12 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 		private LocalDate criteriaDate;
 		private Bundle bundle;
 		private Map<String, List<CalendarRepository.EventObj>> eventsMap;
+
+		private OnClickPromiseItemListener onClickPromiseItemListener;
+
+		public void setOnClickPromiseItemListener(OnClickPromiseItemListener onClickPromiseItemListener) {
+			this.onClickPromiseItemListener = onClickPromiseItemListener;
+		}
 
 		public EventDialogFragment setEventsMap(Map<String, List<CalendarRepository.EventObj>> eventsMap) {
 			this.eventsMap = eventsMap;
@@ -466,46 +523,15 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 			adapter.setOnClickPromiseItemListener(new OnClickPromiseItemListener() {
 				@Override
 				public void onClickedRemoveEvent(CalendarRepository.EventObj event, int position) {
-					CalendarRepository.removeEvent(getContext(), event.getEvent(), new BackgroundCallback<ContentValues>() {
-						@Override
-						public void onResultSuccessful(ContentValues e) {
-							getActivity().runOnUiThread(new Runnable() {
-								@Override
-								public void run() {
-									eventsMap.get(event.getDate()).remove(event);
-									adapter.notifyDataSetChanged();
-									refreshEvents();
-								}
-							});
-						}
+					eventsMap.get(event.getDate()).remove(event);
+					adapter.notifyDataSetChanged();
 
-						@Override
-						public void onResultFailed(Exception e) {
-
-						}
-					});
+					onClickPromiseItemListener.onClickedRemoveEvent(event, position);
 				}
 
 				@Override
 				public void onClickedEdit(CalendarRepository.EventObj event, int position) {
-					EditPromiseFragment editPromiseFragment = new EditPromiseFragment();
-					editPromiseFragment.setOnFragmentCallback(new OnFragmentCallback<Boolean>() {
-						@Override
-						public void onResult(Boolean e) {
-							refreshEvents();
-						}
-					});
-					Bundle bundle = new Bundle();
-					bundle.putString("eventId", event.getEvent().getAsString("_sync_id"));
-
-					editPromiseFragment.setArguments(bundle);
-
-					FragmentManager fragmentManager =
-							getParentFragment().getParentFragment().getParentFragment().getParentFragmentManager();
-					fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName())).add(
-							R.id.fragmentContainerView, editPromiseFragment, EditPromiseFragment.class.getName()).addToBackStack(
-							EditPromiseFragment.class.getName()).commit();
-
+					onClickPromiseItemListener.onClickedEdit(event, position);
 					dismiss();
 				}
 
@@ -755,7 +781,10 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 									return true;
 								}
 							});
-							binding.eventTitle.setText(eventList.get(getBindingAdapterPosition()).getEvent().getAsString(CalendarContract.Events.TITLE));
+
+							String title = eventList.get(getBindingAdapterPosition()).getEvent().getAsString(CalendarContract.Events.TITLE);
+
+							binding.eventTitle.setText(title.isEmpty() ? getString(R.string.no_title) : title);
 						}
 					}
 				}
