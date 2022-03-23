@@ -18,9 +18,9 @@
     <application
         android:name=".main.MyApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_foreground_appointment"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_launcher_foreground_appointment"
         android:supportsRtl="true"
         android:theme="@style/Theme.CapstoneApp"
         android:usesCleartextTraffic="true">
