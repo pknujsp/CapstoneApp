@@ -53,8 +53,12 @@ public class PromiseNotificationJobService extends JobService {
 					final String title = getString(R.string.promise_reminder);
 
 					int notificationId = (int) System.currentTimeMillis();
+					final long[] eventIdArr = new long[eventList.size()];
+					int i = 0;
+
 					for (ContentValues event : eventList) {
 						//약속 알림
+						eventIdArr[i++] = event.getAsLong(CalendarContract.CalendarAlerts.EVENT_ID);
 						NotificationHelper.NotificationItem notificationItem =
 								notificationHelper.createNotificationItem(NotificationHelper.NotificationType.PROMISE_REMINDER);
 						NotificationCompat.Builder builder = notificationItem.getBuilder();
@@ -74,7 +78,7 @@ public class PromiseNotificationJobService extends JobService {
 
 					if (notificationWakeUpDisplay) {
 						Bundle activityBundle = new Bundle();
-						activityBundle.putParcelableArrayList("eventList", (ArrayList<? extends Parcelable>) eventList);
+						activityBundle.putLongArray("eventIdArr", eventIdArr);
 
 						Intent activityIntent = new Intent(getApplicationContext(), NotificationActivity.class);
 						activityIntent.putExtras(activityBundle);

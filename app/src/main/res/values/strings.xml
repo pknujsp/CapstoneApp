@@ -191,4 +191,5 @@
     <string name="cancel">취소</string>
     <string name="msg_refusal_response_to_promise">약속 참여 거부하시겠습니까?</string>
     <string name="msg_accept_response_to_promise">약속 참여하시겠습니까?</string>
+    <string name="detail_promise">약속 상세</string>
 </resources>

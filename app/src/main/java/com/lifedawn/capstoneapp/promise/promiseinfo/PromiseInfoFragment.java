@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.chip.Chip;
@@ -24,7 +25,9 @@ import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.FriendViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentPromiseInfoBinding;
 import com.lifedawn.capstoneapp.friends.AttendeeInfoDialog;
+import com.lifedawn.capstoneapp.main.MainTransactionFragment;
 import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.map.PromiseLocationNaverMapFragment;
 import com.lifedawn.capstoneapp.map.SelectedLocationSimpleMapFragment;
 import com.lifedawn.capstoneapp.retrofits.MultipleRestApiDownloader;
 import com.lifedawn.capstoneapp.retrofits.RetrofitClient;
@@ -154,6 +157,23 @@ public class PromiseInfoFragment extends Fragment {
 													}
 												});
 									}
+
+									binding.placeName.setOnClickListener(new View.OnClickListener() {
+										@Override
+										public void onClick(View v) {
+											PromiseLocationNaverMapFragment promiseLocationNaverMapFragment =
+													new PromiseLocationNaverMapFragment();
+											Bundle argument = new Bundle();
+											argument.putSerializable("locationDto", locationDto);
+
+											promiseLocationNaverMapFragment.setArguments(argument);
+
+											FragmentManager fragmentManager = getParentFragmentManager();
+											fragmentManager.beginTransaction().hide(PromiseInfoFragment.this).add(
+													R.id.fragmentContainerView, promiseLocationNaverMapFragment, PromiseLocationNaverMapFragment.class.getName()).addToBackStack(
+													PromiseLocationNaverMapFragment.class.getName()).commit();
+										}
+									});
 								} else {
 									binding.placeName.setText(R.string.no_promise_location);
 									binding.naverMap.setVisibility(View.GONE);

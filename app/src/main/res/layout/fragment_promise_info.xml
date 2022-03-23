@@ -107,6 +107,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="160dp"
                         android:layout_marginBottom="4dp"
+                        android:clickable="true"
+                        android:background="?attr/selectableItemBackground"
                         />
 
                     <TextView
@@ -117,6 +119,8 @@
                         android:drawableLeft="@drawable/ic_baseline_place_24"
                         android:gravity="center_vertical"
                         android:text="place"
+                        android:clickable="true"
+                        android:background="?attr/selectableItemBackground"
                         android:textColor="@color/black"
                         />
 

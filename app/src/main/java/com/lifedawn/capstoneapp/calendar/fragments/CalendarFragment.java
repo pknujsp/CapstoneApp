@@ -773,9 +773,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 												return false;
 											}
 										});
-
 										popupMenu.show();
-
 									}
 
 									return true;

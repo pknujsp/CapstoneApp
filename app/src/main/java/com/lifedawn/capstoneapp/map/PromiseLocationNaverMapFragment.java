@@ -24,83 +24,99 @@ import com.naver.maps.map.overlay.Overlay;
 
 import org.jetbrains.annotations.NotNull;
 
-public class PromiseNaverMapFragment extends AbstractNaverMapFragment {
+public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 	private LocationDto selectedLocationDtoInEvent;
 	private Marker selectedLocationInEventMarker;
 	private InfoWindow selectedLocationInEventInfoWindow;
-	
+	private Bundle bundle;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if (savedInstanceState != null) {
+			bundle = savedInstanceState;
+		} else {
+			bundle = getArguments();
+		}
+
+		selectedLocationDtoInEvent = (LocationDto) bundle.getSerializable("locationDto");
 	}
-	
+
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putAll(bundle);
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}
-	
+
 	@Override
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 	}
-	
+
 	@Override
 	protected void loadMap() {
 		super.loadMap();
 	}
-	
+
 	@Override
 	public void onMapReady(@NonNull NaverMap naverMap) {
 		super.onMapReady(naverMap);
+		createSelectedLocationMarker();
 	}
-	
+
 	@Override
 	public void onCameraUpdateFinish() {
 		super.onCameraUpdateFinish();
 	}
-	
+
 	@Override
 	public void onCameraIdle() {
 		super.onCameraIdle();
 	}
-	
+
 	@Override
 	public void onLocationChange(@NonNull Location location) {
 		super.onLocationChange(location);
 	}
-	
+
 	@Override
 	public void onMapClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
 		super.onMapClick(pointF, latLng);
 	}
-	
+
 	@Override
 	public void onMapLongClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
 		super.onMapLongClick(pointF, latLng);
 	}
-	
+
 	@Override
 	public void onClickedPlaceBottomSheet(KakaoLocalDocument kakaoLocalDocument) {
-	
+
 	}
-	
+
+
+
 	private void createSelectedLocationMarker() {
 		LatLng latLng = new LatLng(Double.parseDouble(selectedLocationDtoInEvent.getLatitude()),
 				Double.parseDouble(selectedLocationDtoInEvent.getLongitude()));
-		
-		final int markerWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 42f, getResources().getDisplayMetrics());
+
+		final int markerWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 36f, getResources().getDisplayMetrics());
 		final int markerHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 42f, getResources().getDisplayMetrics());
-		
+
 		if (selectedLocationInEventMarker != null) {
 			selectedLocationInEventMarker.setMap(null);
 		}
-		
+
 		selectedLocationInEventMarker = new Marker(latLng);
 		selectedLocationInEventMarker.setMap(naverMap);
 		selectedLocationInEventMarker.setWidth(markerWidth);
@@ -110,8 +126,8 @@ public class PromiseNaverMapFragment extends AbstractNaverMapFragment {
 		selectedLocationInEventMarker.setCaptionColor(Color.BLUE);
 		selectedLocationInEventMarker.setCaptionHaloColor(Color.rgb(200, 255, 200));
 		selectedLocationInEventMarker.setCaptionTextSize(12f);
-		
-		
+
+
 		selectedLocationInEventMarker.setOnClickListener(new Overlay.OnClickListener() {
 			@Override
 			public boolean onClick(@NonNull Overlay overlay) {
@@ -125,7 +141,7 @@ public class PromiseNaverMapFragment extends AbstractNaverMapFragment {
 				return true;
 			}
 		});
-		
+
 		selectedLocationInEventInfoWindow = new InfoWindow();
 		selectedLocationInEventInfoWindow.setAdapter(new InfoWindow.DefaultTextAdapter(getContext()) {
 			@NonNull
@@ -150,7 +166,7 @@ public class PromiseNaverMapFragment extends AbstractNaverMapFragment {
 				return stringBuilder.toString();
 			}
 		});
-		
+
 		selectedLocationInEventMarker.performClick();
 		CameraUpdate cameraUpdate = CameraUpdate.scrollAndZoomTo(latLng, 13);
 		naverMap.moveCamera(cameraUpdate);
