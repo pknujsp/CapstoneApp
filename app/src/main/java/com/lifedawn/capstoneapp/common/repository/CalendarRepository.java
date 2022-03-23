@@ -504,6 +504,7 @@ public class CalendarRepository implements ICalendarRepository {
 	}
 
 	public static class EventObj implements Parcelable {
+		private String date;
 		private ContentValues event;
 		private List<ContentValues> attendeeList;
 		private List<ContentValues> reminderList;
@@ -511,7 +512,9 @@ public class CalendarRepository implements ICalendarRepository {
 		public EventObj() {
 		}
 
+
 		protected EventObj(Parcel in) {
+			date = in.readString();
 			event = in.readParcelable(ContentValues.class.getClassLoader());
 			attendeeList = in.createTypedArrayList(ContentValues.CREATOR);
 			reminderList = in.createTypedArrayList(ContentValues.CREATOR);
@@ -529,33 +532,6 @@ public class CalendarRepository implements ICalendarRepository {
 			}
 		};
 
-		public ContentValues getEvent() {
-			return event;
-		}
-
-		public EventObj setEvent(ContentValues event) {
-			this.event = event;
-			return this;
-		}
-
-		public List<ContentValues> getAttendeeList() {
-			return attendeeList;
-		}
-
-		public EventObj setAttendeeList(List<ContentValues> attendeeList) {
-			this.attendeeList = attendeeList;
-			return this;
-		}
-
-		public List<ContentValues> getReminderList() {
-			return reminderList;
-		}
-
-		public EventObj setReminderList(List<ContentValues> reminderList) {
-			this.reminderList = reminderList;
-			return this;
-		}
-
 		@Override
 		public int describeContents() {
 			return 0;
@@ -563,9 +539,42 @@ public class CalendarRepository implements ICalendarRepository {
 
 		@Override
 		public void writeToParcel(Parcel dest, int flags) {
+			dest.writeString(date);
 			dest.writeParcelable(event, flags);
 			dest.writeTypedList(attendeeList);
 			dest.writeTypedList(reminderList);
+		}
+
+		public String getDate() {
+			return date;
+		}
+
+		public void setDate(String date) {
+			this.date = date;
+		}
+
+		public ContentValues getEvent() {
+			return event;
+		}
+
+		public void setEvent(ContentValues event) {
+			this.event = event;
+		}
+
+		public List<ContentValues> getAttendeeList() {
+			return attendeeList;
+		}
+
+		public void setAttendeeList(List<ContentValues> attendeeList) {
+			this.attendeeList = attendeeList;
+		}
+
+		public List<ContentValues> getReminderList() {
+			return reminderList;
+		}
+
+		public void setReminderList(List<ContentValues> reminderList) {
+			this.reminderList = reminderList;
 		}
 	}
 }
