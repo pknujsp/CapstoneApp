@@ -85,7 +85,7 @@ public class NotificationService extends Service {
 
 					PendingIntent confirmEventPendingIntent =
 							PendingIntent.getBroadcast(getApplicationContext(), (int) System.currentTimeMillis(), confirmEventIntent,
-									PendingIntent.FLAG_ONE_SHOT);
+									PendingIntent.FLAG_UPDATE_CURRENT);
 
 					for (ContentValues event : eventList) {
 						//약속 알림
@@ -102,7 +102,7 @@ public class NotificationService extends Service {
 						clickIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 						PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), notificationId, clickIntent,
-								PendingIntent.FLAG_ONE_SHOT);
+								PendingIntent.FLAG_UPDATE_CURRENT);
 						builder.setContentIntent(pendingIntent);
 						//알림 관련 처리
 						notificationManager.notify(notificationId++, builder.build());

@@ -65,7 +65,7 @@ public class PromiseNotificationReceiver extends BroadcastReceiver {
 			notificationManager.cancel(notificationId);
 
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(context, (int) System.currentTimeMillis(),
-					new Intent(context, NotificationActivity.EndNotificationReceiver.class), PendingIntent.FLAG_ONE_SHOT);
+					new Intent(context, NotificationActivity.EndNotificationReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT);
 
 			try {
 				pendingIntent.send();
