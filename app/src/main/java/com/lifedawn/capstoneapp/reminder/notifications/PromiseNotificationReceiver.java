@@ -10,6 +10,8 @@ import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.provider.CalendarContract;
 import android.util.Log;
@@ -23,27 +25,53 @@ import com.lifedawn.capstoneapp.common.constants.ActionConstant;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
 import com.lifedawn.capstoneapp.common.util.NotificationHelper;
+import com.lifedawn.capstoneapp.reminder.NotificationActivity;
 
 import java.util.List;
 import java.util.Set;
 
 public class PromiseNotificationReceiver extends BroadcastReceiver {
 
+	public static final String ACTION_CONFIRM_EVENT = "confirm_event";
+
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		final String action = intent.getAction();
 		Log.e("PromiseNotificationReceiver", action);
 
-		PersistableBundle bundle = new PersistableBundle();
-		bundle.putLong(CalendarContract.CalendarAlerts.ALARM_TIME, intent.getExtras().getLong(CalendarContract.CalendarAlerts.ALARM_TIME));
-		bundle.putString("action", intent.getAction());
+		if (action.equals(CalendarContract.ACTION_EVENT_REMINDER)) {
 
-		JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+			Bundle bundle = new Bundle();
+			bundle.putLong(CalendarContract.CalendarAlerts.ALARM_TIME, intent.getExtras().getLong(CalendarContract.CalendarAlerts.ALARM_TIME));
+			bundle.putString("action", intent.getAction());
 
-		final int newJobId = 1000;
-		JobInfo newJobInfo = new JobInfo.Builder(newJobId, new ComponentName(context, PromiseNotificationJobService.class))
-				.setMinimumLatency(0).setOverrideDeadline(2000).setExtras(bundle).build();
+			Intent notificationServiceIt = new Intent(context, NotificationService.class);
+			notificationServiceIt.setAction(action);
+			notificationServiceIt.putExtras(bundle);
 
-		jobScheduler.schedule(newJobInfo);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				context.startForegroundService(notificationServiceIt);
+			} else {
+				context.startService(notificationServiceIt);
+			}
+		} else if (action.equals(ACTION_CONFIRM_EVENT)) {
+			Bundle bundle = intent.getExtras();
+			final int notificationId = bundle.getInt("notificationId");
+
+			context.stopService(new Intent(context,NotificationService.class));
+
+			NotificationManager notificationManager = (NotificationManager) context
+					.getSystemService(Context.NOTIFICATION_SERVICE);
+			notificationManager.cancel(notificationId);
+
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(context, (int) System.currentTimeMillis(),
+					new Intent(context, NotificationActivity.EndNotificationReceiver.class), PendingIntent.FLAG_ONE_SHOT);
+
+			try {
+				pendingIntent.send();
+			} catch (PendingIntent.CanceledException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

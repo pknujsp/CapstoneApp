@@ -1,95 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    >
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".appsettings.notification.DefaultNotificationSettingsFragment">
+        tools:context=".appsettings.notification.DefaultNotificationSettingsFragment"
+        >
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            />
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_below="@id/toolbar"
+            android:layout_alignParentBottom="true"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            >
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <TextView
-
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="16dp"
-                    android:text="@string/notification_basic_setting"
-                    android:textColor="@color/black"
-                    android:textSize="34sp" />
+                android:orientation="vertical"
+                >
 
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/soundSwitch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:layout_marginBottom="16dp"
                     android:text="@string/notification_sound_switch"
                     android:textColor="@color/black"
-                    android:textSize="20sp" />
+                    />
 
                 <LinearLayout
                     android:id="@+id/soundLayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="8dp"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    >
 
-                    <TextView
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/notification_sound_selection"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        >
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/notification_sound_selection"
+                            android:textColor="@color/black"
+                            />
+
+                        <TextView
+                            android:id="@+id/soundName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:text="sound"
+                            android:textColor="@color/black"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="sound"
-                        android:id="@+id/soundName"
-                        android:clickable="true"
-                        android:background="?attr/selectableItemBackground"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
+                        android:orientation="vertical"
+                        >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/notification_sound_volume"
+                            android:textColor="@color/black"
+                            />
+
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/alarmSoundVolume"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:stepSize="1"
+                            android:value="75"
+                            android:valueFrom="0"
+                            android:valueTo="100"
+                            />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/vibrationSwitch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="16dp"
+
                     android:text="@string/notification_vibration_switch"
                     android:textColor="@color/black"
-                    android:textSize="20sp" />
+                    />
 
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/wakeSwitch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="16dp"
                     android:text="@string/notification_screen_switch"
-                    android:textAllCaps="false"
                     android:textColor="@color/black"
-                    android:textSize="20sp" />
+                    />
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
-    </FrameLayout>
+    </RelativeLayout>
 
-    <!-- TODO: Update blank fragment layout -->
 
 </layout>

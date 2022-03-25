@@ -16,21 +16,29 @@ import com.lifedawn.capstoneapp.databinding.FragmentAppSettingsBinding;
 
 public class AppSettingsFragment extends Fragment {
 	private FragmentAppSettingsBinding binding;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		binding = FragmentAppSettingsBinding.inflate(inflater);
 		return binding.getRoot();
 	}
-	
+
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+
+		binding.toolbar.fragmentTitle.setText(R.string.app_settings);
+		binding.toolbar.backBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				getParentFragmentManager().popBackStack();
+			}
+		});
 		binding.notificationDefaultSettings.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -40,5 +48,7 @@ public class AppSettingsFragment extends Fragment {
 						DefaultNotificationSettingsFragment.class.getName()).commit();
 			}
 		});
+
+
 	}
 }

@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import androidx.preference.PreferenceManager;
 
 import com.lifedawn.capstoneapp.R;
+import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
 import com.lifedawn.capstoneapp.common.constants.ValueUnits;
 import com.lifedawn.capstoneapp.common.util.NotificationHelper;
 import com.lifedawn.capstoneapp.weather.response.KmaResponseProcessor;
@@ -33,7 +34,14 @@ public class MyApplication extends Application {
 				editor.putString("temp_unit", ValueUnits.celsius.name());
 				editor.putString("visibility_unit", ValueUnits.km.name());
 				editor.putString("windspeed_unit", ValueUnits.mPerSec.name());
-				editor.putString("clock_format_unit", ValueUnits.clock12.name()).commit();
+				editor.putString("clock_format_unit", ValueUnits.clock12.name());
+
+				editor.putBoolean(SharedPreferenceConstant.REMINDER_VIBRATION.getVal(), false);
+				editor.putBoolean(SharedPreferenceConstant.REMINDER_WAKE.getVal(), true);
+				editor.putString(SharedPreferenceConstant.REMINDER_SOUND_URI.getVal(), "");
+				editor.putBoolean(SharedPreferenceConstant.REMINDER_SOUND_ON_OFF.getVal(), false);
+				editor.putInt(SharedPreferenceConstant.REMINDER_SOUND_VOLUME.getVal(), 75);
+				editor.commit();
 			}
 
 			loadValueUnits(getApplicationContext());

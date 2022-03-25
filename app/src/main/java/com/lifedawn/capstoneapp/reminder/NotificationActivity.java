@@ -7,8 +7,13 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.view.LayoutInflater;
@@ -26,6 +31,8 @@ import com.lifedawn.capstoneapp.common.viewmodel.FriendViewModel;
 import com.lifedawn.capstoneapp.databinding.ActivityNotificationBinding;
 import com.lifedawn.capstoneapp.databinding.AttendeeSimpleInfoBinding;
 import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.reminder.notifications.NotificationService;
+import com.lifedawn.capstoneapp.reminder.notifications.PromiseNotificationReceiver;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -38,9 +45,11 @@ import java.util.Map;
 
 public class NotificationActivity extends AppCompatActivity {
 	private long[] eventIdList;
+	private int notificationId;
 	private ActivityNotificationBinding binding;
 	private FriendViewModel friendViewModel;
 	private AccountViewModel accountViewModel;
+	private EndNotificationReceiver endNotificationReceiver = new EndNotificationReceiver();
 	private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("M.d E a hh:mm");
 
 	@Override
@@ -53,12 +62,16 @@ public class NotificationActivity extends AppCompatActivity {
 						WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
 		super.onCreate(savedInstanceState);
 
+		IntentFilter intentFilter = new IntentFilter(PromiseNotificationReceiver.ACTION_CONFIRM_EVENT);
+		registerReceiver(endNotificationReceiver, intentFilter);
+
 		binding = DataBindingUtil.setContentView(this, R.layout.activity_notification);
 		friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
 		accountViewModel = new ViewModelProvider(this).get(AccountViewModel.class);
 
 		Bundle bundle = getIntent().getExtras();
 		eventIdList = bundle.getLongArray("eventIdArr");
+		notificationId = bundle.getInt("notificationId");
 
 		binding.attendeeList.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
 
@@ -172,18 +185,31 @@ public class NotificationActivity extends AppCompatActivity {
 				Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
-				finishAndRemoveTask();
+				end();
 			}
 		});
 
 		binding.closeBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				finishAndRemoveTask();
+				end();
 			}
 		});
 
 
+	}
+
+	private void end() {
+		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.cancel(notificationId);
+		stopService(new Intent(getApplicationContext(), NotificationService.class));
+		finish();
+	}
+
+	@Override
+	protected void onDestroy() {
+		unregisterReceiver(endNotificationReceiver);
+		super.onDestroy();
 	}
 
 	private static class AttendeeListAdapter extends RecyclerView.Adapter<AttendeeListAdapter.ViewHolder> {
@@ -222,6 +248,14 @@ public class NotificationActivity extends AppCompatActivity {
 				binding.name.setText(attendeeMap.get("name"));
 				binding.email.setText(attendeeMap.get("email"));
 			}
+		}
+	}
+
+
+	public class EndNotificationReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			finishAndRemoveTask();
 		}
 	}
 }
