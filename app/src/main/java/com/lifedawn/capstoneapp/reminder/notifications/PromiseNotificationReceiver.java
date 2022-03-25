@@ -58,7 +58,7 @@ public class PromiseNotificationReceiver extends BroadcastReceiver {
 			Bundle bundle = intent.getExtras();
 			final int notificationId = bundle.getInt("notificationId");
 
-			context.stopService(new Intent(context,NotificationService.class));
+			context.stopService(new Intent(context, NotificationService.class));
 
 			NotificationManager notificationManager = (NotificationManager) context
 					.getSystemService(Context.NOTIFICATION_SERVICE);

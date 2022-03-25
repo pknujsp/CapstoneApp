@@ -200,9 +200,9 @@ public class NotificationActivity extends AppCompatActivity {
 	}
 
 	private void end() {
+		stopService(new Intent(getApplicationContext(), NotificationService.class));
 		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.cancel(notificationId);
-		stopService(new Intent(getApplicationContext(), NotificationService.class));
 		finish();
 	}
 

@@ -111,6 +111,7 @@ public class NotificationService extends Service {
 					if (wake) {
 						Bundle activityBundle = new Bundle();
 						activityBundle.putLongArray("eventIdArr", eventIdArr);
+						activityBundle.putInt("notificationId", notificationId);
 
 						Intent activityIntent = new Intent(getApplicationContext(), NotificationActivity.class);
 						activityIntent.putExtras(activityBundle);

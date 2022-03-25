@@ -61,11 +61,12 @@ public class DefaultNotificationSettingsFragment extends Fragment {
 		binding.soundSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+				binding.soundLayout.setVisibility(b ? View.VISIBLE : View.GONE);
+
 				if (!initializing) {
 					SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getContext()).edit();
 					editor.putBoolean(SharedPreferenceConstant.REMINDER_SOUND_ON_OFF.getVal(), b).apply();
 				}
-				binding.soundLayout.setVisibility(b ? View.VISIBLE : View.GONE);
 			}
 		});
 
@@ -76,7 +77,6 @@ public class DefaultNotificationSettingsFragment extends Fragment {
 					SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getContext()).edit();
 					editor.putBoolean(SharedPreferenceConstant.REMINDER_VIBRATION.getVal(), b).apply();
 				}
-
 			}
 		});
 
@@ -140,6 +140,8 @@ public class DefaultNotificationSettingsFragment extends Fragment {
 		binding.vibrationSwitch.setChecked(vibration);
 		binding.wakeSwitch.setChecked(wake);
 		binding.alarmSoundVolume.setValue(soundVolume);
+
+		binding.soundLayout.setVisibility(sound ? View.VISIBLE : View.GONE);
 
 		initializing = false;
 	}
