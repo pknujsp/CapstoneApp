@@ -193,4 +193,6 @@
     <string name="msg_accept_response_to_promise">약속 참여하시겠습니까?</string>
     <string name="detail_promise">약속 상세</string>
     <string name="notification_sound_volume">소리 크기</string>
+    <string name="weather">날씨</string>
+    <string name="around_place">주변 장소</string>
 </resources>

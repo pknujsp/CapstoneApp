@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    >
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/naver_map_fragment_root_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white">
+        android:background="@color/white"
+        >
 
         <FrameLayout
             android:id="@+id/naver_map_view_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            >
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/naveMapFragment"
                 android:name="com.naver.maps.map.MapFragment"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                />
 
             <LinearLayout
                 android:id="@+id/header_layout"
@@ -27,7 +31,8 @@
                 android:layout_gravity="top"
                 android:clipToPadding="false"
                 android:orientation="vertical"
-                android:paddingTop="@dimen/map_header_bar_top_padding">
+                android:paddingTop="@dimen/map_header_bar_top_padding"
+                >
 
                 <TextView
                     android:id="@+id/header_fragment_container"
@@ -36,7 +41,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="28dp"
                     android:layout_marginRight="28dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="6dp"
                     android:background="@drawable/map_view_background"
                     android:clickable="true"
                     android:clipToPadding="false"
@@ -45,7 +50,46 @@
                     android:gravity="center_vertical"
                     android:minHeight="@dimen/map_header_bar_height"
                     android:paddingLeft="24dp"
-                    android:text="@string/search_address_or_place" />
+                    android:text="@string/search_address_or_place"
+                    />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/funcChipGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="28dp"
+                    android:layout_marginRight="28dp"
+                    android:layout_marginBottom="8dp"
+                    >
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/weatherChip"
+                        style="@style/Widget.MaterialComponents.Chip.Action"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@color/white"
+                        android:elevation="3dp"
+                        android:text="@string/weather"
+                        android:textColor="@color/black"
+                        android:visibility="gone"
+                        app:checkedIconVisible="false"
+                        app:closeIconVisible="false"
+                        />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/placeChip"
+                        style="@style/Widget.MaterialComponents.Chip.Action"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@color/white"
+                        android:elevation="3dp"
+                        android:text="@string/around_place"
+                        android:textColor="@color/black"
+                        app:checkedIconVisible="false"
+                        app:closeIconVisible="false"
+                        />
+
+                </com.google.android.material.chip.ChipGroup>
 
             </LinearLayout>
 
@@ -57,13 +101,15 @@
                 android:clickable="false"
                 android:focusable="false"
                 android:gravity="bottom"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                >
 
                 <include
                     android:id="@+id/naver_map_buttons_layout"
                     layout="@layout/map_buttons_view"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    />
 
             </LinearLayout>
 
@@ -71,10 +117,12 @@
 
         <include
             android:id="@+id/location_search_bottom_sheet"
-            layout="@layout/bottom_sheet_location_search" />
+            layout="@layout/bottom_sheet_location_search"
+            />
 
         <include
             android:id="@+id/placeslist_bottom_sheet"
-            layout="@layout/place_list_bottom_sheet_view" />
+            layout="@layout/place_list_bottom_sheet_view"
+            />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

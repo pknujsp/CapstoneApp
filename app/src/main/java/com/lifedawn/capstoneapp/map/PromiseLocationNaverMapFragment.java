@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.graphics.PointF;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import androidx.annotation.Nullable;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
+import com.lifedawn.capstoneapp.weather.WeatherInfoFragment;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.NaverMap;
@@ -56,6 +58,21 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 	@Override
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+
+		binding.weatherChip.setVisibility(View.VISIBLE);
+		binding.weatherChip.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				//날씨 표현
+				WeatherInfoFragment weatherInfoFragment = new WeatherInfoFragment();
+
+				Bundle bundle = new Bundle();
+				bundle.putSerializable("locationDto", selectedLocationDtoInEvent);
+				weatherInfoFragment.setArguments(bundle);
+
+				weatherInfoFragment.show(getChildFragmentManager(), WeatherInfoFragment.class.getName());
+			}
+		});
 	}
 
 	@Override
@@ -72,6 +89,12 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 	public void onMapReady(@NonNull NaverMap naverMap) {
 		super.onMapReady(naverMap);
 		createSelectedLocationMarker();
+	}
+
+	@Override
+	protected void onClickedAroundPlaceChip() {
+		super.onClickedAroundPlaceChip();
+
 	}
 
 	@Override
@@ -103,7 +126,6 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 	public void onClickedPlaceBottomSheet(KakaoLocalDocument kakaoLocalDocument) {
 
 	}
-
 
 
 	private void createSelectedLocationMarker() {
