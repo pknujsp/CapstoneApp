@@ -390,7 +390,7 @@ public class CalendarRepository implements ICalendarRepository {
 			public void run() {
 				final List<EventObj> eventObjList = new ArrayList<>();
 				Cursor cursor = context.getContentResolver().query(CalendarContract.Events.CONTENT_URI, null, selection, selectionArgs,
-						null);
+						null,null);
 
 				List<ContentValues> eventList = new ArrayList<>();
 
