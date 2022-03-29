@@ -7,14 +7,17 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
+import com.lifedawn.capstoneapp.room.dao.CustomPlaceCategoryDao;
 import com.lifedawn.capstoneapp.room.dao.FriendDao;
 import com.lifedawn.capstoneapp.room.dao.KmaAreaCodesDao;
 import com.lifedawn.capstoneapp.room.dao.SearchHistoryDao;
+import com.lifedawn.capstoneapp.room.dto.CustomPlaceCategoryDto;
 import com.lifedawn.capstoneapp.room.dto.FriendDto;
 import com.lifedawn.capstoneapp.room.dto.KmaAreaCodeDto;
 import com.lifedawn.capstoneapp.room.dto.SearchHistoryDto;
 
-@Database(entities = {KmaAreaCodeDto.class, FriendDto.class, SearchHistoryDto.class}, version = 1, exportSchema = false)
+@Database(entities = {KmaAreaCodeDto.class, FriendDto.class, SearchHistoryDto.class, CustomPlaceCategoryDto.class}, version = 1, exportSchema
+		= false)
 @TypeConverters(RoomTypeConverter.class)
 public abstract class AppDb extends RoomDatabase {
 	private static volatile AppDb instance = null;
@@ -24,6 +27,8 @@ public abstract class AppDb extends RoomDatabase {
 	public abstract SearchHistoryDao searchHistoryDao();
 
 	public abstract KmaAreaCodesDao kmaAreaCodesDao();
+
+	public abstract CustomPlaceCategoryDao customPlaceCategoryDao();
 
 	public static synchronized AppDb getInstance(Context context) {
 		if (instance == null) {

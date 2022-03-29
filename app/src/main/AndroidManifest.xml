@@ -32,6 +32,7 @@
             android:showOnLockScreen="true"
             android:showWhenLocked="true"
             android:turnScreenOn="true" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">

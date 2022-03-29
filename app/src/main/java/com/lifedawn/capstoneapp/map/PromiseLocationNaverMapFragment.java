@@ -76,6 +76,11 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 	}
 
 	@Override
+	protected LocationDto getPromiseLocationDto() {
+		return selectedLocationDtoInEvent;
+	}
+
+	@Override
 	public void onDestroy() {
 		super.onDestroy();
 	}
@@ -91,11 +96,6 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 		createSelectedLocationMarker();
 	}
 
-	@Override
-	protected void onClickedAroundPlaceChip() {
-		super.onClickedAroundPlaceChip();
-
-	}
 
 	@Override
 	public void onCameraUpdateFinish() {

@@ -8,9 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public interface IMapData {
-	void createMarkers(@NotNull List<? extends KakaoLocalDocument> kakaoLocalDocuments, @NotNull MarkerType markerType);
+	void createMarkers(@NotNull List<? extends KakaoLocalDocument> kakaoLocalDocuments, @NotNull MarkerType markerType, MarkerOnClickListener.ClickCallback clickCallback);
 	
-	void addExtraMarkers(@NotNull List<? extends KakaoLocalDocument> kakaoLocalDocuments, @NotNull MarkerType markerType);
+	void addExtraMarkers(@NotNull List<? extends KakaoLocalDocument> kakaoLocalDocuments, @NotNull MarkerType markerType, MarkerOnClickListener.ClickCallback clickCallback);
 	
 	void removeMarkers(MarkerType... markerTypes);
 	

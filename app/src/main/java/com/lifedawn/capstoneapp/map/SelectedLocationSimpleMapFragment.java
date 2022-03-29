@@ -47,6 +47,7 @@ public class SelectedLocationSimpleMapFragment extends AbstractSimpleNaverMapFra
 		binding.funcChipGroup.setVisibility(View.GONE);
 	}
 
+
 	@Override
 	public void onMapReady(@NonNull NaverMap naverMap) {
 		super.onMapReady(naverMap);

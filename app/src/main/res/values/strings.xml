@@ -214,4 +214,6 @@
     <string name="CE7">카페</string>
     <string name="HP8">병원</string>
     <string name="PM9">약국</string>
+    <string name="search_criteria">검색 기준</string>
+    <string name="search_max_range">검색 범위</string>
 </resources>

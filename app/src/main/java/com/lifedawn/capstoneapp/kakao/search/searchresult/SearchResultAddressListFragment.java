@@ -28,6 +28,7 @@ import com.lifedawn.capstoneapp.kakao.search.viewmodel.AddressViewModel;
 import com.lifedawn.capstoneapp.map.MapViewModel;
 import com.lifedawn.capstoneapp.map.MarkerType;
 import com.lifedawn.capstoneapp.map.interfaces.IMapData;
+import com.lifedawn.capstoneapp.map.interfaces.MarkerOnClickListener;
 import com.lifedawn.capstoneapp.map.interfaces.OnExtraListDataListener;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.address.AddressResponse;
@@ -80,10 +81,20 @@ public class SearchResultAddressListFragment extends Fragment implements OnExtra
 				super.onItemRangeInserted(positionStart, itemCount);
 				
 				if (positionStart > 0) {
-					iMapData.addExtraMarkers(adapter.getCurrentList().snapshot(), MarkerType.SEARCH_RESULT_ADDRESS);
+					iMapData.addExtraMarkers(adapter.getCurrentList().snapshot(), MarkerType.SEARCH_RESULT_ADDRESS, new MarkerOnClickListener.ClickCallback() {
+						@Override
+						public void onClicked() {
+
+						}
+					});
 				} else {
 					if (itemCount > 0) {
-						iMapData.createMarkers(adapter.getCurrentList().snapshot(), MarkerType.SEARCH_RESULT_ADDRESS);
+						iMapData.createMarkers(adapter.getCurrentList().snapshot(), MarkerType.SEARCH_RESULT_ADDRESS, new MarkerOnClickListener.ClickCallback() {
+							@Override
+							public void onClicked() {
+
+							}
+						});
 					}
 				}
 			}

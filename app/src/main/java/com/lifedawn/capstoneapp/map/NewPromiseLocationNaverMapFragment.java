@@ -13,13 +13,20 @@ public class NewPromiseLocationNaverMapFragment extends AbstractNaverMapFragment
 		this.onClickedLocationBtnListener = onClickedLocationBtnListener;
 	}
 
+
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setPlaceBottomSheetSelectBtnVisibility(View.VISIBLE);
 		setPlaceBottomSheetUnSelectBtnVisibility(View.GONE);
 	}
-	
+
+	@Override
+	protected LocationDto getPromiseLocationDto() {
+		return null;
+	}
+
 	@Override
 	public void onClickedPlaceBottomSheet(KakaoLocalDocument kakaoLocalDocument) {
 

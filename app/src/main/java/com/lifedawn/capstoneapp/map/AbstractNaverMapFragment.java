@@ -35,7 +35,6 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.constants.BundleConstant;
-import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickedListItemListener;
 import com.lifedawn.capstoneapp.common.util.FusedLocation;
@@ -50,6 +49,7 @@ import com.lifedawn.capstoneapp.map.interfaces.BottomSheetController;
 import com.lifedawn.capstoneapp.map.interfaces.IMapData;
 import com.lifedawn.capstoneapp.map.interfaces.MarkerOnClickListener;
 import com.lifedawn.capstoneapp.map.interfaces.OnClickedBottomSheetListener;
+import com.lifedawn.capstoneapp.map.places.AroundPlacesFragment;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.address.AddressResponse;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.place.PlaceResponse;
@@ -129,6 +129,8 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 			super.onFragmentAttached(fm, f, context);
 			if (f instanceof SearchHistoryFragment) {
 				binding.headerLayout.setVisibility(View.GONE);
+			} else if (f instanceof AroundPlacesFragment) {
+				binding.headerLayout.setVisibility(View.GONE);
 			}
 		}
 
@@ -148,6 +150,10 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 			} else if (f instanceof LocationSearchResultMainFragment) {
 				removeMarkers(MarkerType.SEARCH_RESULT_ADDRESS, MarkerType.SEARCH_RESULT_PLACE);
+			} else if (f instanceof AroundPlacesFragment) {
+				binding.headerLayout.setVisibility(View.VISIBLE);
+				removeAllMarkers();
+				setStateOfBottomSheet(BottomSheetType.LOCATION_ITEM, BottomSheetBehavior.STATE_COLLAPSED);
 			}
 		}
 
@@ -184,9 +190,6 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 		return binding.getRoot();
 	}
 
-	protected void onClickedAroundPlaceChip() {
-
-	}
 
 	@Override
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
@@ -194,11 +197,21 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 		setLocationItemsBottomSheet();
 		setLocationSearchBottomSheet();
+
 		binding.placeChip.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				//주변 장소 표시
-				onClickedAroundPlaceChip();
+				AroundPlacesFragment aroundPlacesFragment = new AroundPlacesFragment();
+
+				if (getPromiseLocationDto() != null) {
+					Bundle bundle = new Bundle();
+					bundle.putSerializable("locationDto", getPromiseLocationDto());
+					aroundPlacesFragment.setArguments(bundle);
+				}
+				getChildFragmentManager().beginTransaction().add(binding.anotherFragmentContainer.getId(), aroundPlacesFragment,
+						AroundPlacesFragment.class.getName()).addToBackStack(AroundPlacesFragment.class.getName()).commitAllowingStateLoss();
+				binding.anotherFragmentContainer.setVisibility(View.VISIBLE);
 			}
 		});
 
@@ -322,8 +335,11 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 			}
 		});
 
+
 		loadMap();
 	}
+
+	protected abstract LocationDto getPromiseLocationDto();
 
 	@Override
 	public void onDestroy() {
@@ -443,14 +459,21 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 	}
 
-	protected void createPlaceMarker(MarkerType markerType, PlaceResponse.Documents item) {
+	protected void createPlaceMarker(MarkerType markerType, PlaceResponse.Documents item, ClickCallback clickCallback) {
 		Marker marker = new Marker();
 		marker.setWidth(markerWidth);
 		marker.setHeight(markerHeight);
 		marker.setPosition(new LatLng(Double.parseDouble(item.getY()), Double.parseDouble(item.getX())));
 		marker.setMap(naverMap);
 		marker.setCaptionText(item.getPlaceName());
-		marker.setOnClickListener(MARKET_ON_CLICK_LISTENER);
+		marker.setOnClickListener(new Overlay.OnClickListener() {
+			@Override
+			public boolean onClick(@NonNull Overlay overlay) {
+				clickCallback.onClicked();
+				onClickedMarkerByTouch((Marker) overlay);
+				return true;
+			}
+		});
 		if (markerType == MarkerType.RESTAURANT) {
 			marker.setIcon(MarkerIcons.BLUE);
 		}
@@ -460,14 +483,21 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 		MARKERS_MAP.get(markerType).add(marker);
 	}
 
-	protected void createAddressMarker(MarkerType markerType, AddressResponse.Documents item) {
+	protected void createAddressMarker(MarkerType markerType, AddressResponse.Documents item, ClickCallback clickCallback) {
 		Marker marker = new Marker();
 		marker.setWidth(markerWidth);
 		marker.setHeight(markerHeight);
 		marker.setPosition(new LatLng(Double.parseDouble(item.getY()), Double.parseDouble(item.getX())));
 		marker.setMap(naverMap);
 		marker.setCaptionText(item.getAddressName());
-		marker.setOnClickListener(MARKET_ON_CLICK_LISTENER);
+		marker.setOnClickListener(new Overlay.OnClickListener() {
+			@Override
+			public boolean onClick(@NonNull Overlay overlay) {
+				clickCallback.onClicked();
+				onClickedMarkerByTouch((Marker) overlay);
+				return true;
+			}
+		});
 
 		MarkerHolder markerHolder = new MarkerHolder(item, markerType);
 		marker.setTag(markerHolder);
@@ -490,6 +520,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 		} else {
 			itemPosition = ((LocationItemViewPagerAdapter) adapter).getItemPosition(markerHolder.kakaoLocalDocument);
 		}
+
 		//선택된 마커의 아이템 리스트내 위치 파악 후 뷰 페이저 이동
 		locationItemBottomSheetViewPager.setTag(markerHolder.markerType);
 		locationItemBottomSheetViewPager.setAdapter(adapter);
@@ -512,13 +543,6 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 		}
 	};
 
-	protected final Overlay.OnClickListener MARKET_ON_CLICK_LISTENER = new Overlay.OnClickListener() {
-		@Override
-		public boolean onClick(@NonNull Overlay overlay) {
-			onClickedMarkerByTouch((Marker) overlay);
-			return true;
-		}
-	};
 
 	public void onPageSelectedLocationItemBottomSheetViewPager(int position, MarkerType markerType) {
 
@@ -546,6 +570,18 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				});
 				return;
 
+			case AROUND_PLACE:
+				AroundPlacesFragment aroundPlacesFragment =
+						(AroundPlacesFragment) getChildFragmentManager().findFragmentByTag(
+								AroundPlacesFragment.class.getName());
+				aroundPlacesFragment.loadExtraListData(new RecyclerView.AdapterDataObserver() {
+					@Override
+					public void onItemRangeInserted(int positionStart, int itemCount) {
+						super.onItemRangeInserted(positionStart, itemCount);
+					}
+				});
+				return;
+
 		}
 	}
 
@@ -561,14 +597,21 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				super.onPageSelected(position);
 				if (getStateOfBottomSheet(BottomSheetType.LOCATION_ITEM) == BottomSheetBehavior.STATE_EXPANDED) {
 					markerType = (MarkerType) locationItemBottomSheetViewPager.getTag();
-					onPOIItemSelectedByBottomSheet(position, markerType);
+					onPOIItemSelectedByBottomSheet(position, markerType, new ClickCallback() {
+						@Override
+						public void onClicked() {
 
+						}
+					});
 
-					if (position == VIEW_PAGER_ADAPTER_MAP.get(markerType).getItemCount()) {
+					int count = VIEW_PAGER_ADAPTER_MAP.get(markerType).getItemCount();
+
+					if (count >= 15 && position == count - 1) {
 						onPageSelectedLocationItemBottomSheetViewPager(position, markerType);
 					} else {
 
 					}
+
 				}
 			}
 		});
@@ -589,7 +632,6 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				//expanded일때 offset == 1.0, collapsed일때 offset == 0.0
 				//offset에 따라서 버튼들이 이동하고, 지도의 좌표가 변경되어야 한다.
 				differenceY = bottomSheet.getHeight();
-
 				float translationValue = -differenceY * slideOffset;
 				binding.naverMapButtonsLayout.getRoot().animate().translationY(translationValue);
 			}
@@ -609,7 +651,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 
 	@Override
-	public void createMarkers(@NotNull List<? extends KakaoLocalDocument> kakaoLocalDocuments, @NotNull MarkerType markerType) {
+	public void createMarkers(@NotNull List<? extends KakaoLocalDocument> kakaoLocalDocuments, @NotNull MarkerType markerType, ClickCallback clickCallback) {
 		if (!MARKERS_MAP.containsKey(markerType)) {
 			MARKERS_MAP.put(markerType, new ArrayList<>());
 		} else {
@@ -634,20 +676,20 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				List<PlaceResponse.Documents> placeDocuments = (List<PlaceResponse.Documents>) kakaoLocalDocuments;
 
 				for (PlaceResponse.Documents document : placeDocuments) {
-					createPlaceMarker(markerType, document);
+					createPlaceMarker(markerType, document, clickCallback);
 				}
 			} else if (kakaoLocalDocuments.get(0) instanceof AddressResponse.Documents) {
 				List<AddressResponse.Documents> addressDocuments = (List<AddressResponse.Documents>) kakaoLocalDocuments;
 
 				for (AddressResponse.Documents document : addressDocuments) {
-					createAddressMarker(markerType, document);
+					createAddressMarker(markerType, document, clickCallback);
 				}
 			}
 		}
 	}
 
 	@Override
-	public void addExtraMarkers(@NotNull List<? extends KakaoLocalDocument> kakaoLocalDocuments, @NotNull MarkerType markerType) {
+	public void addExtraMarkers(@NotNull List<? extends KakaoLocalDocument> kakaoLocalDocuments, @NotNull MarkerType markerType, ClickCallback clickCallback) {
 		if (!kakaoLocalDocuments.isEmpty()) {
 			LocationItemViewPagerAdapter adapter = (LocationItemViewPagerAdapter) VIEW_PAGER_ADAPTER_MAP.get(markerType);
 			final int LAST_INDEX = adapter.getItemsCount() - 1;
@@ -661,13 +703,13 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				List<PlaceResponse.Documents> placeDocuments = (List<PlaceResponse.Documents>) subList;
 
 				for (PlaceResponse.Documents document : placeDocuments) {
-					createPlaceMarker(markerType, document);
+					createPlaceMarker(markerType, document, clickCallback);
 				}
 			} else if (kakaoLocalDocuments.get(0) instanceof AddressResponse.Documents) {
 				List<AddressResponse.Documents> addressDocuments = (List<AddressResponse.Documents>) subList;
 
 				for (AddressResponse.Documents document : addressDocuments) {
-					createAddressMarker(markerType, document);
+					createAddressMarker(markerType, document, clickCallback);
 				}
 			}
 			adapter.notifyDataSetChanged();
@@ -745,7 +787,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 	//POI => point of interest
 	@Override
-	public void onPOIItemSelectedByList(KakaoLocalDocument kakaoLocalDocument, MarkerType markerType) {
+	public void onPOIItemSelectedByList(KakaoLocalDocument kakaoLocalDocument, MarkerType markerType, ClickCallback clickCallback) {
 		//bottomsheet가 아닌 list에서 아이템을 선택한 경우 호출
 		//adapter -> poiitem생성 -> select poiitem -> bottomsheet열고 정보 표시
 		List<Marker> markerList = MARKERS_MAP.get(markerType);
@@ -790,7 +832,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 	LatLng lastTarget = new LatLng(0, 0);
 
 	@Override
-	public void onPOIItemSelectedByBottomSheet(int position, MarkerType markerType) {
+	public void onPOIItemSelectedByBottomSheet(int position, MarkerType markerType, ClickCallback clickCallback) {
 		//bottomsheet에서 스크롤 하는 경우 호출
 		LatLng target = null;
 
@@ -930,6 +972,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 	public void onSelected(KakaoLocalDocument kakaoLocalDocument, boolean remove) {
 
 	}
+
 
 	protected static class MarkerHolder {
 		final KakaoLocalDocument kakaoLocalDocument;

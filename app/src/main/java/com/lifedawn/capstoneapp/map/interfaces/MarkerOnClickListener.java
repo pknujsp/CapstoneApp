@@ -4,7 +4,12 @@ import com.lifedawn.capstoneapp.map.MarkerType;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
 
 public interface MarkerOnClickListener {
-	void onPOIItemSelectedByList(KakaoLocalDocument kakaoLocalDocument, MarkerType markerType);
-	
-	void onPOIItemSelectedByBottomSheet(int position, MarkerType markerType);
+	void onPOIItemSelectedByList(KakaoLocalDocument kakaoLocalDocument, MarkerType markerType, ClickCallback clickCallback);
+
+	void onPOIItemSelectedByBottomSheet(int position, MarkerType markerType, ClickCallback clickCallback);
+
+	public interface ClickCallback{
+		void onClicked();
+	}
+
 }
