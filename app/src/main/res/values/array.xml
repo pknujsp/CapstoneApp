@@ -163,4 +163,24 @@
         <item>@drawable/snow</item>
     </integer-array>
 
+    <string-array name="KakaoLocationitems">
+        <item>@string/MT1</item>
+        <item>@string/CS2</item>
+        <item>@string/PS3</item>
+        <item>@string/SC4</item>
+        <item>@string/AC5</item>
+        <item>@string/PK6</item>
+        <item>@string/OL7</item>
+        <item>@string/SW8</item>
+        <item>@string/BK9</item>
+        <item>@string/CT1</item>
+        <item>@string/AG2</item>
+        <item>@string/PO3</item>
+        <item>@string/AT4</item>
+        <item>@string/AD5</item>
+        <item>@string/FD6</item>
+        <item>@string/CE7</item>
+        <item>@string/HP8</item>
+        <item>@string/PM9</item>
+    </string-array>
 </resources>
