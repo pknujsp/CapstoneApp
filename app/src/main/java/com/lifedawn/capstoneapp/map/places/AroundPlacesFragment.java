@@ -39,9 +39,10 @@ import com.lifedawn.capstoneapp.map.LocationDto;
 import com.lifedawn.capstoneapp.map.MapViewModel;
 import com.lifedawn.capstoneapp.map.MarkerType;
 import com.lifedawn.capstoneapp.map.interfaces.BottomSheetController;
-import com.lifedawn.capstoneapp.map.interfaces.IMapData;
+import com.lifedawn.capstoneapp.map.interfaces.IMap;
 import com.lifedawn.capstoneapp.map.interfaces.MarkerOnClickListener;
 import com.lifedawn.capstoneapp.map.interfaces.OnExtraListDataListener;
+import com.lifedawn.capstoneapp.map.interfaces.OnPoiItemClickListener;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.place.PlaceResponse;
@@ -58,10 +59,12 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 	private CustomPlaceCategoryRepository customPlaceCategoryRepository;
 	private ViewPagerAdapter viewPagerAdapter;
 	private LocationDto promiseLocationDto;
-	private IMapData iMapData;
+	private IMap iMap;
 	private MapViewModel mapViewModel;
 	private BottomSheetController bottomSheetController;
-	private MarkerOnClickListener markerOnClickListener;
+	private OnPoiItemClickListener mapOnPoiItemClickListener;
+
+	private OnLayoutCallback onLayoutCallback;
 
 	private static int currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION;
 	private static int currentSearchSortTypeCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_SORT_TYPE_ACCURACY;
@@ -72,9 +75,36 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 			if (binding.viewPager.getVisibility() == View.GONE) {
 				bottomSheetController.collapseAllExpandedBottomSheets();
 				binding.viewPager.setVisibility(View.VISIBLE);
+				iMap.moveMapBtns(binding.viewPager.getTop(), false);
 			} else {
+				iMap.moveMapBtns(binding.viewPager.getTop(), true);
 				getParentFragmentManager().popBackStack();
 			}
+		}
+	};
+
+	public void setOnLayoutCallback(OnLayoutCallback onLayoutCallback) {
+		this.onLayoutCallback = onLayoutCallback;
+	}
+
+	private final MarkerOnClickListener markerOnClickListener = new MarkerOnClickListener() {
+		@Override
+		public void onClickedMarker() {
+			binding.viewPager.setVisibility(View.GONE);
+		}
+	};
+
+	private final OnPoiItemClickListener onPoiItemClickListener = new OnPoiItemClickListener() {
+		@Override
+		public void onPOIItemSelectedByList(KakaoLocalDocument kakaoLocalDocument, MarkerType markerType, MarkerOnClickListener markerOnClickListener) {
+			binding.viewPager.setVisibility(View.GONE);
+			iMap.moveMapBtns(binding.viewPager.getTop(), false);
+			mapOnPoiItemClickListener.onPOIItemSelectedByList(kakaoLocalDocument, markerType, AroundPlacesFragment.this.markerOnClickListener);
+		}
+
+		@Override
+		public void onPOIItemSelectedByBottomSheet(int position, MarkerType markerType, MarkerOnClickListener markerOnClickListener) {
+
 		}
 	};
 
@@ -89,9 +119,9 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 		super.onCreate(savedInstanceState);
 		customPlaceCategoryRepository = new CustomPlaceCategoryRepository(getContext());
 		mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
-		iMapData = mapViewModel.getiMapData();
+		iMap = mapViewModel.getiMapData();
 		bottomSheetController = mapViewModel.getBottomSheetController();
-		markerOnClickListener = mapViewModel.getMarkerOnClickListener();
+		mapOnPoiItemClickListener = mapViewModel.getPoiItemOnClickListener();
 
 		Bundle bundle = getArguments();
 		if (bundle != null && bundle.containsKey("locationDto")) {
@@ -120,6 +150,15 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 		if (promiseLocationDto == null) {
 			binding.searchAroundPromiseLocation.setVisibility(View.GONE);
 		}
+
+		binding.rootLayout.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+			@Override
+			public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+				binding.rootLayout.removeOnLayoutChangeListener(this);
+				onLayoutCallback.onLayoutChanged(binding.controlLayout.getBottom());
+				iMap.moveMapBtns(binding.viewPager.getTop(), false);
+			}
+		});
 
 		init();
 	}
@@ -163,23 +202,8 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 							bundle.putString("category", name);
 							bundle.putSerializable("locationDto", promiseLocationDto);
 
-							placeFragment = new PlaceFragment(new MarkerOnClickListener() {
-								@Override
-								public void onPOIItemSelectedByList(KakaoLocalDocument kakaoLocalDocument, MarkerType markerType, ClickCallback clickCallback) {
-									binding.viewPager.setVisibility(View.GONE);
-									markerOnClickListener.onPOIItemSelectedByList(kakaoLocalDocument, markerType, new ClickCallback() {
-										@Override
-										public void onClicked() {
-											binding.viewPager.setVisibility(View.GONE);
-										}
-									});
-								}
+							placeFragment = new PlaceFragment(markerOnClickListener, onPoiItemClickListener);
 
-								@Override
-								public void onPOIItemSelectedByBottomSheet(int position, MarkerType markerType, ClickCallback clickCallback) {
-									markerOnClickListener.onPOIItemSelectedByBottomSheet(position, markerType, clickCallback);
-								}
-							});
 							placeFragment.setArguments(bundle);
 							viewPagerAdapter.addFragment(placeFragment);
 						}
@@ -226,7 +250,6 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 	public void loadExtraListData(RecyclerView.AdapterDataObserver adapterDataObserver) {
 		int position = binding.categoryTabLayout.getSelectedTabPosition();
 		PlaceFragment fragment = viewPagerAdapter.getPlaceFragment(position);
-
 		fragment.loadExtraListData(adapterDataObserver);
 	}
 
@@ -235,15 +258,17 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 		private String category;
 
 		private MarkerOnClickListener markerOnClickListener;
+		private OnPoiItemClickListener onPoiItemClickListener;
 
-		private PlacesViewModel viewModel;
+		private PlacesViewModel placesViewModel;
 		private MapViewModel mapViewModel;
 		private PlacesAdapter adapter;
 		private LocationDto promiseLocationDto;
-		private IMapData iMapData;
+		private IMap iMap;
 
-		public PlaceFragment(MarkerOnClickListener markerOnClickListener) {
+		public PlaceFragment(MarkerOnClickListener markerOnClickListener, OnPoiItemClickListener onPoiItemClickListener) {
 			this.markerOnClickListener = markerOnClickListener;
+			this.onPoiItemClickListener = onPoiItemClickListener;
 		}
 
 		@Override
@@ -254,7 +279,7 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 			promiseLocationDto = (LocationDto) bundle.getSerializable("locationDto");
 
 			mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
-			iMapData = mapViewModel.getiMapData();
+			iMap = mapViewModel.getiMapData();
 		}
 
 		@Nullable
@@ -268,16 +293,13 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 		public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 			super.onViewCreated(view, savedInstanceState);
 			binding.recyclerView.setVisibility(View.GONE);
-			//장소 로드
-
-			viewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
+			placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
 
 			binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 			binding.recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
 			requestPlaces();
 		}
-
 
 		@Override
 		public void onDestroy() {
@@ -303,7 +325,7 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 			adapter = new PlacesAdapter(getContext(), new OnClickedListItemListener<PlaceResponse.Documents>() {
 				@Override
 				public void onClicked(PlaceResponse.Documents e) {
-					markerOnClickListener.onPOIItemSelectedByList(e, MarkerType.AROUND_PLACE, null);
+					onPoiItemClickListener.onPOIItemSelectedByList(e, MarkerType.AROUND_PLACE, null);
 				}
 			});
 			adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -319,25 +341,18 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 					});
 
 					if (positionStart > 0) {
-						iMapData.addExtraMarkers(adapter.getCurrentList().snapshot(), MarkerType.AROUND_PLACE, new MarkerOnClickListener.ClickCallback() {
-							@Override
-							public void onClicked() {
-							}
-						});
+						iMap.addExtraMarkers(adapter.getCurrentList().snapshot(), MarkerType.AROUND_PLACE, markerOnClickListener);
 					} else {
 						if (itemCount > 0) {
-							iMapData.createMarkers(adapter.getCurrentList().snapshot(), MarkerType.AROUND_PLACE, new MarkerOnClickListener.ClickCallback() {
-								@Override
-								public void onClicked() {
-								}
-							});
+							iMap.createMarkers(adapter.getCurrentList().snapshot(), MarkerType.AROUND_PLACE, markerOnClickListener);
+							iMap.showMarkers(MarkerType.AROUND_PLACE);
 						}
 					}
 				}
 			});
 			binding.recyclerView.setAdapter(adapter);
 
-			viewModel.init(parameter, new PagedList.BoundaryCallback<PlaceResponse.Documents>() {
+			placesViewModel.init(parameter, new PagedList.BoundaryCallback<PlaceResponse.Documents>() {
 				@Override
 				public void onZeroItemsLoaded() {
 					super.onZeroItemsLoaded();
@@ -350,7 +365,7 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 					});
 				}
 			});
-			viewModel.getPagedListMutableLiveData().observe(getViewLifecycleOwner(), new Observer<PagedList<PlaceResponse.Documents>>() {
+			placesViewModel.getPagedListMutableLiveData().observe(getViewLifecycleOwner(), new Observer<PagedList<PlaceResponse.Documents>>() {
 				@Override
 				public void onChanged(PagedList<PlaceResponse.Documents> placeDocuments) {
 					adapter.submitList(placeDocuments);
@@ -453,5 +468,9 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 		public int getItemCount() {
 			return fragmentList.size();
 		}
+	}
+
+	public interface OnLayoutCallback {
+		void onLayoutChanged(int value);
 	}
 }

@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="false"
+        android:id="@+id/root_layout"
         android:focusable="false"
         >
 
@@ -36,8 +37,8 @@
             android:id="@+id/controlLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
             android:layout_below="@id/categoryTabLayout"
+            android:background="@color/white"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingLeft="16dp"
@@ -104,10 +105,8 @@
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/controlLayout"
+            android:layout_height="350dp"
             android:layout_alignParentBottom="true"
-            android:layout_marginTop="270dp"
             android:background="@color/white"
             android:orientation="horizontal"
             />

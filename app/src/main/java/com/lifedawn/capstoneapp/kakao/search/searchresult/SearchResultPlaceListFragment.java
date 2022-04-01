@@ -35,7 +35,7 @@ import com.lifedawn.capstoneapp.kakao.search.util.MapUtil;
 import com.lifedawn.capstoneapp.kakao.search.viewmodel.PlacesViewModel;
 import com.lifedawn.capstoneapp.map.MapViewModel;
 import com.lifedawn.capstoneapp.map.MarkerType;
-import com.lifedawn.capstoneapp.map.interfaces.IMapData;
+import com.lifedawn.capstoneapp.map.interfaces.IMap;
 import com.lifedawn.capstoneapp.map.interfaces.MarkerOnClickListener;
 import com.lifedawn.capstoneapp.map.interfaces.OnExtraListDataListener;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
@@ -58,7 +58,7 @@ public class SearchResultPlaceListFragment extends Fragment implements OnExtraLi
 	private Location currentLocation;
 	private FusedLocation fusedLocation;
 	private MapViewModel mapViewModel;
-	private IMapData iMapData;
+	private IMap iMap;
 	
 	public SearchResultPlaceListFragment(String query, OnClickedListItemListener<PlaceResponse.Documents> placeDocumentsOnClickedListItem) {
 		this.QUERY = query;
@@ -71,7 +71,7 @@ public class SearchResultPlaceListFragment extends Fragment implements OnExtraLi
 		fusedLocation = FusedLocation.getInstance(getContext());
 		
 		mapViewModel = new ViewModelProvider(getActivity()).get(MapViewModel.class);
-		iMapData = mapViewModel.getiMapData();
+		iMap = mapViewModel.getiMapData();
 	}
 	
 	@Nullable
@@ -193,17 +193,17 @@ public class SearchResultPlaceListFragment extends Fragment implements OnExtraLi
 			public void onItemRangeInserted(int positionStart, int itemCount) {
 				super.onItemRangeInserted(positionStart, itemCount);
 				if (positionStart > 0) {
-					iMapData.addExtraMarkers(adapter.getCurrentList().snapshot(), MarkerType.SEARCH_RESULT_PLACE, new MarkerOnClickListener.ClickCallback() {
+					iMap.addExtraMarkers(adapter.getCurrentList().snapshot(), MarkerType.SEARCH_RESULT_PLACE, new MarkerOnClickListener() {
 						@Override
-						public void onClicked() {
+						public void onClickedMarker() {
 
 						}
 					});
 				} else {
 					if (itemCount > 0) {
-						iMapData.createMarkers(adapter.getCurrentList().snapshot(), MarkerType.SEARCH_RESULT_PLACE, new MarkerOnClickListener.ClickCallback() {
+						iMap.createMarkers(adapter.getCurrentList().snapshot(), MarkerType.SEARCH_RESULT_PLACE, new MarkerOnClickListener() {
 							@Override
-							public void onClicked() {
+							public void onClickedMarker() {
 
 							}
 						});

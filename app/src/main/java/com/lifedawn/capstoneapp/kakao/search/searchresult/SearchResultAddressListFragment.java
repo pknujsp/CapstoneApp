@@ -27,7 +27,7 @@ import com.lifedawn.capstoneapp.kakao.search.callback.AddressItemCallback;
 import com.lifedawn.capstoneapp.kakao.search.viewmodel.AddressViewModel;
 import com.lifedawn.capstoneapp.map.MapViewModel;
 import com.lifedawn.capstoneapp.map.MarkerType;
-import com.lifedawn.capstoneapp.map.interfaces.IMapData;
+import com.lifedawn.capstoneapp.map.interfaces.IMap;
 import com.lifedawn.capstoneapp.map.interfaces.MarkerOnClickListener;
 import com.lifedawn.capstoneapp.map.interfaces.OnExtraListDataListener;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
@@ -41,7 +41,7 @@ public class SearchResultAddressListFragment extends Fragment implements OnExtra
 	private AddressViewModel addressViewModel;
 	private AddressesAdapter adapter;
 	private MapViewModel mapViewModel;
-	private IMapData iMapData;
+	private IMap iMap;
 	
 	public SearchResultAddressListFragment(String query,
 			OnClickedListItemListener<AddressResponse.Documents> addressResponseDocumentsOnClickedListItem) {
@@ -54,7 +54,7 @@ public class SearchResultAddressListFragment extends Fragment implements OnExtra
 		super.onCreate(savedInstanceState);
 		
 		mapViewModel = new ViewModelProvider(getActivity()).get(MapViewModel.class);
-		iMapData = mapViewModel.getiMapData();
+		iMap = mapViewModel.getiMapData();
 	}
 	
 	@Override
@@ -81,17 +81,17 @@ public class SearchResultAddressListFragment extends Fragment implements OnExtra
 				super.onItemRangeInserted(positionStart, itemCount);
 				
 				if (positionStart > 0) {
-					iMapData.addExtraMarkers(adapter.getCurrentList().snapshot(), MarkerType.SEARCH_RESULT_ADDRESS, new MarkerOnClickListener.ClickCallback() {
+					iMap.addExtraMarkers(adapter.getCurrentList().snapshot(), MarkerType.SEARCH_RESULT_ADDRESS, new MarkerOnClickListener() {
 						@Override
-						public void onClicked() {
+						public void onClickedMarker() {
 
 						}
 					});
 				} else {
 					if (itemCount > 0) {
-						iMapData.createMarkers(adapter.getCurrentList().snapshot(), MarkerType.SEARCH_RESULT_ADDRESS, new MarkerOnClickListener.ClickCallback() {
+						iMap.createMarkers(adapter.getCurrentList().snapshot(), MarkerType.SEARCH_RESULT_ADDRESS, new MarkerOnClickListener() {
 							@Override
-							public void onClicked() {
+							public void onClickedMarker() {
 
 							}
 						});

@@ -25,9 +25,10 @@ import com.lifedawn.capstoneapp.map.BottomSheetType;
 import com.lifedawn.capstoneapp.map.MapViewModel;
 import com.lifedawn.capstoneapp.map.MarkerType;
 import com.lifedawn.capstoneapp.map.interfaces.BottomSheetController;
-import com.lifedawn.capstoneapp.map.interfaces.IMapData;
+import com.lifedawn.capstoneapp.map.interfaces.IMap;
 import com.lifedawn.capstoneapp.map.interfaces.MarkerOnClickListener;
 import com.lifedawn.capstoneapp.map.interfaces.OnExtraListDataListener;
+import com.lifedawn.capstoneapp.map.interfaces.OnPoiItemClickListener;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalResponse;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.address.AddressResponse;
@@ -46,9 +47,9 @@ public class LocationSearchResultMainFragment extends Fragment implements OnExtr
 	private MapViewModel mapViewModel;
 
 	private OnPageCallback onPageCallback;
-	private IMapData iMapData;
+	private IMap iMap;
 	private BottomSheetController bottomSheetController;
-	private MarkerOnClickListener markerOnClickListener;
+	private OnPoiItemClickListener onPoiItemClickListener;
 
 	private OnExtraListDataListener<Constant> placesOnExtraListDataListener;
 	private OnExtraListDataListener<Constant> addressesOnExtraListDataListener;
@@ -59,9 +60,9 @@ public class LocationSearchResultMainFragment extends Fragment implements OnExtr
 		query = getArguments().getString("query");
 
 		mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
-		iMapData = mapViewModel.getiMapData();
+		iMap = mapViewModel.getiMapData();
 		bottomSheetController = mapViewModel.getBottomSheetController();
-		markerOnClickListener = mapViewModel.getMarkerOnClickListener();
+		onPoiItemClickListener = mapViewModel.getPoiItemOnClickListener();
 
 	}
 
@@ -121,10 +122,10 @@ public class LocationSearchResultMainFragment extends Fragment implements OnExtr
 									new OnClickedListItemListener<PlaceResponse.Documents>() {
 										@Override
 										public void onClicked(PlaceResponse.Documents e) {
-											iMapData.showMarkers(MarkerType.SEARCH_RESULT_PLACE);
-											markerOnClickListener.onPOIItemSelectedByList(e, MarkerType.SEARCH_RESULT_PLACE, new MarkerOnClickListener.ClickCallback() {
+											iMap.showMarkers(MarkerType.SEARCH_RESULT_PLACE);
+											onPoiItemClickListener.onPOIItemSelectedByList(e, MarkerType.SEARCH_RESULT_PLACE, new MarkerOnClickListener() {
 												@Override
-												public void onClicked() {
+												public void onClickedMarker() {
 
 												}
 											});
@@ -144,10 +145,10 @@ public class LocationSearchResultMainFragment extends Fragment implements OnExtr
 									new OnClickedListItemListener<AddressResponse.Documents>() {
 										@Override
 										public void onClicked(AddressResponse.Documents e) {
-											iMapData.showMarkers(MarkerType.SEARCH_RESULT_ADDRESS);
-											markerOnClickListener.onPOIItemSelectedByList(e, MarkerType.SEARCH_RESULT_ADDRESS, new MarkerOnClickListener.ClickCallback() {
+											iMap.showMarkers(MarkerType.SEARCH_RESULT_ADDRESS);
+											onPoiItemClickListener.onPOIItemSelectedByList(e, MarkerType.SEARCH_RESULT_ADDRESS, new MarkerOnClickListener() {
 												@Override
-												public void onClicked() {
+												public void onClickedMarker() {
 
 												}
 											});
@@ -189,7 +190,7 @@ public class LocationSearchResultMainFragment extends Fragment implements OnExtr
 
 	@Override
 	public void onDestroy() {
-		iMapData.removeMarkers(MarkerType.SEARCH_RESULT_ADDRESS, MarkerType.SEARCH_RESULT_PLACE);
+		iMap.removeMarkers(MarkerType.SEARCH_RESULT_ADDRESS, MarkerType.SEARCH_RESULT_PLACE);
 
 		super.onDestroy();
 	}

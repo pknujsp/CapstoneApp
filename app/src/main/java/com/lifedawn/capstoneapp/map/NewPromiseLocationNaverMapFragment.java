@@ -14,7 +14,6 @@ public class NewPromiseLocationNaverMapFragment extends AbstractNaverMapFragment
 	}
 
 
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

@@ -6,16 +6,16 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
 import com.lifedawn.capstoneapp.map.interfaces.BottomSheetController;
-import com.lifedawn.capstoneapp.map.interfaces.IMapData;
-import com.lifedawn.capstoneapp.map.interfaces.MarkerOnClickListener;
+import com.lifedawn.capstoneapp.map.interfaces.IMap;
+import com.lifedawn.capstoneapp.map.interfaces.OnPoiItemClickListener;
 import com.naver.maps.geometry.LatLng;
 
 public class MapViewModel extends AndroidViewModel {
 	private IMapPoint iMapPoint;
-	private IMapData iMapData;
+	private IMap iMap;
 	private BottomSheetController bottomSheetController;
-	private MarkerOnClickListener markerOnClickListener;
-	
+	private OnPoiItemClickListener onPoiItemClickListener;
+
 	public MapViewModel setiMapPoint(IMapPoint iMapPoint) {
 		this.iMapPoint = iMapPoint;
 		return this;
@@ -33,12 +33,12 @@ public class MapViewModel extends AndroidViewModel {
 		return iMapPoint;
 	}
 	
-	public IMapData getiMapData() {
-		return iMapData;
+	public IMap getiMapData() {
+		return iMap;
 	}
 	
-	public MapViewModel setiMapData(IMapData iMapData) {
-		this.iMapData = iMapData;
+	public MapViewModel setiMapData(IMap iMap) {
+		this.iMap = iMap;
 		return this;
 	}
 	
@@ -55,13 +55,12 @@ public class MapViewModel extends AndroidViewModel {
 		this.bottomSheetController = bottomSheetController;
 		return this;
 	}
-	
-	public MarkerOnClickListener getMarkerOnClickListener() {
-		return markerOnClickListener;
+
+	public void setPoiItemOnClickListener(OnPoiItemClickListener onPoiItemClickListener) {
+		this.onPoiItemClickListener = onPoiItemClickListener;
 	}
-	
-	public MapViewModel setMarkerOnClickListener(MarkerOnClickListener markerOnClickListener) {
-		this.markerOnClickListener = markerOnClickListener;
-		return this;
+
+	public OnPoiItemClickListener getPoiItemOnClickListener() {
+		return onPoiItemClickListener;
 	}
 }
