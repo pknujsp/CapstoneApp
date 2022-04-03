@@ -3,7 +3,6 @@ package com.lifedawn.capstoneapp.map.places;
 import android.content.Context;
 import android.os.Bundle;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -15,19 +14,15 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.material.button.MaterialButtonToggleGroup;
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickedListItemListener;
-import com.lifedawn.capstoneapp.common.interfaces.OnDbQueryCallback;
-import com.lifedawn.capstoneapp.common.repository.CustomPlaceCategoryRepository;
 import com.lifedawn.capstoneapp.databinding.FragmentAroundPlaceListBinding;
 import com.lifedawn.capstoneapp.databinding.FragmentAroundPlacesBinding;
 import com.lifedawn.capstoneapp.databinding.PlaceRecyclerViewItemBinding;
@@ -38,95 +33,27 @@ import com.lifedawn.capstoneapp.kakao.search.viewmodel.PlacesViewModel;
 import com.lifedawn.capstoneapp.map.LocationDto;
 import com.lifedawn.capstoneapp.map.MapViewModel;
 import com.lifedawn.capstoneapp.map.MarkerType;
-import com.lifedawn.capstoneapp.map.interfaces.BottomSheetController;
 import com.lifedawn.capstoneapp.map.interfaces.IMap;
 import com.lifedawn.capstoneapp.map.interfaces.MarkerOnClickListener;
 import com.lifedawn.capstoneapp.map.interfaces.OnExtraListDataListener;
 import com.lifedawn.capstoneapp.map.interfaces.OnPoiItemClickListener;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
-import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.place.PlaceResponse;
-import com.lifedawn.capstoneapp.room.dto.CustomPlaceCategoryDto;
 import com.naver.maps.geometry.LatLng;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
-public class AroundPlacesFragment extends Fragment implements OnExtraListDataListener<Constant> {
+public class AroundPlacesContentsFragment extends Fragment implements OnExtraListDataListener<Constant>, IConnectContents {
 	private FragmentAroundPlacesBinding binding;
-	private CustomPlaceCategoryRepository customPlaceCategoryRepository;
 	private ViewPagerAdapter viewPagerAdapter;
-	private LocationDto promiseLocationDto;
-	private IMap iMap;
-	private MapViewModel mapViewModel;
-	private BottomSheetController bottomSheetController;
-	private OnPoiItemClickListener mapOnPoiItemClickListener;
 
-	private OnLayoutCallback onLayoutCallback;
-
-	private static int currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION;
-	private static int currentSearchSortTypeCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_SORT_TYPE_ACCURACY;
-
-	private final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
-		@Override
-		public void handleOnBackPressed() {
-			if (binding.viewPager.getVisibility() == View.GONE) {
-				bottomSheetController.collapseAllExpandedBottomSheets();
-				binding.viewPager.setVisibility(View.VISIBLE);
-				iMap.moveMapBtns(binding.viewPager.getTop(), false);
-			} else {
-				iMap.moveMapBtns(binding.viewPager.getTop(), true);
-				getParentFragmentManager().popBackStack();
-			}
-		}
-	};
-
-	public void setOnLayoutCallback(OnLayoutCallback onLayoutCallback) {
-		this.onLayoutCallback = onLayoutCallback;
-	}
-
-	private final MarkerOnClickListener markerOnClickListener = new MarkerOnClickListener() {
-		@Override
-		public void onClickedMarker() {
-			binding.viewPager.setVisibility(View.GONE);
-		}
-	};
-
-	private final OnPoiItemClickListener onPoiItemClickListener = new OnPoiItemClickListener() {
-		@Override
-		public void onPOIItemSelectedByList(KakaoLocalDocument kakaoLocalDocument, MarkerType markerType, MarkerOnClickListener markerOnClickListener) {
-			binding.viewPager.setVisibility(View.GONE);
-			iMap.moveMapBtns(binding.viewPager.getTop(), false);
-			mapOnPoiItemClickListener.onPOIItemSelectedByList(kakaoLocalDocument, markerType, AroundPlacesFragment.this.markerOnClickListener);
-		}
-
-		@Override
-		public void onPOIItemSelectedByBottomSheet(int position, MarkerType markerType, MarkerOnClickListener markerOnClickListener) {
-
-		}
-	};
-
-	@Override
-	public void onAttach(@NonNull Context context) {
-		super.onAttach(context);
-		requireActivity().getOnBackPressedDispatcher().addCallback(onBackPressedCallback);
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		customPlaceCategoryRepository = new CustomPlaceCategoryRepository(getContext());
-		mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
-		iMap = mapViewModel.getiMapData();
-		bottomSheetController = mapViewModel.getBottomSheetController();
-		mapOnPoiItemClickListener = mapViewModel.getPoiItemOnClickListener();
 
-		Bundle bundle = getArguments();
-		if (bundle != null && bundle.containsKey("locationDto")) {
-			promiseLocationDto = (LocationDto) getArguments().getSerializable("locationDto");
-		}
 	}
 
 	@Override
@@ -139,107 +66,9 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		binding.header.fragmentTitle.setText(R.string.around_place);
-		binding.header.backBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				getParentFragmentManager().popBackStack();
-			}
-		});
-
-		if (promiseLocationDto == null) {
-			binding.searchAroundPromiseLocation.setVisibility(View.GONE);
-		}
-
-		binding.rootLayout.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-			@Override
-			public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-				binding.rootLayout.removeOnLayoutChangeListener(this);
-				onLayoutCallback.onLayoutChanged(binding.controlLayout.getBottom());
-				iMap.moveMapBtns(binding.viewPager.getTop(), false);
-			}
-		});
-
-		init();
+		//받아온 데이터를 표시해주는 용도로만 사용
 	}
 
-	@Override
-	public void onDestroy() {
-		onBackPressedCallback.remove();
-		super.onDestroy();
-	}
-
-	private void search() {
-
-	}
-
-	private void init() {
-		customPlaceCategoryRepository.getAll(new OnDbQueryCallback<List<CustomPlaceCategoryDto>>() {
-			@Override
-			public void onResult(List<CustomPlaceCategoryDto> customPlaceCategoryDtoList) {
-				getActivity().runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						viewPagerAdapter = new ViewPagerAdapter(AroundPlacesFragment.this);
-						List<String> placeCategoryList = new ArrayList<>();
-						String[] placeCategoryArr = getResources().getStringArray(R.array.KakaoLocationitems);
-						placeCategoryList.addAll(Arrays.asList(placeCategoryArr));
-
-						for (CustomPlaceCategoryDto dto : customPlaceCategoryDtoList) {
-							placeCategoryList.add(dto.getName());
-						}
-						Bundle bundle = null;
-						PlaceFragment placeFragment = null;
-
-						for (String name : placeCategoryList) {
-							TabLayout.Tab tab = binding.categoryTabLayout.newTab();
-							tab.setContentDescription(name);
-							tab.setText(name);
-
-							binding.categoryTabLayout.addTab(tab);
-
-							bundle = new Bundle();
-							bundle.putString("category", name);
-							bundle.putSerializable("locationDto", promiseLocationDto);
-
-							placeFragment = new PlaceFragment(markerOnClickListener, onPoiItemClickListener);
-
-							placeFragment.setArguments(bundle);
-							viewPagerAdapter.addFragment(placeFragment);
-						}
-
-						binding.viewPager.setAdapter(viewPagerAdapter);
-
-						new TabLayoutMediator(binding.categoryTabLayout, binding.viewPager, new TabLayoutMediator.TabConfigurationStrategy() {
-							@Override
-							public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-								tab.setText(placeCategoryList.get(position));
-							}
-						}).attach();
-
-						binding.searchCriteriaToggleGroup.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
-							@Override
-							public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
-								if (isChecked) {
-									switch (checkedId) {
-										case R.id.search_around_promise_location:
-											currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION;
-											break;
-										case R.id.search_around_map_center:
-											currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_MAP_CENTER;
-											break;
-									}
-									search();
-								}
-							}
-						});
-						binding.searchCriteriaToggleGroup.check(R.id.search_around_promise_location);
-					}
-				});
-			}
-		});
-
-	}
 
 	@Override
 	public void loadExtraListData(Constant e, RecyclerView.AdapterDataObserver adapterDataObserver) {
@@ -248,9 +77,25 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 
 	@Override
 	public void loadExtraListData(RecyclerView.AdapterDataObserver adapterDataObserver) {
-		int position = binding.categoryTabLayout.getSelectedTabPosition();
-		PlaceFragment fragment = viewPagerAdapter.getPlaceFragment(position);
-		fragment.loadExtraListData(adapterDataObserver);
+
+	}
+
+
+	@Override
+	public void loadExtraData(int tabPosition, RecyclerView.AdapterDataObserver adapterDataObserver) {
+		viewPagerAdapter.getPlaceFragment(tabPosition).loadExtraListData(adapterDataObserver);
+	}
+
+	@Override
+	public void setViewPager(List<PlaceFragment> fragmentList) {
+		viewPagerAdapter = new ViewPagerAdapter(AroundPlacesContentsFragment.this);
+		viewPagerAdapter.setFragmentList(fragmentList);
+		binding.viewPager.setAdapter(viewPagerAdapter);
+	}
+
+	@Override
+	public ViewPager2 getViewPager2() {
+		return binding.viewPager;
 	}
 
 	public static class PlaceFragment extends Fragment implements OnExtraListDataListener<Constant> {
@@ -266,7 +111,10 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 		private LocationDto promiseLocationDto;
 		private IMap iMap;
 
-		public PlaceFragment(MarkerOnClickListener markerOnClickListener, OnPoiItemClickListener onPoiItemClickListener) {
+		private IConnectHeader iConnectHeader;
+
+		public PlaceFragment(MarkerOnClickListener markerOnClickListener, OnPoiItemClickListener onPoiItemClickListener, IConnectHeader iConnectHeader) {
+			this.iConnectHeader = iConnectHeader;
 			this.markerOnClickListener = markerOnClickListener;
 			this.onPoiItemClickListener = onPoiItemClickListener;
 		}
@@ -301,16 +149,11 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 			requestPlaces();
 		}
 
-		@Override
-		public void onDestroy() {
-			super.onDestroy();
-		}
-
 		public void requestPlaces() {
 			String latitude = null;
 			String longitude = null;
 
-			if (currentSearchMapPointCriteria == LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION) {
+			if (iConnectHeader.getSearchMapPointCriteria() == LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION) {
 				latitude = promiseLocationDto.getLatitude();
 				longitude = promiseLocationDto.getLongitude();
 			} else {
@@ -320,7 +163,7 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 			}
 
 			LocalApiPlaceParameter parameter = LocalParameterUtil.getPlaceParameter(category, latitude, longitude,
-					LocalApiPlaceParameter.DEFAULT_SIZE, LocalApiPlaceParameter.DEFAULT_PAGE, currentSearchSortTypeCriteria);
+					LocalApiPlaceParameter.DEFAULT_SIZE, LocalApiPlaceParameter.DEFAULT_PAGE, iConnectHeader.getSearchSortCriteria());
 
 			adapter = new PlacesAdapter(getContext(), new OnClickedListItemListener<PlaceResponse.Documents>() {
 				@Override
@@ -371,6 +214,7 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 					adapter.submitList(placeDocuments);
 				}
 			});
+
 		}
 
 		@Override
@@ -444,10 +288,10 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 	}
 
 	private static class ViewPagerAdapter extends FragmentStateAdapter {
-		List<PlaceFragment> fragmentList = new ArrayList<>();
+		private List<PlaceFragment> fragmentList = new ArrayList<>();
 
-		public void addFragment(PlaceFragment fragment) {
-			fragmentList.add(fragment);
+		public void setFragmentList(List<PlaceFragment> fragmentList) {
+			this.fragmentList = fragmentList;
 		}
 
 		public PlaceFragment getPlaceFragment(int position) {
@@ -470,7 +314,5 @@ public class AroundPlacesFragment extends Fragment implements OnExtraListDataLis
 		}
 	}
 
-	public interface OnLayoutCallback {
-		void onLayoutChanged(int value);
-	}
+
 }

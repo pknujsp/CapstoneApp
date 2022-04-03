@@ -31,6 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top"
+                android:clipChildren="false"
                 android:clipToPadding="false"
                 android:orientation="vertical"
                 android:paddingTop="@dimen/map_header_bar_top_padding"
@@ -118,8 +119,7 @@
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/anotherFragmentContainer"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"
+                android:layout_height="wrap_content"
                 />
 
         </FrameLayout>
@@ -132,6 +132,11 @@
         <include
             android:id="@+id/placeslist_bottom_sheet"
             layout="@layout/place_list_bottom_sheet_view"
+            />
+
+        <include
+            android:id="@+id/aroundPlacesBottomSheet"
+            layout="@layout/view_bottom_sheet_around_places"
             />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

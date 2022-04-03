@@ -16,7 +16,6 @@ import androidx.preference.PreferenceManager;
 
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
 import com.lifedawn.capstoneapp.databinding.FragmentAbstractNaverMapBinding;
-import com.lifedawn.capstoneapp.map.places.AroundPlacesFragment;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.CameraPosition;
 import com.naver.maps.map.CameraUpdate;

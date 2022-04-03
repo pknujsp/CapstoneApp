@@ -8,7 +8,6 @@ import android.graphics.PointF;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.util.Xml;
 import android.view.LayoutInflater;
@@ -51,7 +50,8 @@ import com.lifedawn.capstoneapp.map.interfaces.IMap;
 import com.lifedawn.capstoneapp.map.interfaces.MarkerOnClickListener;
 import com.lifedawn.capstoneapp.map.interfaces.OnClickedBottomSheetListener;
 import com.lifedawn.capstoneapp.map.interfaces.OnPoiItemClickListener;
-import com.lifedawn.capstoneapp.map.places.AroundPlacesFragment;
+import com.lifedawn.capstoneapp.map.places.AroundPlacesContentsFragment;
+import com.lifedawn.capstoneapp.map.places.AroundPlacesHeaderFragment;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.address.AddressResponse;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.place.PlaceResponse;
@@ -134,8 +134,9 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 			super.onFragmentAttached(fm, f, context);
 			if (f instanceof SearchHistoryFragment) {
 				binding.headerLayout.setVisibility(View.GONE);
-			} else if (f instanceof AroundPlacesFragment) {
+			} else if (f instanceof AroundPlacesContentsFragment) {
 				binding.headerLayout.setVisibility(View.GONE);
+				binding.anotherFragmentContainer.setVisibility(View.VISIBLE);
 			}
 		}
 
@@ -155,8 +156,8 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 			} else if (f instanceof LocationSearchResultMainFragment) {
 				removeMarkers(MarkerType.SEARCH_RESULT_ADDRESS, MarkerType.SEARCH_RESULT_PLACE);
-			} else if (f instanceof AroundPlacesFragment) {
-				moveMap(true, 0);
+			} else if (f instanceof AroundPlacesContentsFragment) {
+				binding.anotherFragmentContainer.setVisibility(View.GONE);
 				binding.headerLayout.setVisibility(View.VISIBLE);
 				removeAllMarkers();
 				setStateOfBottomSheet(BottomSheetType.LOCATION_ITEM, BottomSheetBehavior.STATE_COLLAPSED);
@@ -203,27 +204,39 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 		setLocationItemsBottomSheet();
 		setLocationSearchBottomSheet();
+		setAroundPlacesBottomSheet();
 
 		binding.placeChip.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				//주변 장소 표시
-				AroundPlacesFragment aroundPlacesFragment = new AroundPlacesFragment();
+				collapseAllExpandedBottomSheets();
+
+				FragmentManager childFragmentManager = getChildFragmentManager();
+				int backStackCount = childFragmentManager.getBackStackEntryCount();
+
+				for (int count = 0; count < backStackCount; count++) {
+					childFragmentManager.popBackStack();
+				}
+
+				AroundPlacesHeaderFragment headerFragment = new AroundPlacesHeaderFragment();
+				AroundPlacesContentsFragment aroundPlacesContentsFragment = new AroundPlacesContentsFragment();
+				headerFragment.setiConnectContents(aroundPlacesContentsFragment);
+				headerFragment.setOnExtraListDataListener(aroundPlacesContentsFragment);
 
 				if (getPromiseLocationDto() != null) {
 					Bundle bundle = new Bundle();
 					bundle.putSerializable("locationDto", getPromiseLocationDto());
-					aroundPlacesFragment.setArguments(bundle);
+					headerFragment.setArguments(bundle);
 				}
-				aroundPlacesFragment.setOnLayoutCallback(new AroundPlacesFragment.OnLayoutCallback() {
-					@Override
-					public void onLayoutChanged(int value) {
-						moveMap(false, value);
-					}
-				});
-				getChildFragmentManager().beginTransaction().add(binding.anotherFragmentContainer.getId(), aroundPlacesFragment,
-						AroundPlacesFragment.class.getName()).addToBackStack(AroundPlacesFragment.class.getName()).commitAllowingStateLoss();
-				binding.anotherFragmentContainer.setVisibility(View.VISIBLE);
+
+				childFragmentManager.beginTransaction().add(binding.aroundPlacesBottomSheet.fragmentContainerView.getId(),
+						aroundPlacesContentsFragment, AroundPlacesContentsFragment.class.getName())
+						.add(binding.anotherFragmentContainer.getId(), headerFragment,
+								AroundPlacesHeaderFragment.class.getName())
+						.addToBackStack(AroundPlacesContentsFragment.class.getName()).commitAllowingStateLoss();
+
+				setStateOfBottomSheet(BottomSheetType.AROUND_PLACES, BottomSheetBehavior.STATE_EXPANDED);
 			}
 		});
 
@@ -290,6 +303,8 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 		binding.naverMapFragmentRootLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 			@Override
 			public void onGlobalLayout() {
+				binding.naverMapFragmentRootLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
 				//search bottom sheet 크기 조정
 				final int headerBarHeight = binding.headerLayout.getHeight() - binding.funcChipGroup.getHeight();
 				final int headerBarTopMargin = (int) getResources().getDimension(R.dimen.map_header_bar_top_margin);
@@ -313,7 +328,6 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				locationSearchBottomSheetBehavior.onLayoutChild(binding.naverMapFragmentRootLayout, locationSearchBottomSheet,
 						ViewCompat.LAYOUT_DIRECTION_LTR);
 
-				binding.naverMapFragmentRootLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 			}
 		});
 
@@ -614,11 +628,11 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				return;
 
 			case AROUND_PLACE:
-				AroundPlacesFragment aroundPlacesFragment =
-						(AroundPlacesFragment) getChildFragmentManager().findFragmentByTag(
-								AroundPlacesFragment.class.getName());
+				AroundPlacesHeaderFragment fragment =
+						(AroundPlacesHeaderFragment) getChildFragmentManager().findFragmentByTag(
+								AroundPlacesHeaderFragment.class.getName());
 
-				aroundPlacesFragment.loadExtraListData(new RecyclerView.AdapterDataObserver() {
+				fragment.loadExtraListData(new RecyclerView.AdapterDataObserver() {
 					@Override
 					public void onItemRangeInserted(int positionStart, int itemCount) {
 						super.onItemRangeInserted(positionStart, itemCount);
@@ -679,17 +693,42 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 			public void onSlide(@NonNull View bottomSheet, float slideOffset) {
 				//expanded일때 offset == 1.0, collapsed일때 offset == 0.0
 				//offset에 따라서 버튼들이 이동하고, 지도의 좌표가 변경되어야 한다.
-				/*
 				differenceY = bottomSheet.getHeight();
 				float translationValue = -differenceY * slideOffset;
 				binding.naverMapButtonsLayout.getRoot().animate().translationY(translationValue);
-
-				 */
 			}
 		});
 
 		bottomSheetViewMap.put(BottomSheetType.LOCATION_ITEM, locationItemBottomSheet);
 		bottomSheetBehaviorMap.put(BottomSheetType.LOCATION_ITEM, locationItemBottomSheetBehavior);
+	}
+
+	protected void setAroundPlacesBottomSheet() {
+		LinearLayout aroundPlacesBottomSheet = binding.aroundPlacesBottomSheet.aroundPlacesBottomSheet;
+
+
+		BottomSheetBehavior aroundPlacesBottomSheetBehavior = BottomSheetBehavior.from(aroundPlacesBottomSheet);
+		aroundPlacesBottomSheetBehavior.setDraggable(false);
+		aroundPlacesBottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+			float differenceY;
+
+			@Override
+			public void onStateChanged(@NonNull View bottomSheet, int newState) {
+
+			}
+
+			@Override
+			public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+				//expanded일때 offset == 1.0, collapsed일때 offset == 0.0
+				//offset에 따라서 버튼들이 이동하고, 지도의 좌표가 변경되어야 한다.
+				differenceY = bottomSheet.getHeight();
+				float translationValue = -differenceY * slideOffset;
+				binding.naverMapButtonsLayout.getRoot().animate().translationY(translationValue);
+			}
+		});
+
+		bottomSheetViewMap.put(BottomSheetType.AROUND_PLACES, aroundPlacesBottomSheet);
+		bottomSheetBehaviorMap.put(BottomSheetType.AROUND_PLACES, aroundPlacesBottomSheetBehavior);
 	}
 
 	public void setPlaceBottomSheetSelectBtnVisibility(int placeBottomSheetSelectBtnVisibility) {
@@ -835,17 +874,6 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 		setStateOfBottomSheet(BottomSheetType.LOCATION_ITEM, BottomSheetBehavior.STATE_COLLAPSED);
 	}
 
-
-	@Override
-	public void moveMapBtns(int value, boolean recovery) {
-		//expanded일때 offset == 1.0, collapsed일때 offset == 0.0
-
-		if (!recovery) {
-			binding.naverMapButtonsLayout.getRoot().setY(binding.getRoot().getHeight() - value - binding.naverMapButtonsLayout.getRoot().getHeight() / 2f);
-		} else {
-			binding.naverMapButtonsLayout.getRoot().setY(binding.getRoot().getHeight() - binding.naverMapButtonsLayout.getRoot().getHeight());
-		}
-	}
 
 	//POI => point of interest
 	@Override

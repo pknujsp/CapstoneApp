@@ -83,7 +83,6 @@ public class PromiseInfoFragment extends Fragment {
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		binding.weatherLayout.setVisibility(View.GONE);
 
 		binding.toolbar.backBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -93,7 +92,6 @@ public class PromiseInfoFragment extends Fragment {
 		});
 		binding.toolbar.fragmentTitle.setText(R.string.promise_info);
 
-		binding.weatherLayout.setVisibility(View.GONE);
 		binding.progressLayout.setVisibility(View.GONE);
 
 
@@ -299,10 +297,6 @@ public class PromiseInfoFragment extends Fragment {
 				@Override
 				public void run() {
 					binding.progressLayout.setVisibility(View.GONE);
-					binding.weatherLayout.setVisibility(View.VISIBLE);
-					binding.weatherIcon.setImageResource(finalCurrentConditionsDto.getWeatherIcon());
-					binding.weatherDescription.setText(finalCurrentConditionsDto.getWeatherDescription());
-					binding.temperature.setText(finalCurrentConditionsDto.getTemp());
 				}
 			});
 		} else {

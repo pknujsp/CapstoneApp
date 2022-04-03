@@ -24,6 +24,4 @@ public interface IMap {
 
 	void deselectMarker();
 
-	void moveMapBtns(int value, boolean recovery);
-
 }
