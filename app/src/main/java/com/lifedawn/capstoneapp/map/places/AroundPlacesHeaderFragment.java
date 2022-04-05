@@ -200,6 +200,8 @@ public class AroundPlacesHeaderFragment extends Fragment implements OnExtraListD
 						}).attach();
 
 						binding.searchCriteriaToggleGroup.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
+							boolean initializing = true;
+
 							@Override
 							public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
 								if (isChecked) {
@@ -211,8 +213,14 @@ public class AroundPlacesHeaderFragment extends Fragment implements OnExtraListD
 											currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_MAP_CENTER;
 											break;
 									}
-
 								}
+
+
+								if (!initializing) {
+									iConnectContents.loadPlaces(binding.categoryTabLayout.getSelectedTabPosition());
+								}
+								initializing = false;
+
 							}
 						});
 						binding.searchCriteriaToggleGroup.check(R.id.search_around_promise_location);

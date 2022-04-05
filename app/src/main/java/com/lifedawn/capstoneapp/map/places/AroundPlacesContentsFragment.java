@@ -6,6 +6,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.paging.PagedList;
@@ -48,12 +50,18 @@ import java.util.List;
 public class AroundPlacesContentsFragment extends Fragment implements OnExtraListDataListener<Constant>, IConnectContents {
 	private FragmentAroundPlacesBinding binding;
 	private ViewPagerAdapter viewPagerAdapter;
+	private IMap iMap;
+	private MapViewModel mapViewModel;
+	public static LatLng mapCenterPoint;
 
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
+		iMap = mapViewModel.getiMapData();
 
+		loadMapCenterPoint();
 	}
 
 	@Override
@@ -69,6 +77,9 @@ public class AroundPlacesContentsFragment extends Fragment implements OnExtraLis
 		//받아온 데이터를 표시해주는 용도로만 사용
 	}
 
+	private void loadMapCenterPoint() {
+		mapCenterPoint = mapViewModel.getMapCenterPoint();
+	}
 
 	@Override
 	public void loadExtraListData(Constant e, RecyclerView.AdapterDataObserver adapterDataObserver) {
@@ -80,6 +91,18 @@ public class AroundPlacesContentsFragment extends Fragment implements OnExtraLis
 
 	}
 
+	@Override
+	public void loadPlaces(int tabPosition) {
+		loadMapCenterPoint();
+		iMap.removeMarkers(MarkerType.AROUND_PLACE);
+
+		for (PlaceFragment fragment : viewPagerAdapter.fragmentList) {
+			if (fragment.adapter != null) {
+				fragment.clearResponses();
+			}
+		}
+		viewPagerAdapter.getPlaceFragment(tabPosition).requestPlaces();
+	}
 
 	@Override
 	public void loadExtraData(int tabPosition, RecyclerView.AdapterDataObserver adapterDataObserver) {
@@ -90,7 +113,46 @@ public class AroundPlacesContentsFragment extends Fragment implements OnExtraLis
 	public void setViewPager(List<PlaceFragment> fragmentList) {
 		viewPagerAdapter = new ViewPagerAdapter(AroundPlacesContentsFragment.this);
 		viewPagerAdapter.setFragmentList(fragmentList);
+
 		binding.viewPager.setAdapter(viewPagerAdapter);
+		binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+			int lastPosition;
+			boolean initializing = true;
+			PlaceFragment fragment;
+
+			@Override
+			public void onPageSelected(int position) {
+				super.onPageSelected(position);
+				fragment = viewPagerAdapter.getPlaceFragment(position);
+
+				if (!initializing) {
+					if (fragment.adapter != null) {
+						iMap.removeMarkers(MarkerType.AROUND_PLACE);
+						iMap.createMarkers(fragment.adapter.getCurrentList().snapshot(), MarkerType.AROUND_PLACE, fragment.markerOnClickListener);
+						iMap.showMarkers(MarkerType.AROUND_PLACE);
+					} else {
+						fragment.getLifecycle().addObserver(new DefaultLifecycleObserver() {
+							@Override
+							public void onStart(@NonNull LifecycleOwner owner) {
+								DefaultLifecycleObserver.super.onStart(owner);
+								fragment.requestPlaces();
+							}
+						});
+					}
+				} else {
+					fragment.getLifecycle().addObserver(new DefaultLifecycleObserver() {
+						@Override
+						public void onStart(@NonNull LifecycleOwner owner) {
+							DefaultLifecycleObserver.super.onStart(owner);
+							fragment.requestPlaces();
+						}
+					});
+				}
+
+				initializing = false;
+				lastPosition = position;
+			}
+		});
 	}
 
 	@Override
@@ -145,8 +207,12 @@ public class AroundPlacesContentsFragment extends Fragment implements OnExtraLis
 
 			binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 			binding.recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+		}
 
-			requestPlaces();
+
+		public void clearResponses() {
+			binding.recyclerView.setAdapter(null);
+			adapter = null;
 		}
 
 		public void requestPlaces() {
@@ -157,9 +223,8 @@ public class AroundPlacesContentsFragment extends Fragment implements OnExtraLis
 				latitude = promiseLocationDto.getLatitude();
 				longitude = promiseLocationDto.getLongitude();
 			} else {
-				LatLng latLng = mapViewModel.getMapCenterPoint();
-				latitude = String.valueOf(latLng.latitude);
-				longitude = String.valueOf(latLng.longitude);
+				latitude = String.valueOf(AroundPlacesContentsFragment.mapCenterPoint.latitude);
+				longitude = String.valueOf(AroundPlacesContentsFragment.mapCenterPoint.longitude);
 			}
 
 			LocalApiPlaceParameter parameter = LocalParameterUtil.getPlaceParameter(category, latitude, longitude,
@@ -206,6 +271,7 @@ public class AroundPlacesContentsFragment extends Fragment implements OnExtraLis
 							binding.progressMsg.setText(R.string.noData);
 						}
 					});
+
 				}
 			});
 			placesViewModel.getPagedListMutableLiveData().observe(getViewLifecycleOwner(), new Observer<PagedList<PlaceResponse.Documents>>() {
