@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text = "현재날씨"
+            android:text = "@string/todayCurrentWeather"
             android:layout_marginBottom="8dp"
             android:textColor="@color/black"
 
@@ -57,7 +57,6 @@
                 android:layout_height="wrap_content"
                 android:text="강수확률"
                 android:textSize="15sp"
-
             />
 
 

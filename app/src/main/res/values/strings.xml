@@ -217,4 +217,7 @@
     <string name="search_criteria">검색 기준</string>
     <string name="search_max_range">검색 범위</string>
     <string name="rainyPosibility">강수 확률</string>
+
+    <string name="todayCurrentWeather">오늘 현재 날씨</string>
+    <string name="promiseDayCurrentWeather">약속일 예상 날씨</string>
 </resources>

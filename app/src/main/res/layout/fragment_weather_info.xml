@@ -18,43 +18,13 @@
             android:orientation="horizontal"
             >
 
-
-            <ImageView
-                android:id="@+id/weatherIcon"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                android:layout_marginRight="12dp"
-                android:scaleType="centerInside"
-                android:src="@drawable/day_clear"
-                />
-
-            <LinearLayout
+            <include layout="@layout/view_promise_current_weather"
+                android:id="@+id/todayandpromise"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                >
+                android:layout_marginRight="12dp">
+            </include>
 
-                <TextView
-                    android:id="@+id/temperature"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:includeFontPadding="false"
-                    android:text="기온"
-                    android:textColor="@color/black"
-                    android:textSize="23sp"
-                    />
-
-                <TextView
-                    android:id="@+id/weatherDescription"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:includeFontPadding="false"
-                    android:text="상태"
-                    android:textSize="15sp"
-                    />
-
-
-            </LinearLayout>
 
 
         </LinearLayout>
