@@ -161,7 +161,7 @@
 
                         <include
                             android:id="@+id/todayCurrentWeather"
-                            layout="@layout/view_current_weather_simple"
+                            layout="@layout/view_promise_day_weather_simple"
                             />
 
                         <include

@@ -95,7 +95,7 @@ public class PromiseInfoFragment extends Fragment {
 		binding.toolbar.fragmentTitle.setText(R.string.promise_info);
 
 		binding.progressLayout.setVisibility(View.GONE);
-
+		binding.todayCurrentWeather.title.setText(R.string.todayCurrentWeather);
 
 		CalendarRepository.loadEvent(getContext(), eventId,
 				new BackgroundCallback<List<CalendarRepository.EventObj>>() {
@@ -172,6 +172,7 @@ public class PromiseInfoFragment extends Fragment {
 													new PromiseLocationNaverMapFragment();
 											Bundle argument = new Bundle();
 											argument.putSerializable("locationDto", locationDto);
+											argument.putSerializable("promiseDateTime", promiseDateTime);
 
 											promiseLocationNaverMapFragment.setArguments(argument);
 
@@ -323,7 +324,8 @@ public class PromiseInfoFragment extends Fragment {
 				@Override
 				public void run() {
 
-					binding.todayCurrentWeather.weatherIcon.setImageResource(currentConditionsDto.getWeatherIcon());
+					binding.todayCurrentWeather.leftWeatherIcon.setImageResource(currentConditionsDto.getWeatherIcon());
+					binding.todayCurrentWeather.rightWeatherIcon.setVisibility(View.GONE);
 					binding.todayCurrentWeather.weatherDescription.setText(currentConditionsDto.getWeatherDescription());
 					binding.todayCurrentWeather.temperature.setText(currentConditionsDto.getTemp());
 

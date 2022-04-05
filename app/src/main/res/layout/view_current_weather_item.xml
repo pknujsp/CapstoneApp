@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
+
     <LinearLayout
 
         android:id="@+id/weatherLayout"
@@ -10,55 +11,100 @@
         >
 
         <TextView
+            android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text = "@string/todayCurrentWeather"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="4dp"
+            android:text="@string/todayCurrentWeather"
             android:textColor="@color/black"
 
             />
 
-        <ImageView
-            android:id="@+id/weatherIcon"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/day_clear"
+        <TextView
+            android:id="@+id/amPm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:includeFontPadding="false"
+            android:text="@string/pm"
+            android:textSize="12sp"
             />
+
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
+            android:layout_marginBottom="4dp"
+            android:gravity="center_vertical"
             >
 
-            <TextView
-                android:id="@+id/temperature"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:includeFontPadding="false"
-                android:text="기온"
-                android:textColor="@color/black"
-                android:textSize="23sp"
+            <ImageView
+                android:id="@+id/leftWeatherIcon"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/day_clear"
                 />
+
+            <ImageView
+                android:id="@+id/rightWeatherIcon"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_marginLeft="4dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/day_clear"
+                />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            >
 
             <TextView
                 android:id="@+id/weatherDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="3dp"
                 android:includeFontPadding="false"
                 android:text="상태"
                 android:textSize="15sp"
                 />
+
+            <TextView
+                android:id="@+id/temperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="3dp"
+                android:includeFontPadding="false"
+                android:text="기온"
+                android:textColor="@color/black"
+                android:textSize="21sp"
+                />
+
+
             <TextView
                 android:id="@+id/rainyPosibility"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="3dp"
                 android:text="강수확률"
-                android:textSize="15sp"
-            />
+                android:textSize="14sp"
+                />
 
+
+            <TextView
+                android:id="@+id/precipitationVolume"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="3dp"
+                android:text="@string/precipitationVolume"
+                android:textSize="14sp"
+                />
 
 
         </LinearLayout>
@@ -70,7 +116,6 @@
             android:orientation="horizontal"
 
             />
-
 
 
     </LinearLayout>

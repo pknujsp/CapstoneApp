@@ -26,6 +26,8 @@ import com.naver.maps.map.overlay.Overlay;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.ZonedDateTime;
+
 public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 	private LocationDto selectedLocationDtoInEvent;
 	private Marker selectedLocationInEventMarker;
@@ -66,9 +68,10 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 				//날씨 표현
 				WeatherInfoFragment weatherInfoFragment = new WeatherInfoFragment();
 
-				Bundle bundle = new Bundle();
-				bundle.putSerializable("locationDto", selectedLocationDtoInEvent);
-				weatherInfoFragment.setArguments(bundle);
+				Bundle infoBundle = new Bundle();
+				infoBundle.putSerializable("locationDto", selectedLocationDtoInEvent);
+				infoBundle.putSerializable("promiseDateTime", bundle.getSerializable("promiseDateTime"));
+				weatherInfoFragment.setArguments(infoBundle);
 
 				weatherInfoFragment.show(getChildFragmentManager(), WeatherInfoFragment.class.getName());
 			}

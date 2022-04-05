@@ -218,7 +218,10 @@
     <string name="search_max_range">검색 범위</string>
     <string name="rainyPosibility">강수 확률</string>
 
-    <string name="todayCurrentWeather">오늘 현재 날씨</string>
-    <string name="promiseDayCurrentWeather">약속일 예상 날씨</string>
+    <string name="todayCurrentWeather">현재날씨</string>
+    <string name="promiseDayCurrentWeather">약속일 예상날씨</string>
     <string name="expected_forecast">예상 날씨</string>
+    <string name="am">오전</string>
+    <string name="pm">오후</string>
+    <string name="precipitationVolume">강수량</string>
 </resources>
