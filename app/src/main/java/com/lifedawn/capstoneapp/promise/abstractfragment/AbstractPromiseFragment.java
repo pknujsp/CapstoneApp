@@ -173,8 +173,6 @@ public abstract class AbstractPromiseFragment extends Fragment {
 
 		mapFragment = new SelectedLocationSimpleMapFragment();
 		getChildFragmentManager().beginTransaction().add(binding.naverMap.getId(), mapFragment).commit();
-
-
 	}
 
 	@Override

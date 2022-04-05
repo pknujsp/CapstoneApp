@@ -193,7 +193,6 @@ public class PromiseInfoFragment extends Fragment {
 								initRemindersView(eventObj.getReminderList());
 							}
 						});
-
 					}
 
 					@Override
@@ -255,7 +254,6 @@ public class PromiseInfoFragment extends Fragment {
 				}
 				txt = status + " - " + (eventAttendee.getAsString(CalendarContract.Attendees.ATTENDEE_EMAIL).equals(accountViewModel.getLastSignInAccountName()) ? getString(R.string.me) :
 						friendViewModel.getName(eventAttendee));
-
 				chip.setText(txt);
 				chip.setCloseIconVisible(false);
 				chip.setCheckable(false);
