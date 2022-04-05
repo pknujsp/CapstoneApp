@@ -714,7 +714,21 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 			@Override
 			public void onStateChanged(@NonNull View bottomSheet, int newState) {
+				if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+					Projection projection = naverMap.getProjection();
+					LatLng latLng = naverMap.getContentBounds().getCenter();
 
+					PointF point = projection.toScreenLocation(latLng);
+
+					final int newMapViewContentHeight =
+							binding.naverMapViewLayout.getHeight() - bottomSheet.getHeight();
+					mapTranslationLength = (float) (point.y - (binding.naverMapViewLayout.getHeight() / 2 - newMapViewContentHeight / 2));
+
+					PointF movePoint = new PointF(0f, -mapTranslationLength);
+					CameraUpdate cameraUpdate = CameraUpdate.scrollBy(movePoint);
+					naverMap.moveCamera(cameraUpdate);
+
+				}
 			}
 
 			@Override
