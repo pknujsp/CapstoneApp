@@ -34,12 +34,14 @@ import com.lifedawn.capstoneapp.retrofits.RetrofitClient;
 import com.lifedawn.capstoneapp.retrofits.response.kma.KmaCurrentConditions;
 import com.lifedawn.capstoneapp.retrofits.response.kma.KmaDailyForecast;
 import com.lifedawn.capstoneapp.retrofits.response.kma.KmaHourlyForecast;
+import com.lifedawn.capstoneapp.weather.WeatherDataType;
 import com.lifedawn.capstoneapp.weather.WeatherProviderType;
 import com.lifedawn.capstoneapp.weather.model.CurrentConditionsDto;
 import com.lifedawn.capstoneapp.weather.model.DailyForecastDto;
 import com.lifedawn.capstoneapp.weather.model.HourlyForecastDto;
 import com.lifedawn.capstoneapp.weather.request.WeatherRequest;
 import com.lifedawn.capstoneapp.weather.response.KmaResponseProcessor;
+import com.lifedawn.capstoneapp.weather.util.WeatherUtil;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -57,6 +59,7 @@ public class PromiseInfoFragment extends Fragment {
 	private SelectedLocationSimpleMapFragment mapFragment;
 	private FriendViewModel friendViewModel;
 	private AccountViewModel accountViewModel;
+	private ZonedDateTime promiseDateTime;
 
 	private MultipleRestApiDownloader weatherMultipleRestApiDownloader;
 	private final DateTimeFormatter START_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy M/d E a h:mm");
@@ -82,7 +85,6 @@ public class PromiseInfoFragment extends Fragment {
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-
 
 		binding.toolbar.backBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -111,6 +113,13 @@ public class PromiseInfoFragment extends Fragment {
 								String dtStart = originalEvent.getAsString(CalendarContract.Events.DTSTART);
 								String eventTimeZone = originalEvent.getAsString(CalendarContract.Events.EVENT_TIMEZONE);
 								ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(dtStart)), ZoneId.of(eventTimeZone));
+
+								promiseDateTime = start;
+
+								DateTimeFormatter promiseDateTimeFormatter = DateTimeFormatter.ofPattern("M.d E");
+								binding.promiseDayCurrentWeather.title.setText(new String(
+										promiseDateTime.format(promiseDateTimeFormatter) + " " +
+												getString(R.string.expected_forecast)));
 
 								binding.dateTime.setText(start.format(START_DATETIME_FORMATTER));
 								binding.description.setText(originalEvent.getAsString(CalendarContract.Events.DESCRIPTION));
@@ -292,10 +301,61 @@ public class PromiseInfoFragment extends Fragment {
 
 			final List<DailyForecastDto> dailyForecastDtoList = KmaResponseProcessor.makeDailyForecastDtoListOfWEB(kmaDailyForecasts);
 
-			CurrentConditionsDto finalCurrentConditionsDto = currentConditionsDto;
+			final WeatherDataType promiseWeatherDataType = WeatherUtil.findPromiseWeatherDataType(promiseDateTime.toLocalDateTime(),
+					hourlyForecastDtoList,
+					dailyForecastDtoList);
+
+			HourlyForecastDto promiseDayHourlyDto = null;
+			DailyForecastDto promiseDayDailyDto = null;
+
+			if (promiseWeatherDataType != null) {
+				if (promiseWeatherDataType == WeatherDataType.hourlyForecast) {
+					promiseDayHourlyDto = WeatherUtil.getPromiseDayWeatherByHourly(promiseDateTime.toLocalDateTime(), hourlyForecastDtoList);
+				} else {
+					promiseDayDailyDto = WeatherUtil.getPromiseDayWeatherByDaily(promiseDateTime.toLocalDateTime(), dailyForecastDtoList);
+				}
+			}
+
+			final HourlyForecastDto finalPromiseDayHourlyDto = promiseDayHourlyDto;
+			final DailyForecastDto finalPromiseDayDailyDto = promiseDayDailyDto;
+
 			getActivity().runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
+
+					binding.todayCurrentWeather.weatherIcon.setImageResource(currentConditionsDto.getWeatherIcon());
+					binding.todayCurrentWeather.weatherDescription.setText(currentConditionsDto.getWeatherDescription());
+					binding.todayCurrentWeather.temperature.setText(currentConditionsDto.getTemp());
+
+					if (promiseWeatherDataType == null) {
+						binding.promiseDayCurrentWeather.getRoot().setVisibility(View.GONE);
+					} else {
+						if (finalPromiseDayHourlyDto != null) {
+							binding.promiseDayCurrentWeather.rightWeatherIcon.setVisibility(View.GONE);
+
+							binding.promiseDayCurrentWeather.leftWeatherIcon.setImageResource(finalPromiseDayHourlyDto.getWeatherIcon());
+							binding.promiseDayCurrentWeather.temperature.setText(finalPromiseDayHourlyDto.getTemp());
+							binding.promiseDayCurrentWeather.weatherDescription.setText(finalPromiseDayHourlyDto.getWeatherDescription());
+						} else {
+							binding.promiseDayCurrentWeather.temperature.setText(new String(finalPromiseDayDailyDto.getMinTemp() + " / " +
+									finalPromiseDayDailyDto.getMaxTemp()));
+
+							if (finalPromiseDayDailyDto.isSingle()) {
+								binding.promiseDayCurrentWeather.rightWeatherIcon.setVisibility(View.GONE);
+
+								binding.promiseDayCurrentWeather.leftWeatherIcon.setImageResource(finalPromiseDayDailyDto.getSingleValues().getWeatherIcon());
+								binding.promiseDayCurrentWeather.weatherDescription.setText(finalPromiseDayHourlyDto.getWeatherDescription());
+							} else {
+								binding.promiseDayCurrentWeather.rightWeatherIcon.setVisibility(View.VISIBLE);
+
+								binding.promiseDayCurrentWeather.leftWeatherIcon.setImageResource(finalPromiseDayDailyDto.getAmValues().getWeatherIcon());
+								binding.promiseDayCurrentWeather.rightWeatherIcon.setImageResource(finalPromiseDayDailyDto.getPmValues().getWeatherIcon());
+								binding.promiseDayCurrentWeather.weatherDescription.setText(finalPromiseDayDailyDto.getAmValues().getWeatherDescription()
+										+ " / " + finalPromiseDayDailyDto.getPmValues().getWeatherDescription());
+							}
+						}
+					}
+
 					binding.progressLayout.setVisibility(View.GONE);
 				}
 			});

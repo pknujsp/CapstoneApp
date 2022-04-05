@@ -5,6 +5,14 @@ import android.content.Context;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.constants.ValueUnits;
 import com.lifedawn.capstoneapp.main.MyApplication;
+import com.lifedawn.capstoneapp.weather.WeatherDataType;
+import com.lifedawn.capstoneapp.weather.model.CurrentConditionsDto;
+import com.lifedawn.capstoneapp.weather.model.DailyForecastDto;
+import com.lifedawn.capstoneapp.weather.model.HourlyForecastDto;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class WeatherUtil {
 	private WeatherUtil() {
@@ -59,4 +67,57 @@ public class WeatherUtil {
 			return text;
 		}
 	}
+
+	public static HourlyForecastDto getPromiseDayWeatherByHourly(LocalDateTime promiseDateTime,
+	                                                             List<HourlyForecastDto> hourlyForecastDtoList) {
+		LocalDateTime promiseLocalDateTime = LocalDateTime.of(promiseDateTime.toLocalDate(), promiseDateTime.toLocalTime());
+		promiseLocalDateTime = promiseLocalDateTime.withMinute(0).withNano(0).withSecond(0);
+
+		for (HourlyForecastDto hourlyForecastDto : hourlyForecastDtoList) {
+			if (hourlyForecastDto.getHours().toLocalDateTime().equals(promiseLocalDateTime)) {
+				return hourlyForecastDto;
+			}
+		}
+		return null;
+	}
+
+	public static DailyForecastDto getPromiseDayWeatherByDaily(LocalDateTime promiseDateTime,
+	                                                           List<DailyForecastDto> dailyForecastDtoList) {
+		LocalDateTime promiseLocalDateTime = LocalDateTime.of(promiseDateTime.toLocalDate(), promiseDateTime.toLocalTime());
+		promiseLocalDateTime = promiseLocalDateTime.withMinute(0).withNano(0).withSecond(0);
+
+		for (DailyForecastDto dailyForecastDto : dailyForecastDtoList) {
+			if (dailyForecastDto.getDate().toLocalDate().equals(promiseLocalDateTime.toLocalDate())) {
+				return dailyForecastDto;
+			}
+		}
+		return null;
+	}
+
+	public static WeatherDataType findPromiseWeatherDataType(LocalDateTime promiseDateTime,
+	                                                         List<HourlyForecastDto> hourlyForecastDtoList,
+	                                                         List<DailyForecastDto> dailyForecastDtoList) {
+		LocalDateTime promiseLocalDateTime = LocalDateTime.of(promiseDateTime.toLocalDate(), promiseDateTime.toLocalTime());
+		promiseLocalDateTime = promiseLocalDateTime.withMinute(0).withNano(0).withSecond(0);
+
+		CurrentConditionsDto promiseDayConditionsDto = new CurrentConditionsDto();
+
+		for (HourlyForecastDto hourlyForecastDto : hourlyForecastDtoList) {
+			if (hourlyForecastDto.getHours().toLocalDateTime().equals(promiseLocalDateTime)) {
+				return WeatherDataType.hourlyForecast;
+			}
+		}
+
+		if (promiseDayConditionsDto == null) {
+			for (DailyForecastDto dailyForecastDto : dailyForecastDtoList) {
+				if (dailyForecastDto.getDate().toLocalDate().equals(promiseLocalDateTime.toLocalDate())) {
+					return WeatherDataType.dailyForecast;
+				}
+			}
+		}
+
+		return null;
+	}
+
+
 }

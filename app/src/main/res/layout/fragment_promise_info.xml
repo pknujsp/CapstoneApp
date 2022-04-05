@@ -107,8 +107,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="160dp"
                         android:layout_marginBottom="4dp"
-                        android:clickable="true"
                         android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
                         />
 
                     <TextView
@@ -116,11 +116,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="right"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
                         android:drawableLeft="@drawable/ic_baseline_place_24"
                         android:gravity="center_vertical"
                         android:text="place"
-                        android:clickable="true"
-                        android:background="?attr/selectableItemBackground"
                         android:textColor="@color/black"
                         />
 
@@ -152,7 +152,26 @@
                     </LinearLayout>
 
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        >
 
+                        <include
+                            android:id="@+id/todayCurrentWeather"
+                            layout="@layout/view_current_weather_simple"
+                            />
+
+                        <include
+                            android:id="@+id/promiseDayCurrentWeather"
+                            layout="@layout/view_promise_day_weather_simple"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="16dp"
+                            />
+                    </LinearLayout>
                 </LinearLayout>
 
 

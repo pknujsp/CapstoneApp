@@ -220,4 +220,5 @@
 
     <string name="todayCurrentWeather">오늘 현재 날씨</string>
     <string name="promiseDayCurrentWeather">약속일 예상 날씨</string>
+    <string name="expected_forecast">예상 날씨</string>
 </resources>
