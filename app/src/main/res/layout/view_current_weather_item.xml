@@ -30,6 +30,10 @@
             />
 
 
+
+        </LinearLayout>
+
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -70,8 +74,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="3dp"
                 android:includeFontPadding="false"
-                android:text="상태"
-                android:textSize="15sp"
+                android:text="기온"
+                android:textColor="@color/black"
+                android:textSize="21sp"
                 />
 
             <TextView
