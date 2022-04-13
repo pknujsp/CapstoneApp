@@ -15,6 +15,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
             android:text="@string/todayCurrentWeather"
+            android:textSize="15sp"
             android:textColor="@color/black"
 
             />

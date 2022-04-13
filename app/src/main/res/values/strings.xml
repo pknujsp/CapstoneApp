@@ -219,9 +219,13 @@
     <string name="rainyPosibility">강수 확률</string>
 
     <string name="todayCurrentWeather">현재날씨</string>
-    <string name="promiseDayCurrentWeather">약속일 예상날씨</string>
+    <string name="promiseDayCurrentWeather">당일 예상날씨</string>
     <string name="expected_forecast">예상 날씨</string>
     <string name="am">오전</string>
     <string name="pm">오후</string>
+    <string name="amPm">오전/오후</string>
+
     <string name="precipitationVolume">강수량</string>
+    <string name="hourlyForecast">시간별 예보</string>
+    <string name="dailyForecast">일별 예보</string>
 </resources>

@@ -76,6 +76,14 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 				weatherInfoFragment.show(getChildFragmentManager(), WeatherInfoFragment.class.getName());
 			}
 		});
+
+		binding.promiseLocationChip.setVisibility(View.VISIBLE);
+		binding.promiseLocationChip.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				moveCameraToPromiseLocation();
+			}
+		});
 	}
 
 	@Override
@@ -193,7 +201,13 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 		});
 
 		selectedLocationInEventMarker.performClick();
-		CameraUpdate cameraUpdate = CameraUpdate.scrollAndZoomTo(latLng, 13);
+		moveCameraToPromiseLocation();
+	}
+
+	private void moveCameraToPromiseLocation() {
+		LatLng latLng = new LatLng(Double.parseDouble(selectedLocationDtoInEvent.getLatitude()),
+				Double.parseDouble(selectedLocationDtoInEvent.getLongitude()));
+		CameraUpdate cameraUpdate = CameraUpdate.scrollTo(latLng);
 		naverMap.moveCamera(cameraUpdate);
 	}
 }

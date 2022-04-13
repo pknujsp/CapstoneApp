@@ -10,4 +10,10 @@
     <dimen name="btnSizeInToolbar">24dp</dimen>
     <dimen name="dialogCornerRadius">28dp</dimen>
     <dimen name="dialogPadding">24dp</dimen>
+    <dimen name="circleRadiusTemperature">4dp</dimen>
+    <dimen name="columnWidthInHourlyForecast">60dp</dimen>
+    <dimen name="singleTemperatureRowHeightInCOMMON">80dp</dimen>
+    <dimen name="tempTopMargin">2dp</dimen>
+    <dimen name="doubleTemperatureRowHeight">90dp</dimen>
+    <dimen name="valueColumnWidthInSDailyOwm">75dp</dimen>
 </resources>

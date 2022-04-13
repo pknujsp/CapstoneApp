@@ -4,6 +4,8 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/drawable/dialog_background.xml" value="0.2535" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/drawable/pop.xml" value="0.4375" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/drawable/raindrop.xml" value="0.4375" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/activity_notification.xml" value="0.2689969604863222" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/attendee_info.xml" value="0.5536458333333333" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/attendee_simple_info.xml" value="0.5536458333333333" />
@@ -34,6 +36,7 @@
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/item_view_friend.xml" value="0.5" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/item_view_invited_promise.xml" value="0.36614583333333334" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/item_view_promise.xml" value="0.36614583333333334" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/itemview_forecast.xml" value="0.5536458333333333" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/place_list_bottom_sheet_view.xml" value="0.5536458333333333" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/place_recycler_view_item.xml" value="0.5536458333333333" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/toolbar.xml" value="0.36614583333333334" />
@@ -41,6 +44,7 @@
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/view_current_weather_item.xml" value="0.8800000000000001" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/view_current_weather_simple.xml" value="0.536" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/view_event_dialog.xml" value="0.25364583333333335" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/view_progress.xml" value="0.5536458333333333" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/view_promise_current_weather.xml" value="0.4" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/view_promise_day_weather_simple.xml" value="0.4" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/view_warning.xml" value="0.25364583333333335" />

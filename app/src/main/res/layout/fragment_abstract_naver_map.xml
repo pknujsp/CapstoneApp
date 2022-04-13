@@ -92,6 +92,20 @@
                         app:closeIconVisible="false"
                         />
 
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/promiseLocationChip"
+                        style="@style/Widget.MaterialComponents.Chip.Action"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@color/white"
+                        android:elevation="3dp"
+                        android:text="@string/promise_location"
+                        android:textColor="@color/black"
+                        app:checkedIconVisible="false"
+                        app:closeIconVisible="false"
+                        android:visibility="gone"
+                        />
+
                 </com.google.android.material.chip.ChipGroup>
 
             </LinearLayout>

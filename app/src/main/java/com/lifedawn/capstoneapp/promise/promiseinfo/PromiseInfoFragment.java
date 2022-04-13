@@ -96,6 +96,7 @@ public class PromiseInfoFragment extends Fragment {
 
 		binding.progressLayout.setVisibility(View.GONE);
 		binding.todayCurrentWeather.title.setText(R.string.todayCurrentWeather);
+		binding.weatherLayout.setVisibility(View.GONE);
 
 		CalendarRepository.loadEvent(getContext(), eventId,
 				new BackgroundCallback<List<CalendarRepository.EventObj>>() {
@@ -156,6 +157,7 @@ public class PromiseInfoFragment extends Fragment {
 															getActivity().runOnUiThread(new Runnable() {
 																@Override
 																public void run() {
+																	binding.weatherLayout.setVisibility(View.GONE);
 																	binding.progressCircular.setVisibility(View.GONE);
 																	binding.progressMsg.setText(R.string.failed_loading_weather_data);
 																}
@@ -276,6 +278,10 @@ public class PromiseInfoFragment extends Fragment {
 	}
 
 	private void onResultWeather(WeatherRequest.WeatherResponseResult weatherResponseResult) {
+		if(getActivity() == null){
+			return;
+		}
+
 		MultipleRestApiDownloader multipleRestApiDownloader = weatherResponseResult.getMultipleRestApiDownloader();
 		Double latitude = weatherResponseResult.getLatitude();
 		Double longitude = weatherResponseResult.getLongitude();
@@ -350,12 +356,13 @@ public class PromiseInfoFragment extends Fragment {
 
 								binding.promiseDayCurrentWeather.leftWeatherIcon.setImageResource(finalPromiseDayDailyDto.getAmValues().getWeatherIcon());
 								binding.promiseDayCurrentWeather.rightWeatherIcon.setImageResource(finalPromiseDayDailyDto.getPmValues().getWeatherIcon());
-								binding.promiseDayCurrentWeather.weatherDescription.setText(finalPromiseDayDailyDto.getAmValues().getWeatherDescription()
-										+ " / " + finalPromiseDayDailyDto.getPmValues().getWeatherDescription());
+								binding.promiseDayCurrentWeather.weatherDescription.setText(new String(finalPromiseDayDailyDto.getAmValues().getWeatherDescription()
+										+ " / " + finalPromiseDayDailyDto.getPmValues().getWeatherDescription()));
 							}
 						}
 					}
 
+					binding.weatherLayout.setVisibility(View.VISIBLE);
 					binding.progressLayout.setVisibility(View.GONE);
 				}
 			});
@@ -363,6 +370,8 @@ public class PromiseInfoFragment extends Fragment {
 			getActivity().runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
+					binding.weatherLayout.setVisibility(View.GONE);
+
 					binding.progressCircular.setVisibility(View.GONE);
 					binding.progressMsg.setText(R.string.failed_loading_weather_data);
 				}
