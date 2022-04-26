@@ -36,6 +36,7 @@
                     android:textColor="@color/black"
                     android:textSize="14sp"
                     />
+
                 <TextView
                     android:id="@+id/lastUpdateDateTime"
                     android:layout_width="wrap_content"
@@ -145,6 +146,18 @@
             android:id="@+id/progressView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            />
+
+        <Button
+            android:id="@+id/updateBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/closeBtn"
+            android:layout_marginRight="16dp"
+            android:layout_alignBottom="@id/closeBtn"
+            android:background="?attr/selectableItemBackground"
+            android:text="@string/update"
+            android:textColor="@color/blue"
             />
 
         <Button

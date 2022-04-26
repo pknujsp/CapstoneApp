@@ -55,7 +55,6 @@ public class AddFriendDialogFragment extends DialogFragment {
 			public void onClick(View v) {
 				final String email = binding.emailEditText.getText().toString();
 				final String name = binding.nameEditText.getText().toString();
-
 				//이메일 형식/이름 입력 확인
 				final boolean emailPass = Pattern.matches(EMAIL_PATTERN, email);
 				final boolean namePass = !name.isEmpty();

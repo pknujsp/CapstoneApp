@@ -36,7 +36,6 @@ public class AttendeeInfoDialog {
 		layoutParams.width = (int) (rect.width() * 0.8);
 
 		dialog.getWindow().setAttributes(layoutParams);
-
 		return dialog;
 	}
 }

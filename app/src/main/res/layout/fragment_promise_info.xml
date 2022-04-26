@@ -149,30 +149,59 @@
                             android:textColor="@color/blue"
                             />
 
-                    </LinearLayout>
+                        <Button
+                            android:id="@+id/updateBtn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="8dp"
+                            android:backgroundTint="@color/design_default_color_primary"
+                            android:text="@string/again"
+                            />
 
+                    </LinearLayout>
 
                     <LinearLayout
                         android:id="@+id/weatherLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        >
+                        android:orientation="vertical">
 
-                        <include
-                            android:id="@+id/todayCurrentWeather"
-                            layout="@layout/view_promise_day_weather_simple"
-                            />
-
-                        <include
-                            android:id="@+id/promiseDayCurrentWeather"
-                            layout="@layout/view_promise_day_weather_simple"
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="16dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            >
+
+                            <include
+                                android:id="@+id/todayCurrentWeather"
+                                layout="@layout/view_promise_day_weather_simple"
+                                />
+
+                            <include
+                                android:id="@+id/promiseDayCurrentWeather"
+                                layout="@layout/view_promise_day_weather_simple"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="16dp"
+                                />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/lastUpdateDateTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="24dp"
+                            android:text="업데이트 시각"
+                            android:textSize="13sp"
+                            android:drawableLeft="@drawable/ic_baseline_refresh_24"
+                            android:gravity="center_vertical"
                             />
                     </LinearLayout>
+
+
+
+
                 </LinearLayout>
 
 
