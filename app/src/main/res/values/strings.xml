@@ -229,4 +229,11 @@
     <string name="hourlyForecast">시간별 예보</string>
     <string name="dailyForecast">일별 예보</string>
     <string name="again">다시 시도</string>
+    <string name="departureLocation">출발지</string>
+    <string name="arrivalLocation">목적지</string>
+    <string name="time">소요시간</string>
+    <string name="distance">거리</string>
+    <string name="reCalculate">재 계산</string>
+    <string name="findRoute">길찾기</string>
+    <string name="finding_current_location">현재 위치 파악 중</string>
 </resources>

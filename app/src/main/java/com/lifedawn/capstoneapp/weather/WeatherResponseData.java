@@ -2,9 +2,7 @@ package com.lifedawn.capstoneapp.weather;
 
 import android.content.Context;
 import android.util.ArrayMap;
-import android.view.View;
 
-import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.retrofits.MultipleRestApiDownloader;
 import com.lifedawn.capstoneapp.retrofits.RetrofitClient;
 import com.lifedawn.capstoneapp.retrofits.response.kma.KmaCurrentConditions;
@@ -16,9 +14,7 @@ import com.lifedawn.capstoneapp.weather.model.HourlyForecastDto;
 import com.lifedawn.capstoneapp.weather.response.KmaResponseProcessor;
 import com.lifedawn.capstoneapp.weather.util.WeatherUtil;
 
-import java.sql.Time;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,9 +46,9 @@ public class WeatherResponseData {
 
 	public static WeatherResponseObj addWeatherResponse(Context context, Double latitude, Double longitude,
 	                                                    MultipleRestApiDownloader multipleRestApiDownloader) {
-		Map<WeatherProviderType, ArrayMap<RetrofitClient.ServiceType, MultipleRestApiDownloader.ResponseResult>> responseMap =
+		Map<DataProviderType, ArrayMap<RetrofitClient.ServiceType, MultipleRestApiDownloader.ResponseResult>> responseMap =
 				multipleRestApiDownloader.getResponseMap();
-		ArrayMap<RetrofitClient.ServiceType, MultipleRestApiDownloader.ResponseResult> arrayMap = responseMap.get(WeatherProviderType.KMA_WEB);
+		ArrayMap<RetrofitClient.ServiceType, MultipleRestApiDownloader.ResponseResult> arrayMap = responseMap.get(DataProviderType.KMA_WEB);
 
 		if (arrayMap.get(RetrofitClient.ServiceType.KMA_WEB_FORECASTS).isSuccessful() &&
 				arrayMap.get(RetrofitClient.ServiceType.KMA_WEB_CURRENT_CONDITIONS).isSuccessful()) {

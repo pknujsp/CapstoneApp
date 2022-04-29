@@ -67,6 +67,12 @@
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="90mygyptxv" />
+
+        <meta-data
+            android:name="com.naver.maps.map."
+            android:value="90mygyptxv" />
+
+
         <meta-data
             android:name="com.kakao.sdk.AppKey"
             android:value="0dc55f983ec285210efb88d1389f7c2b" />

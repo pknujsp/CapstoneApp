@@ -8,6 +8,7 @@ import java.util.Map;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
+import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
 
 public interface Queries {
@@ -26,5 +27,14 @@ public interface Queries {
 
 	@GET("digital-forecast.do")
 	Call<String> getKmaHourlyAndDailyForecast(@QueryMap(encoded = true) Map<String, String> queryMap);
+
+	@Headers(
+			{
+					"X-NCP-APIGW-API-KEY-ID: " + RetrofitClient.X_NCP_APIGW_API_KEY_ID,
+					"X-NCP-APIGW-API-KEY: " + RetrofitClient.X_NCP_APIGW_API_KEY
+			}
+	)
+	@GET("driving")
+	Call<String> getDirections(@Query(value = "start", encoded = true) String start, @Query(value = "goal", encoded = true) String goal);
 
 }

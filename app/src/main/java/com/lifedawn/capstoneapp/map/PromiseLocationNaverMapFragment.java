@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.constants.Constant;
+import com.lifedawn.capstoneapp.map.findroute.FindRouteFragment;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
 import com.lifedawn.capstoneapp.weather.WeatherInfoFragment;
 import com.naver.maps.geometry.LatLng;
@@ -74,6 +75,20 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 				weatherInfoFragment.setArguments(infoBundle);
 
 				weatherInfoFragment.show(getChildFragmentManager(), WeatherInfoFragment.class.getName());
+			}
+		});
+
+		binding.findRouteChip.setVisibility(View.VISIBLE);
+		binding.findRouteChip.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				FindRouteFragment findRouteFragment = new FindRouteFragment();
+
+				Bundle infoBundle = new Bundle();
+				infoBundle.putSerializable("goalLocationDto", selectedLocationDtoInEvent);
+				findRouteFragment.setArguments(infoBundle);
+
+				findRouteFragment.show(getChildFragmentManager(), WeatherInfoFragment.class.getName());
 			}
 		});
 

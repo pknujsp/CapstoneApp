@@ -22,6 +22,7 @@
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_default_notification_settings.xml" value="0.5536458333333333" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_edit_promise.xml" value="0.36614583333333334" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_find_friend.xml" value="0.5536458333333333" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_find_route.xml" value="0.4" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_fixed_promise.xml" value="0.36614583333333334" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_friends.xml" value="0.25364583333333335" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_intro.xml" value="0.33" />
@@ -31,7 +32,7 @@
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_promise_info.xml" value="0.36614583333333334" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_promise_transaction.xml" value="0.3500905797101449" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_received_invitation.xml" value="0.36614583333333334" />
-        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_weather_info.xml" value="0.5536458333333333" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_weather_info.xml" value="0.4585687382297552" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/item_view_event_list.xml" value="0.25364583333333335" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/item_view_friend.xml" value="0.5" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/item_view_invited_promise.xml" value="0.36614583333333334" />

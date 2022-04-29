@@ -3,7 +3,6 @@ package com.lifedawn.capstoneapp.promise.promiseinfo;
 import android.content.ContentValues;
 import android.os.Bundle;
 import android.provider.CalendarContract;
-import android.util.ArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +14,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.chip.Chip;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
@@ -25,32 +23,21 @@ import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.FriendViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentPromiseInfoBinding;
 import com.lifedawn.capstoneapp.friends.AttendeeInfoDialog;
-import com.lifedawn.capstoneapp.main.MainTransactionFragment;
 import com.lifedawn.capstoneapp.map.LocationDto;
 import com.lifedawn.capstoneapp.map.PromiseLocationNaverMapFragment;
 import com.lifedawn.capstoneapp.map.SelectedLocationSimpleMapFragment;
 import com.lifedawn.capstoneapp.retrofits.MultipleRestApiDownloader;
-import com.lifedawn.capstoneapp.retrofits.RetrofitClient;
-import com.lifedawn.capstoneapp.retrofits.response.kma.KmaCurrentConditions;
-import com.lifedawn.capstoneapp.retrofits.response.kma.KmaDailyForecast;
-import com.lifedawn.capstoneapp.retrofits.response.kma.KmaHourlyForecast;
-import com.lifedawn.capstoneapp.weather.WeatherDataType;
-import com.lifedawn.capstoneapp.weather.WeatherProviderType;
 import com.lifedawn.capstoneapp.weather.WeatherResponseData;
 import com.lifedawn.capstoneapp.weather.model.CurrentConditionsDto;
 import com.lifedawn.capstoneapp.weather.model.DailyForecastDto;
 import com.lifedawn.capstoneapp.weather.model.HourlyForecastDto;
 import com.lifedawn.capstoneapp.weather.request.WeatherRequest;
-import com.lifedawn.capstoneapp.weather.response.KmaResponseProcessor;
-import com.lifedawn.capstoneapp.weather.util.WeatherUtil;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class PromiseInfoFragment extends Fragment {
 	private FragmentPromiseInfoBinding binding;
@@ -189,6 +176,10 @@ public class PromiseInfoFragment extends Fragment {
 		binding.updateBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				binding.weatherLayout.setVisibility(View.GONE);
+				binding.progressCircular.setVisibility(View.VISIBLE);
+				binding.progressMsg.setText(R.string.loading_weather_data);
+				binding.updateBtn.setVisibility(View.GONE);
 				refreshWeatherData();
 			}
 		});

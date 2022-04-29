@@ -106,6 +106,21 @@
                         android:visibility="gone"
                         />
 
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/findRouteChip"
+                        style="@style/Widget.MaterialComponents.Chip.Action"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@color/white"
+                        android:elevation="3dp"
+                        android:text="@string/findRoute"
+                        android:textColor="@color/black"
+                        app:checkedIconVisible="false"
+                        app:closeIconVisible="false"
+                        android:visibility="gone"
+                        />
+
                 </com.google.android.material.chip.ChipGroup>
 
             </LinearLayout>
