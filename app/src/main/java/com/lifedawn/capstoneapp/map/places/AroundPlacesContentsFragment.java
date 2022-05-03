@@ -32,6 +32,7 @@ import com.lifedawn.capstoneapp.kakao.search.LocalParameterUtil;
 import com.lifedawn.capstoneapp.kakao.search.callback.PlaceItemCallback;
 import com.lifedawn.capstoneapp.kakao.search.util.MapUtil;
 import com.lifedawn.capstoneapp.kakao.search.viewmodel.PlacesViewModel;
+import com.lifedawn.capstoneapp.main.MyApplication;
 import com.lifedawn.capstoneapp.map.LocationDto;
 import com.lifedawn.capstoneapp.map.MapViewModel;
 import com.lifedawn.capstoneapp.map.MarkerType;
@@ -187,7 +188,6 @@ public class AroundPlacesContentsFragment extends Fragment implements OnExtraLis
 			Bundle bundle = getArguments();
 			category = bundle.getString("category");
 			promiseLocationDto = (LocationDto) bundle.getSerializable("locationDto");
-
 			mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
 			iMap = mapViewModel.getiMapData();
 		}
@@ -220,15 +220,17 @@ public class AroundPlacesContentsFragment extends Fragment implements OnExtraLis
 			String longitude = null;
 
 			if (iConnectHeader.getSearchMapPointCriteria() == LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION) {
+				//약속장소 중심
 				latitude = promiseLocationDto.getLatitude();
 				longitude = promiseLocationDto.getLongitude();
 			} else {
+				//지도 중심
 				latitude = String.valueOf(AroundPlacesContentsFragment.mapCenterPoint.latitude);
 				longitude = String.valueOf(AroundPlacesContentsFragment.mapCenterPoint.longitude);
 			}
 
 			LocalApiPlaceParameter parameter = LocalParameterUtil.getPlaceParameter(category, latitude, longitude,
-					LocalApiPlaceParameter.DEFAULT_SIZE, LocalApiPlaceParameter.DEFAULT_PAGE, iConnectHeader.getSearchSortCriteria());
+					LocalApiPlaceParameter.DEFAULT_SIZE, LocalApiPlaceParameter.DEFAULT_PAGE, iConnectHeader.getSearchSortCriteria(), String.valueOf(MyApplication.MAP_SEARCH_RANGE * 1000));
 
 			adapter = new PlacesAdapter(getContext(), new OnClickedListItemListener<PlaceResponse.Documents>() {
 				@Override

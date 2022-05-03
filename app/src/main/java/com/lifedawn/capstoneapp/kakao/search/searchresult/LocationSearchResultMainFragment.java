@@ -21,6 +21,7 @@ import com.lifedawn.capstoneapp.common.interfaces.OnClickedListItemListener;
 import com.lifedawn.capstoneapp.databinding.FragmentSearchResultMainBinding;
 import com.lifedawn.capstoneapp.kakao.search.LocalParameterUtil;
 import com.lifedawn.capstoneapp.kakao.search.SearchResultChecker;
+import com.lifedawn.capstoneapp.main.MyApplication;
 import com.lifedawn.capstoneapp.map.BottomSheetType;
 import com.lifedawn.capstoneapp.map.MapViewModel;
 import com.lifedawn.capstoneapp.map.MarkerType;
@@ -106,7 +107,8 @@ public class LocationSearchResultMainFragment extends Fragment implements OnExtr
 		final LocalApiPlaceParameter addressParameter = LocalParameterUtil.getAddressParameter(query, "1",
 				LocalApiPlaceParameter.DEFAULT_PAGE);
 		final LocalApiPlaceParameter placeParameter = LocalParameterUtil.getPlaceParameter(query, null, null, "1",
-				LocalApiPlaceParameter.DEFAULT_PAGE, LocalApiPlaceParameter.SEARCH_CRITERIA_SORT_TYPE_ACCURACY);
+				LocalApiPlaceParameter.DEFAULT_PAGE, LocalApiPlaceParameter.SEARCH_CRITERIA_SORT_TYPE_ACCURACY,
+				String.valueOf(MyApplication.MAP_SEARCH_RANGE * 1000));
 
 		SearchResultChecker.checkExisting(addressParameter, placeParameter, new HttpCallback<List<KakaoLocalResponse>>() {
 			@Override

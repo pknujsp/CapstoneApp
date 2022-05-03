@@ -4,7 +4,7 @@ import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
 
 public class LocalParameterUtil {
 	public static LocalApiPlaceParameter getPlaceParameter(String searchWord, String latitude, String longitude, String size, String page,
-			Integer sortCriteria) {
+	                                                       Integer sortCriteria, String range) {
 		LocalApiPlaceParameter parameter = new LocalApiPlaceParameter();
 		
 		parameter.setY(latitude).setX(longitude).setSize(size).setPage(page);
@@ -17,7 +17,8 @@ public class LocalParameterUtil {
 				parameter.setSort(LocalApiPlaceParameter.SORT_DISTANCE);
 				break;
 		}
-		
+
+		parameter.setRadius(range);
 		parameter.setQuery(searchWord);
 		
 		return parameter;

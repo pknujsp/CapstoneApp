@@ -33,6 +33,7 @@ import com.lifedawn.capstoneapp.kakao.search.LocalParameterUtil;
 import com.lifedawn.capstoneapp.kakao.search.callback.PlaceItemCallback;
 import com.lifedawn.capstoneapp.kakao.search.util.MapUtil;
 import com.lifedawn.capstoneapp.kakao.search.viewmodel.PlacesViewModel;
+import com.lifedawn.capstoneapp.main.MyApplication;
 import com.lifedawn.capstoneapp.map.MapViewModel;
 import com.lifedawn.capstoneapp.map.MarkerType;
 import com.lifedawn.capstoneapp.map.interfaces.IMap;
@@ -185,7 +186,7 @@ public class SearchResultPlaceListFragment extends Fragment implements OnExtraLi
 		}
 		
 		LocalApiPlaceParameter parameter = LocalParameterUtil.getPlaceParameter(query, latitude, longitude,
-				LocalApiPlaceParameter.DEFAULT_SIZE, LocalApiPlaceParameter.DEFAULT_PAGE, currentSearchSortTypeCriteria);
+				LocalApiPlaceParameter.DEFAULT_SIZE, LocalApiPlaceParameter.DEFAULT_PAGE, currentSearchSortTypeCriteria, String.valueOf(MyApplication.MAP_SEARCH_RANGE * 1000));
 		
 		adapter = new PlacesAdapter(getContext(), placeDocumentsOnClickedListItem);
 		adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {

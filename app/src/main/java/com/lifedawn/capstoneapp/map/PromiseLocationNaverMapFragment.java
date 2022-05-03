@@ -1,8 +1,10 @@
 package com.lifedawn.capstoneapp.map;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.TypedValue;
@@ -82,6 +84,20 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 		binding.findRouteChip.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+
+				String uri = "geo:" +
+						selectedLocationDtoInEvent.getLatitude() + "," + selectedLocationDtoInEvent.getLongitude() +
+						"?q=" + selectedLocationDtoInEvent.getAddressName();
+
+				Intent intent = new Intent(Intent.ACTION_VIEW);
+				intent.setData(Uri.parse(uri));
+				if (intent.resolveActivity(getContext().getPackageManager()) != null) {
+					startActivity(intent);
+				}
+
+
+/*
+
 				FindRouteFragment findRouteFragment = new FindRouteFragment();
 
 				Bundle infoBundle = new Bundle();
@@ -89,6 +105,9 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 				findRouteFragment.setArguments(infoBundle);
 
 				findRouteFragment.show(getChildFragmentManager(), WeatherInfoFragment.class.getName());
+
+ */
+
 			}
 		});
 

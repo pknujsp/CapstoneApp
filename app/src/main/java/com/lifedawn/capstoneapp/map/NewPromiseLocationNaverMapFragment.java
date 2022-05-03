@@ -36,4 +36,5 @@ public class NewPromiseLocationNaverMapFragment extends AbstractNaverMapFragment
 		getParentFragmentManager().popBackStack();
 		onClickedLocationBtnListener.onSelected(kakaoLocalDocument, remove);
 	}
+
 }

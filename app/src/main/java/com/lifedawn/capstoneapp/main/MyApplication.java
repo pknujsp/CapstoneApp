@@ -18,6 +18,7 @@ import java.util.concurrent.Executors;
 public class MyApplication extends Application {
 	public static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(3);
 	public final static ValueUnitObj VALUE_UNIT_OBJ = new ValueUnitObj();
+	public static int MAP_SEARCH_RANGE = 3;
 
 	@Override
 	public void onCreate() {
@@ -25,6 +26,8 @@ public class MyApplication extends Application {
 
 		initPreferences();
 		KmaResponseProcessor.init(getApplicationContext());
+
+
 	}
 
 	private void initPreferences() {
@@ -41,6 +44,7 @@ public class MyApplication extends Application {
 				editor.putString(SharedPreferenceConstant.REMINDER_SOUND_URI.getVal(), "");
 				editor.putBoolean(SharedPreferenceConstant.REMINDER_SOUND_ON_OFF.getVal(), false);
 				editor.putInt(SharedPreferenceConstant.REMINDER_SOUND_VOLUME.getVal(), 75);
+				editor.putInt(SharedPreferenceConstant.MAP_SEARCH_RANGE.getVal(), 3);
 				editor.commit();
 			}
 
@@ -53,6 +57,8 @@ public class MyApplication extends Application {
 	public static void loadValueUnits(Context context) {
 		if (VALUE_UNIT_OBJ.getTempUnit() == null) {
 			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+			MAP_SEARCH_RANGE = sharedPreferences.getInt(SharedPreferenceConstant.MAP_SEARCH_RANGE.getVal(), 0);
 
 			VALUE_UNIT_OBJ.setTempUnit(ValueUnits.valueOf(sharedPreferences.getString("temp_unit",
 					ValueUnits.celsius.name()))).setWindUnit(ValueUnits.valueOf(sharedPreferences.getString("windspeed_unit",
