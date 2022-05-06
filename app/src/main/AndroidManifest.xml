@@ -24,6 +24,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CapstoneApp"
         android:usesCleartextTraffic="true">
+        <service
+            android:name=".common.service.SyncCalendarService"
+            android:enabled="true"
+            android:exported="true"></service>
 
         <activity
             android:name=".reminder.NotificationActivity"
@@ -32,7 +36,6 @@
             android:showOnLockScreen="true"
             android:showWhenLocked="true"
             android:turnScreenOn="true" />
-
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -57,22 +60,17 @@
             </intent-filter>
         </receiver>
 
-
         <service
             android:name=".reminder.notifications.NotificationService"
             android:enabled="true"
             android:exported="true" />
 
-
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="90mygyptxv" />
-
         <meta-data
             android:name="com.naver.maps.map."
             android:value="90mygyptxv" />
-
-
         <meta-data
             android:name="com.kakao.sdk.AppKey"
             android:value="0dc55f983ec285210efb88d1389f7c2b" />

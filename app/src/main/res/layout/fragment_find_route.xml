@@ -5,78 +5,108 @@
     >
 
     <LinearLayout
-        android:padding="24dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:orientation="vertical"
-        android:gravity="center_vertical">
+        >
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/departureLocation"
-            android:textColor="@color/black"
-            android:layout_marginBottom="4dp"/>
 
-        <TextView
-            android:id="@+id/departureLocation"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/contentLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="departureLocation"
-            android:textSize="15sp"
-            android:layout_marginBottom="8dp"/>
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:padding="24dp"
+            >
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/arrivalLocation"
-            android:textColor="@color/black"
-            android:layout_marginBottom="4dp"/>
 
-        <TextView
-            android:id="@+id/arrivalLocation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="arrivalLocation"
-            android:textSize="15sp"
-            android:layout_marginBottom="8dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="@string/departureLocation"
+                android:textColor="@color/black"
+                />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/time"
-            android:textColor="@color/black"
-            android:layout_marginBottom="4dp"/>
+            <TextView
+                android:id="@+id/departureLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="departureLocation"
+                android:textSize="15sp"
+                />
 
-        <TextView
-            android:id="@+id/time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="time"
-            android:textSize="15sp"
-            android:layout_marginBottom="8dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="@string/arrivalLocation"
+                android:textColor="@color/black"
+                />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/distance"
-            android:textColor="@color/black"
-            android:layout_marginBottom="4dp"/>
+            <TextView
+                android:id="@+id/arrivalLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="arrivalLocation"
+                android:textSize="15sp"
+                />
 
-        <TextView
-            android:id="@+id/distance"
-            android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="@string/time"
+                android:textColor="@color/black"
+                />
+
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="time"
+                android:textSize="15sp"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="@string/distance"
+                android:textColor="@color/black"
+                />
+
+            <TextView
+                android:id="@+id/distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="distance"
+                android:textSize="15sp"
+                />
+
+
+        </LinearLayout>
+
+        <com.lifedawn.capstoneapp.common.view.ProgressView
+            android:id="@+id/progressLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="distance"
-            android:textSize="15sp"
-            android:layout_marginBottom="8dp"/>
+            android:layout_gravity="center_vertical"
+            />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_gravity="right"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            >
 
             <Button
                 android:id="@+id/updateBtn"
@@ -98,6 +128,9 @@
                 />
 
         </LinearLayout>
+
+
+
     </LinearLayout>
 
 </layout>

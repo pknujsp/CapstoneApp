@@ -15,7 +15,7 @@ public class RetrofitClient {
 	public static final String KAKAO_APP_KEY = "KakaoAK 7c9ce45e6c29183f85f43ad31833c902";
 	public static final String KAKAO_LOCAL_API_URL = "https://dapi.kakao.com/v2/local/";
 	public static final String KMA_CURRENT_CONDITIONS_AND_HOURLY_AND_DAILY_FORECAST_URL = "https://www.weather.go.kr/w/wnuri-fct2021/main/";
-	public static final String NAVER_DIRECTIONS_URL = "https://naveropenapi.apigw-pub.fin-ntruss.com/map-direction/v1/";
+	public static final String NAVER_DIRECTIONS_URL = "https://naveropenapi.apigw.ntruss.com/map-direction/v1/";
 	public static final String X_NCP_APIGW_API_KEY = "QEYTkiogo2sREZMXir3XP4eKGrrIAZFE5WdmhMUh";
 	public static final String X_NCP_APIGW_API_KEY_ID = "90mygyptxv";
 

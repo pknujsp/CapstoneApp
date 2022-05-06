@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MyApplication extends Application {
-	public static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(3);
+	public static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
 	public final static ValueUnitObj VALUE_UNIT_OBJ = new ValueUnitObj();
 	public static int MAP_SEARCH_RANGE = 3;
 

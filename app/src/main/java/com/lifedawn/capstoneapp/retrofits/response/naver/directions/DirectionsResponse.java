@@ -1,4 +1,4 @@
-package com.lifedawn.capstoneapp.retrofits.response.naver.Directions;
+package com.lifedawn.capstoneapp.retrofits.response.naver.directions;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -55,7 +55,7 @@ public class DirectionsResponse {
    }
 
    public static class Route{
-      @SerializedName("trafast")
+      @SerializedName("traoptimal")
       @Expose
       private List<Trafast> trafast;
 
@@ -103,11 +103,11 @@ public class DirectionsResponse {
 
             @SerializedName("start")
             @Expose
-            private List<String> start;
+            private List<Location> start;
 
             @SerializedName("goal")
             @Expose
-            private List<String> goal;
+            private List<Location> goal;
 
             public String getDistance() {
                return distance;
@@ -149,22 +149,62 @@ public class DirectionsResponse {
                this.fuelPrice = fuelPrice;
             }
 
-            public List<String> getStart() {
+            public List<Location> getStart() {
                return start;
             }
 
-            public void setStart(List<String> start) {
+            public void setStart(List<Location> start) {
                this.start = start;
             }
 
-            public List<String> getGoal() {
+            public List<Location> getGoal() {
                return goal;
             }
 
-            public void setGoal(List<String> goal) {
+            public void setGoal(List<Location> goal) {
                this.goal = goal;
             }
          }
+      }
+   }
+
+   public static class Location{
+      @SerializedName("location")
+      @Expose
+      private List<Point> pointList;
+
+      public List<Point> getPointList() {
+         return pointList;
+      }
+
+      public void setPointList(List<Point> pointList) {
+         this.pointList = pointList;
+      }
+   }
+
+   public static class Point{
+      @SerializedName("0")
+      @Expose
+      private String longitude;
+
+      @SerializedName("1")
+      @Expose
+      private String latitude;
+
+      public String getLongitude() {
+         return longitude;
+      }
+
+      public void setLongitude(String longitude) {
+         this.longitude = longitude;
+      }
+
+      public String getLatitude() {
+         return latitude;
+      }
+
+      public void setLatitude(String latitude) {
+         this.latitude = latitude;
       }
    }
 }

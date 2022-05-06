@@ -5,7 +5,8 @@ import com.lifedawn.capstoneapp.retrofits.JsonDownloader;
 import com.lifedawn.capstoneapp.retrofits.MultipleRestApiDownloader;
 import com.lifedawn.capstoneapp.retrofits.Queries;
 import com.lifedawn.capstoneapp.retrofits.RetrofitClient;
-import com.lifedawn.capstoneapp.retrofits.response.naver.Directions.DirectionsResponse;
+import com.lifedawn.capstoneapp.retrofits.response.naver.directions.DirectionsResponse;
+import com.lifedawn.capstoneapp.retrofits.response.naver.directions5.Root;
 import com.lifedawn.capstoneapp.weather.DataProviderType;
 
 import retrofit2.Call;
@@ -22,6 +23,8 @@ public class RequestDirections {
 		Call<String> call = queries.getDirections(start.toString(), goal.toString());
 
 		multipleRestApiDownloader.getCallMap().put(RetrofitClient.ServiceType.NAVER_DIRECTIONS, call);
+		multipleRestApiDownloader.setRequestCount(1);
+		multipleRestApiDownloader.setResponseCount(0);
 
 		JsonDownloader callback = new JsonDownloader() {
 			@Override
@@ -42,8 +45,8 @@ public class RequestDirections {
 			@Override
 			public void onResponse(Call<String> call, Response<String> response) {
 				if (response.body() != null) {
-					DirectionsResponse directionsResponse = new Gson().fromJson(response.body().toString()
-							, DirectionsResponse.class);
+					Root directionsResponse = new Gson().fromJson(response.body().toString()
+							, Root.class);
 					callback.onResponseResult(response, directionsResponse, response.body());
 				} else {
 					callback.onResponseResult(new Exception());

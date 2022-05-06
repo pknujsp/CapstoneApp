@@ -22,7 +22,7 @@ public class NotificationHelper {
 			NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
 
 			//알림 채널 생성 여부 확인
-			if (notificationManager.getNotificationChannel(notificationType.getChannelId()) == null) {
+			if (notificationManager.getNotificationChannel(notificationType.ChannelId()) == null) {
 				String notificationName = null;
 				String notificationDescription = null;
 				int importance = 0;
@@ -31,9 +31,13 @@ public class NotificationHelper {
 					notificationName = context.getString(R.string.promise_reminder_notification_channel_name);
 					notificationDescription = context.getString(R.string.promise_reminder_notification_channel_description);
 					importance = NotificationManager.IMPORTANCE_HIGH;
+				} else if (notificationType == NotificationType.SYNC_CALENDAR) {
+					notificationName = context.getString(R.string.sync_calendar_channel_name);
+					notificationDescription = context.getString(R.string.sync_calendar_channel_description);
+					importance = NotificationManager.IMPORTANCE_LOW;
 				}
 
-				NotificationChannel notificationChannel = new NotificationChannel(notificationType.getChannelId(), notificationName, importance);
+				NotificationChannel notificationChannel = new NotificationChannel(notificationType.ChannelId(), notificationName, importance);
 				notificationChannel.setDescription(notificationDescription);
 				notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
 
@@ -47,10 +51,13 @@ public class NotificationHelper {
 			createNotificationChannel(notificationType);
 		}
 		NotificationItem notificationItem = new NotificationItem(notificationType);
-		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, notificationType.getChannelId());
+		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, notificationType.ChannelId());
 
 		if (notificationType == NotificationType.PROMISE_REMINDER) {
 			notificationBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
+		} else if (notificationType == NotificationType.SYNC_CALENDAR) {
+			notificationBuilder.setPriority(NotificationCompat.PRIORITY_LOW);
+
 		}
 		notificationItem.setBuilder(notificationBuilder);
 
@@ -79,16 +86,22 @@ public class NotificationHelper {
 	}
 
 	public enum NotificationType {
-		PROMISE_REMINDER("1000");
+		PROMISE_REMINDER("1000", 1000), SYNC_CALENDAR("2000", 2000);
 
 		private final String channelId;
+		private final int notificationId;
 
-		NotificationType(String channelId) {
+		NotificationType(String channelId, int notificationId) {
 			this.channelId = channelId;
+			this.notificationId = notificationId;
 		}
 
-		public String getChannelId() {
+		public String ChannelId() {
 			return channelId;
+		}
+
+		public int NotificationId() {
+			return notificationId;
 		}
 	}
 }

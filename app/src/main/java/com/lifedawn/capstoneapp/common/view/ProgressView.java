@@ -17,6 +17,11 @@ public class ProgressView extends FrameLayout {
 	private ViewProgressBinding binding;
 	private View contentView;
 	private boolean succeed;
+	private OnResultListener onResultListener;
+
+	public void setOnResultListener(OnResultListener onResultListener) {
+		this.onResultListener = onResultListener;
+	}
 
 	public ProgressView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -59,6 +64,10 @@ public class ProgressView extends FrameLayout {
 		succeed = true;
 		contentView.setVisibility(View.VISIBLE);
 		setVisibility(View.GONE);
+
+		if (onResultListener != null) {
+			onResultListener.onSuccessful();
+		}
 	}
 
 	public void onFailed(@NonNull String text) {
@@ -68,6 +77,10 @@ public class ProgressView extends FrameLayout {
 		binding.status.setVisibility(VISIBLE);
 		binding.progressCircular.setVisibility(GONE);
 		setVisibility(View.VISIBLE);
+
+		if (onResultListener != null) {
+			onResultListener.onFailed(text);
+		}
 	}
 
 	public void onStarted(@Nullable String text) {
@@ -79,6 +92,10 @@ public class ProgressView extends FrameLayout {
 		}
 		binding.progressCircular.setVisibility(VISIBLE);
 		setVisibility(View.VISIBLE);
+
+		if (onResultListener != null) {
+			onResultListener.onStarted(text);
+		}
 	}
 
 
@@ -88,6 +105,14 @@ public class ProgressView extends FrameLayout {
 
 	public void setTextColor(int color) {
 		binding.status.setTextColor(color);
+	}
+
+	public interface OnResultListener {
+		void onSuccessful();
+
+		void onFailed(String message);
+
+		void onStarted(String message);
 	}
 }
 

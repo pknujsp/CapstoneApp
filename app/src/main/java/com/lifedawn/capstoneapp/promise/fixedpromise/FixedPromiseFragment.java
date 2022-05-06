@@ -191,7 +191,6 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 	@Override
 	public void syncCalendars() {
 		calendarViewModel.syncCalendars(accountViewModel.getCurrentSignInAccount(), new BackgroundCallback<Boolean>() {
-			@SuppressLint("Range")
 			@Override
 			public void onResultSuccessful(Boolean e) {
 				refreshEvents();

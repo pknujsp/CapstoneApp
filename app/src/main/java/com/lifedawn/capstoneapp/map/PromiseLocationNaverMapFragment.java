@@ -84,7 +84,7 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 		binding.findRouteChip.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-
+/*
 				String uri = "geo:" +
 						selectedLocationDtoInEvent.getLatitude() + "," + selectedLocationDtoInEvent.getLongitude() +
 						"?q=" + selectedLocationDtoInEvent.getAddressName();
@@ -95,8 +95,7 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 					startActivity(intent);
 				}
 
-
-/*
+				*/
 
 				FindRouteFragment findRouteFragment = new FindRouteFragment();
 
@@ -106,7 +105,6 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 
 				findRouteFragment.show(getChildFragmentManager(), WeatherInfoFragment.class.getName());
 
- */
 
 			}
 		});

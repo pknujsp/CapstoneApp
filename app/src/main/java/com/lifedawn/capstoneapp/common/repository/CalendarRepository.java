@@ -3,13 +3,14 @@ package com.lifedawn.capstoneapp.common.repository;
 import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Notification;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncStatusObserver;
 import android.database.Cursor;
-import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -18,6 +19,8 @@ import android.provider.CalendarContract;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -29,10 +32,12 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
+import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.interfaces.HttpCallback;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.repositoryinterface.ICalendarRepository;
+import com.lifedawn.capstoneapp.common.util.NotificationHelper;
 import com.lifedawn.capstoneapp.main.MyApplication;
 
 import java.io.IOException;
@@ -46,16 +51,19 @@ import java.util.Map;
 public class CalendarRepository implements ICalendarRepository {
 	private static Calendar calendarService;
 	private static CalendarRepository instance;
+	private Context context;
 
-	private CalendarRepository() {
+	private CalendarRepository(Context context) {
+		this.context = context;
 	}
 
-	public static CalendarRepository getInstance() {
+	public static CalendarRepository getInstance(Context context) {
 		if (instance == null) {
-			instance = new CalendarRepository();
+			instance = new CalendarRepository(context);
 		}
 		return instance;
 	}
+
 
 	@Override
 	public void saveEvent(Calendar calendarService, Event newEvent, HttpCallback<Event> callback) {
@@ -164,6 +172,7 @@ public class CalendarRepository implements ICalendarRepository {
 
 	@Override
 	public void syncCalendars(GoogleSignInAccount account, BackgroundCallback<Boolean> callback) {
+
 		if (account == null) {
 			callback.onResultFailed(new Exception("Account is null"));
 			return;
@@ -179,6 +188,7 @@ public class CalendarRepository implements ICalendarRepository {
 		arguments.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
 		arguments.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
 		ContentResolver.requestSync(account.getAccount(), CalendarContract.AUTHORITY, arguments);
+
 	}
 
 
@@ -390,7 +400,7 @@ public class CalendarRepository implements ICalendarRepository {
 			public void run() {
 				final List<EventObj> eventObjList = new ArrayList<>();
 				Cursor cursor = context.getContentResolver().query(CalendarContract.Events.CONTENT_URI, null, selection, selectionArgs,
-						null,null);
+						null, null);
 
 				List<ContentValues> eventList = new ArrayList<>();
 

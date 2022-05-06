@@ -130,7 +130,7 @@ public class AccountRepository implements IAccountRepository {
 						setGoogleAccountCredential(account);
 						currentSignInAccount = account;
 
-						CalendarRepository calendarRepository = CalendarRepository.getInstance();
+						CalendarRepository calendarRepository = CalendarRepository.getInstance(context);
 						calendarRepository.createCalendarService(googleAccountCredential, googleAccountLifeCycleObserver, new BackgroundCallback<Calendar>() {
 							@Override
 							public void onResultSuccessful(Calendar e) {
