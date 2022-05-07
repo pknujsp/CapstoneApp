@@ -29,6 +29,8 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
+import com.lifedawn.capstoneapp.calendar.fragments.SyncCalendarCallback;
+import com.lifedawn.capstoneapp.common.classes.AlreadySyncingException;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.IRefreshCalendar;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
@@ -276,8 +278,7 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 
 	@Override
 	public void syncCalendars() {
-		calendarViewModel.syncCalendars(accountViewModel.getCurrentSignInAccount(), new BackgroundCallback<Boolean>() {
-			@SuppressLint("Range")
+		calendarViewModel.syncCalendars(accountViewModel.getCurrentSignInAccount(), new SyncCalendarCallback<Boolean>() {
 			@Override
 			public void onResultSuccessful(Boolean e) {
 				refreshEvents();
@@ -287,6 +288,19 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 			public void onResultFailed(Exception e) {
 				Toast.makeText(getContext(), R.string.failed_sync_calendar, Toast.LENGTH_SHORT).show();
 				binding.refreshLayout.setRefreshing(false);
+			}
+
+			@Override
+			public void onSyncStarted() {
+				super.onSyncStarted();
+			}
+
+			@Override
+			public void onAlreadySyncing() {
+				Toast.makeText(getContext(), R.string.already_syncing, Toast.LENGTH_SHORT).show();
+				if (!syncing) {
+					binding.refreshLayout.setRefreshing(false);
+				}
 			}
 		});
 	}

@@ -97,12 +97,22 @@ public class LocationDto implements Serializable {
 		return this;
 	}
 
+	public LocationDto setLatitude(Double latitude) {
+		this.latitude = latitude.toString();
+		return this;
+	}
+
 	public String getLongitude() {
 		return longitude;
 	}
 
 	public LocationDto setLongitude(String longitude) {
 		this.longitude = longitude;
+		return this;
+	}
+
+	public LocationDto setLongitude(Double longitude) {
+		this.longitude = longitude.toString();
 		return this;
 	}
 

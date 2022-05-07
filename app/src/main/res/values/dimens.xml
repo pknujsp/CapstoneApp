@@ -16,4 +16,5 @@
     <dimen name="tempTopMargin">2dp</dimen>
     <dimen name="doubleTemperatureRowHeight">90dp</dimen>
     <dimen name="valueColumnWidthInSDailyOwm">75dp</dimen>
+    <dimen name="restaurant_list_header_height">80dp</dimen>
 </resources>

@@ -1,14 +1,9 @@
 package com.lifedawn.capstoneapp.common.viewmodel;
 
 import android.app.Application;
-import android.app.Notification;
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -18,22 +13,20 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
-import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
+import com.lifedawn.capstoneapp.calendar.fragments.SyncCalendarCallback;
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
 import com.lifedawn.capstoneapp.common.interfaces.HttpCallback;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
 import com.lifedawn.capstoneapp.common.repositoryinterface.ICalendarRepository;
-import com.lifedawn.capstoneapp.common.util.NotificationHelper;
-import com.lifedawn.capstoneapp.main.MyApplication;
 
 import java.time.ZonedDateTime;
 
 public class CalendarViewModel extends AndroidViewModel implements ICalendarRepository {
 	private CalendarRepository calendarRepository;
 	private MutableLiveData<Boolean> syncCalendarLiveData = new MutableLiveData<>();
-	private boolean syncingCalendar = false;
+
 
 	public CalendarViewModel(@NonNull Application application) {
 		super(application);
@@ -100,63 +93,39 @@ public class CalendarViewModel extends AndroidViewModel implements ICalendarRepo
 
 
 	@Override
-	public void syncCalendars(GoogleSignInAccount account, BackgroundCallback<Boolean> callback) {
-		if (syncingCalendar) {
-			return;
-		}
-		syncingCalendar = true;
-		showNotification();
-
-		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
+	public void syncCalendars(GoogleSignInAccount account, SyncCalendarCallback<Boolean> callback) {
+		calendarRepository.syncCalendars(account, new SyncCalendarCallback<Boolean>() {
 			@Override
-			public void run() {
-				calendarRepository.syncCalendars(account, new BackgroundCallback<Boolean>() {
-					@Override
-					public void onResultSuccessful(Boolean e) {
-						ZonedDateTime now = ZonedDateTime.now();
-						SharedPreferences.Editor editor =
-								PreferenceManager.getDefaultSharedPreferences(getApplication().getApplicationContext()).edit();
-						editor.putString(SharedPreferenceConstant.LAST_UPDATE_DATETIME.getVal(), now.toString()).commit();
+			public void onResultSuccessful(Boolean e) {
+				super.onResultSuccessful(e);
+				ZonedDateTime now = ZonedDateTime.now();
+				SharedPreferences.Editor editor =
+						PreferenceManager.getDefaultSharedPreferences(getApplication().getApplicationContext()).edit();
+				editor.putString(SharedPreferenceConstant.LAST_UPDATE_DATETIME.getVal(), now.toString()).commit();
 
-						NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(getApplication().getApplicationContext());
-						notificationManagerCompat.cancel(NotificationHelper.NotificationType.SYNC_CALENDAR.NotificationId());
-						syncingCalendar = false;
-						syncCalendarLiveData.setValue(true);
-						callback.onResultSuccessful(e);
-					}
+				callback.onResultSuccessful(e);
+				syncCalendarLiveData.postValue(true);
+			}
 
-					@Override
-					public void onResultFailed(Exception e) {
-						NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(getApplication().getApplicationContext());
-						notificationManagerCompat.cancel(NotificationHelper.NotificationType.SYNC_CALENDAR.NotificationId());
-						syncingCalendar = false;
-						callback.onResultFailed(e);
-					}
-				});
+			@Override
+			public void onResultFailed(Exception e) {
+				super.onResultFailed(e);
+				callback.onResultFailed(e);
+			}
+
+			@Override
+			public void onAlreadySyncing() {
+				callback.onAlreadySyncing();
+			}
+
+			@Override
+			public void onSyncStarted() {
+				super.onSyncStarted();
+				callback.onSyncStarted();
 			}
 		});
 
-
 	}
 
-	private void showNotification() {
-		Context context = getApplication().getApplicationContext();
-		NotificationHelper notificationHelper = new NotificationHelper(context);
-		NotificationHelper.NotificationItem notificationItem =
-				notificationHelper.createNotificationItem(NotificationHelper.NotificationType.SYNC_CALENDAR);
-
-		NotificationCompat.Builder builder = notificationItem.getBuilder();
-		builder.setSmallIcon(R.drawable.ic_baseline_refresh_24).setContentText(context.getString(R.string.syncCalendar))
-				.setContentTitle(context.getString(R.string.syncing_calendar))
-				.setWhen(0).setOngoing(true);
-
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-			builder.setPriority(NotificationCompat.PRIORITY_LOW).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-		}
-
-		Notification notification = builder.build();
-		NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
-		notificationManagerCompat.notify(notificationItem.getNotificationType().NotificationId(), notification);
-	}
 
 }

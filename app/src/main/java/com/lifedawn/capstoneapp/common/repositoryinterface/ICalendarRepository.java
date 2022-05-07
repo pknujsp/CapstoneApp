@@ -5,6 +5,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
+import com.lifedawn.capstoneapp.calendar.fragments.SyncCalendarCallback;
 import com.lifedawn.capstoneapp.common.interfaces.HttpCallback;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 
@@ -19,5 +20,5 @@ public interface ICalendarRepository {
 	void createCalendarService(GoogleAccountCredential googleAccountCredential, GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver
 			, BackgroundCallback<Calendar> callback);
 
-	void syncCalendars(GoogleSignInAccount account, BackgroundCallback<Boolean> callback);
+	void syncCalendars(GoogleSignInAccount account, SyncCalendarCallback<Boolean> callback);
 }

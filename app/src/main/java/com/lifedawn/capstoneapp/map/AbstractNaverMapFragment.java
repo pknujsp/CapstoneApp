@@ -42,6 +42,7 @@ import com.lifedawn.capstoneapp.common.util.LocationLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.view.SearchHistoryFragment;
 import com.lifedawn.capstoneapp.databinding.FragmentAbstractNaverMapBinding;
 import com.lifedawn.capstoneapp.kakao.SearchBarFragment;
+import com.lifedawn.capstoneapp.kakao.restaurant.RestaurantFragment;
 import com.lifedawn.capstoneapp.kakao.search.searchresult.LocationSearchResultMainFragment;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAbstractAdapter;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAdapter;
@@ -206,6 +207,8 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 		setLocationSearchBottomSheet();
 		setAroundPlacesBottomSheet();
 
+
+
 		binding.placeChip.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -239,6 +242,41 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				setStateOfBottomSheet(BottomSheetType.AROUND_PLACES, BottomSheetBehavior.STATE_EXPANDED);
 			}
 		});
+
+		binding.restaurantsChip.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				//주변 장소 표시
+				collapseAllExpandedBottomSheets();
+
+				FragmentManager childFragmentManager = getChildFragmentManager();
+				int backStackCount = childFragmentManager.getBackStackEntryCount();
+
+				for (int count = 0; count < backStackCount; count++) {
+					childFragmentManager.popBackStack();
+				}
+
+				AroundPlacesHeaderFragment headerFragment = new AroundPlacesHeaderFragment();
+				AroundPlacesContentsFragment aroundPlacesContentsFragment = new AroundPlacesContentsFragment();
+				headerFragment.setiConnectContents(aroundPlacesContentsFragment);
+				headerFragment.setOnExtraListDataListener(aroundPlacesContentsFragment);
+
+				if (getPromiseLocationDto() != null) {
+					Bundle bundle = new Bundle();
+					bundle.putSerializable("locationDto", getPromiseLocationDto());
+					headerFragment.setArguments(bundle);
+				}
+
+				childFragmentManager.beginTransaction().add(binding.aroundPlacesBottomSheet.fragmentContainerView.getId(),
+						aroundPlacesContentsFragment, AroundPlacesContentsFragment.class.getName())
+						.add(binding.anotherFragmentContainer.getId(), headerFragment,
+								AroundPlacesHeaderFragment.class.getName())
+						.addToBackStack(AroundPlacesContentsFragment.class.getName()).commitAllowingStateLoss();
+
+				setStateOfBottomSheet(BottomSheetType.AROUND_PLACES, BottomSheetBehavior.STATE_EXPANDED);
+			}
+		});
+
 
 		binding.naverMapButtonsLayout.zoomInButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -703,6 +741,33 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 		bottomSheetBehaviorMap.put(BottomSheetType.LOCATION_ITEM, locationItemBottomSheetBehavior);
 	}
 
+	protected void setRestaurantsBottomSheet() {
+		LinearLayout restaurantsBottomSheet = binding.restaurantsBottomSheet.restaurantsBottomSheet;
+
+		BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(restaurantsBottomSheet);
+		bottomSheetBehavior.setDraggable(false);
+		bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+			float differenceY;
+
+			@Override
+			public void onStateChanged(@NonNull View bottomSheet, int newState) {
+
+			}
+
+			@Override
+			public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+				//expanded일때 offset == 1.0, collapsed일때 offset == 0.0
+				//offset에 따라서 버튼들이 이동하고, 지도의 좌표가 변경되어야 한다.
+				differenceY = bottomSheet.getHeight();
+				float translationValue = -differenceY * slideOffset;
+				binding.naverMapButtonsLayout.getRoot().animate().translationY(translationValue);
+			}
+		});
+
+		bottomSheetViewMap.put(BottomSheetType.RESTAURANT, restaurantsBottomSheet);
+		bottomSheetBehaviorMap.put(BottomSheetType.RESTAURANT, bottomSheetBehavior);
+	}
+
 	protected void setAroundPlacesBottomSheet() {
 		LinearLayout aroundPlacesBottomSheet = binding.aroundPlacesBottomSheet.aroundPlacesBottomSheet;
 
@@ -1060,6 +1125,10 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 	@Override
 	public void onSelected(KakaoLocalDocument kakaoLocalDocument, boolean remove) {
+
+	}
+
+	protected final void openRestaurantFragment() {
 
 	}
 

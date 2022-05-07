@@ -34,6 +34,7 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
+import com.lifedawn.capstoneapp.calendar.fragments.SyncCalendarCallback;
 import com.lifedawn.capstoneapp.common.interfaces.HttpCallback;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.repositoryinterface.ICalendarRepository;
@@ -51,6 +52,7 @@ import java.util.Map;
 public class CalendarRepository implements ICalendarRepository {
 	private static Calendar calendarService;
 	private static CalendarRepository instance;
+	private CalendarSyncStatusObserver calendarSyncStatusObserver = new CalendarSyncStatusObserver();
 	private Context context;
 
 	private CalendarRepository(Context context) {
@@ -171,24 +173,73 @@ public class CalendarRepository implements ICalendarRepository {
 	}
 
 	@Override
-	public void syncCalendars(GoogleSignInAccount account, BackgroundCallback<Boolean> callback) {
-
+	public void syncCalendars(GoogleSignInAccount account, SyncCalendarCallback<Boolean> callback) {
 		if (account == null) {
-			callback.onResultFailed(new Exception("Account is null"));
+			callback.onResultFailed(new NullPointerException("account"));
 			return;
 		}
 
-		CalendarSyncStatusObserver calendarSyncStatusObserver = new CalendarSyncStatusObserver();
+		if (calendarSyncStatusObserver.isSyncing()) {
+			callback.onAlreadySyncing();
+			return;
+		}
+		callback.onSyncStarted();
+		showNotification();
 
+		calendarSyncStatusObserver.setSyncCallback(new SyncCalendarCallback<Boolean>() {
+			@Override
+			public void onResultSuccessful(Boolean e) {
+				cancelNotification();
+				callback.onResultSuccessful(e);
+			}
+
+			@Override
+			public void onResultFailed(Exception e) {
+				cancelNotification();
+				callback.onResultFailed(e);
+			}
+
+			@Override
+			public void onSyncStarted() {
+
+			}
+
+			@Override
+			public void onAlreadySyncing() {
+
+			}
+		});
 		calendarSyncStatusObserver.setProviderHandle(ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, calendarSyncStatusObserver));
-		calendarSyncStatusObserver.setSyncCallback(callback);
 		calendarSyncStatusObserver.setAccount(account.getAccount());
 
 		Bundle arguments = new Bundle();
 		arguments.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
 		arguments.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
 		ContentResolver.requestSync(account.getAccount(), CalendarContract.AUTHORITY, arguments);
+	}
 
+	private void cancelNotification() {
+		NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+		notificationManagerCompat.cancel(NotificationHelper.NotificationType.SYNC_CALENDAR.NotificationId());
+	}
+
+	private void showNotification() {
+		NotificationHelper notificationHelper = new NotificationHelper(context);
+		NotificationHelper.NotificationItem notificationItem =
+				notificationHelper.createNotificationItem(NotificationHelper.NotificationType.SYNC_CALENDAR);
+
+		NotificationCompat.Builder builder = notificationItem.getBuilder();
+		builder.setSmallIcon(R.drawable.ic_baseline_refresh_24).setContentText(context.getString(R.string.syncCalendar))
+				.setContentTitle(context.getString(R.string.syncing_calendar))
+				.setWhen(0).setOngoing(true).setProgress(0, 0, true);
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+			builder.setPriority(NotificationCompat.PRIORITY_LOW).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+		}
+
+		Notification notification = builder.build();
+		NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+		notificationManagerCompat.notify(notificationItem.getNotificationType().NotificationId(), notification);
 	}
 
 
@@ -204,7 +255,7 @@ public class CalendarRepository implements ICalendarRepository {
 		private final String mCalendarAuthority = CalendarContract.AUTHORITY;
 
 		private Object mProviderHandle;
-		private BackgroundCallback<Boolean> syncCallback;
+		private SyncCalendarCallback<Boolean> syncCallback;
 		private Account account;
 
 		public Object getmProviderHandle() {
@@ -215,8 +266,12 @@ public class CalendarRepository implements ICalendarRepository {
 			this.account = account;
 		}
 
-		public void setSyncCallback(BackgroundCallback<Boolean> syncCallback) {
+		public void setSyncCallback(SyncCalendarCallback<Boolean> syncCallback) {
 			this.syncCallback = syncCallback;
+		}
+
+		public boolean isSyncing() {
+			return syncCallback != null;
 		}
 
 		public void setProviderHandle(@NonNull final Object providerHandle) {

@@ -25,6 +25,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
+import com.lifedawn.capstoneapp.calendar.fragments.SyncCalendarCallback;
+import com.lifedawn.capstoneapp.common.classes.AlreadySyncingException;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.interfaces.IRefreshCalendar;
@@ -225,8 +227,7 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 
 	@Override
 	public void syncCalendars() {
-		calendarViewModel.syncCalendars(accountViewModel.getCurrentSignInAccount(), new BackgroundCallback<Boolean>() {
-			@SuppressLint("Range")
+		calendarViewModel.syncCalendars(accountViewModel.getCurrentSignInAccount(), new SyncCalendarCallback<Boolean>() {
 			@Override
 			public void onResultSuccessful(Boolean e) {
 				refreshEvents();
@@ -234,8 +235,22 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 
 			@Override
 			public void onResultFailed(Exception e) {
-				binding.refreshLayout.setRefreshing(false);
 				Toast.makeText(getContext(), R.string.failed_sync_calendar, Toast.LENGTH_SHORT).show();
+				binding.refreshLayout.setRefreshing(false);
+			}
+
+			@Override
+			public void onAlreadySyncing() {
+				Toast.makeText(getContext(), R.string.already_syncing, Toast.LENGTH_SHORT).show();
+				if (!syncing) {
+					binding.refreshLayout.setRefreshing(false);
+				}
+
+			}
+
+			@Override
+			public void onSyncStarted() {
+				super.onSyncStarted();
 			}
 		});
 	}

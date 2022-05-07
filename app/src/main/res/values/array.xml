@@ -183,4 +183,34 @@
         <item>@string/HP8</item>
         <item>@string/PM9</item>
     </string-array>
+
+    <string-array name="food_menu_list">
+        <item name="hansik">@string/hansik</item>
+        <item name="jungsik">@string/jungsik</item>
+        <item name="illsik">@string/illsik</item>
+        <item name="sashimi">@string/sashimi</item>
+        <item name="yangsik">@string/yangsik</item>
+        <item name="asian">@string/asian</item>
+        <item name="chicken">@string/chicken</item>
+        <item name="fastfood">@string/fastfood</item>
+        <item name="donkartz">@string/donkartz</item>
+        <item name="jjim">@string/jjim</item>
+        <item name="tang">@string/tang</item>
+        <item name="bunsik">@string/bunsik</item>
+        <item name="juk">@string/juk</item>
+    </string-array>
+
+    <string name="hansik">한식</string>
+    <string name="jungsik">중식</string>
+    <string name="illsik">일식</string>
+    <string name="sashimi">회</string>
+    <string name="yangsik">양식</string>
+    <string name="asian">아시안</string>
+    <string name="chicken">치킨</string>
+    <string name="fastfood">패스트푸드</string>
+    <string name="donkartz">돈까스</string>
+    <string name="jjim">찜</string>
+    <string name="tang">탕</string>
+    <string name="bunsik">분식</string>
+    <string name="juk">죽</string>
 </resources>

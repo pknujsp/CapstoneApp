@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
@@ -22,9 +21,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.appsettings.AppSettingsFragment;
+import com.lifedawn.capstoneapp.calendar.fragments.SyncCalendarCallback;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
-import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.repository.AccountRepository;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
@@ -43,6 +42,46 @@ public class ProfileFragment extends DialogFragment {
 	private CalendarViewModel calendarViewModel;
 	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	private boolean initializing = true;
+	private final SyncCalendarCallback<Boolean> syncCalendarCallback = new SyncCalendarCallback<Boolean>() {
+		@Override
+		public void onResultSuccessful(Boolean finished) {
+			super.onResultSuccessful(finished);
+			if (finished) {
+				if (getActivity() != null) {
+					getActivity().runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+							String lastUpdateDateTime = sharedPreferences.getString(SharedPreferenceConstant.LAST_UPDATE_DATETIME.getVal(), "");
+
+							ZonedDateTime time = ZonedDateTime.parse(lastUpdateDateTime);
+							binding.lastUpdateDateTime.setText(time.format(LAST_UPDATE_DATETIME_FORMATTER));
+							binding.progressCircular.setVisibility(View.GONE);
+						}
+					});
+				}
+			}
+		}
+
+		@Override
+		public void onResultFailed(Exception e) {
+			super.onResultFailed(e);
+			Toast.makeText(getContext(), R.string.failed_sync_calendar, Toast.LENGTH_SHORT).show();
+			binding.progressCircular.setVisibility(View.GONE);
+		}
+
+		@Override
+		public void onAlreadySyncing() {
+			Toast.makeText(getContext(), R.string.already_syncing, Toast.LENGTH_SHORT).show();
+			binding.progressCircular.setVisibility(syncing ? View.VISIBLE : View.GONE);
+		}
+
+		@Override
+		public void onSyncStarted() {
+			super.onSyncStarted();
+			binding.progressCircular.setVisibility(View.VISIBLE);
+		}
+	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -130,33 +169,7 @@ public class ProfileFragment extends DialogFragment {
 			public void onClick(View v) {
 				if (accountViewModel.getUsingAccountType() == Constant.ACCOUNT_GOOGLE &&
 						accountViewModel.getCurrentSignInAccount() != null) {
-					binding.progressCircular.setVisibility(View.VISIBLE);
-					calendarViewModel.syncCalendars(accountViewModel.getCurrentSignInAccount(), new BackgroundCallback<Boolean>() {
-						@Override
-						public void onResultSuccessful(Boolean finished) {
-							if (finished) {
-								if (getActivity() != null) {
-									getActivity().runOnUiThread(new Runnable() {
-										@Override
-										public void run() {
-											SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-											String lastUpdateDateTime = sharedPreferences.getString(SharedPreferenceConstant.LAST_UPDATE_DATETIME.getVal(), "");
-
-											ZonedDateTime time = ZonedDateTime.parse(lastUpdateDateTime);
-											binding.lastUpdateDateTime.setText(time.format(LAST_UPDATE_DATETIME_FORMATTER));
-											binding.progressCircular.setVisibility(View.GONE);
-										}
-									});
-								}
-							}
-						}
-
-						@Override
-						public void onResultFailed(Exception e) {
-							binding.progressCircular.setVisibility(View.GONE);
-							Toast.makeText(getContext(), R.string.failed_sync_calendar, Toast.LENGTH_SHORT).show();
-						}
-					});
+					calendarViewModel.syncCalendars(accountViewModel.getCurrentSignInAccount(), syncCalendarCallback);
 				} else {
 					Toast.makeText(getContext(), R.string.unavailable_update, Toast.LENGTH_SHORT).show();
 				}

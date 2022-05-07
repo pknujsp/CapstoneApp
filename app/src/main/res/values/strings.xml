@@ -179,7 +179,7 @@
     <string name="no_signin_account">구글계정을 로그인해주세요</string>
     <string name="loading_weather_data">날씨 불러오는 중</string>
     <string name="failed_loading_weather_data">날씨 정보 불러오기 오류</string>
-    <string name="failed_sync_calendar">업데이트 실패</string>
+    <string name="failed_sync_calendar">새로고침 실패</string>
     <string name="input_error_email_and_name">이메일과 이름을 확인해주세요</string>
     <string name="input_error_email">이메일을 확인해주세요</string>
     <string name="input_error_name">이름을 확인해주세요</string>
@@ -246,5 +246,10 @@
     <string name="not_installed_app">앱이 설치되어 있지 않습니다</string>
     <string name="calculating_routes">길찾기 계산 중...</string>
     <string name="failed_finding_routes">길찾기 실패</string>
-    <string name="syncing_calendar">동기화 중입니다</string>
+    <string name="syncing_calendar">약속 새로고침 중입니다</string>
+    <string name="already_syncing">이미 새로고침 중입니다</string>
+    <string name="input_menu_or_restaurant_name">음식 또는 가게명 검색</string>
+    <string name="restaurant">음식점</string>
+    <string name="open_map">지도로 보기</string>
+    <string name="empty_search_result">검색 결과가 없습니다</string>
 </resources>

@@ -93,6 +93,19 @@
                         />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/restaurantsChip"
+                        style="@style/Widget.MaterialComponents.Chip.Action"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@color/white"
+                        android:elevation="3dp"
+                        android:text="@string/restaurant"
+                        android:textColor="@color/black"
+                        app:checkedIconVisible="false"
+                        app:closeIconVisible="false"
+                        />
+
+                    <com.google.android.material.chip.Chip
                         android:id="@+id/promiseLocationChip"
                         style="@style/Widget.MaterialComponents.Chip.Action"
                         android:layout_width="wrap_content"
@@ -166,6 +179,11 @@
         <include
             android:id="@+id/aroundPlacesBottomSheet"
             layout="@layout/view_bottom_sheet_around_places"
+            />
+
+        <include
+            android:id="@+id/restaurantsBottomSheet"
+            layout="@layout/view_bottom_sheet_restaurants"
             />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
