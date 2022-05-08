@@ -42,7 +42,6 @@ import com.lifedawn.capstoneapp.common.util.LocationLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.view.SearchHistoryFragment;
 import com.lifedawn.capstoneapp.databinding.FragmentAbstractNaverMapBinding;
 import com.lifedawn.capstoneapp.kakao.SearchBarFragment;
-import com.lifedawn.capstoneapp.kakao.restaurant.RestaurantFragment;
 import com.lifedawn.capstoneapp.kakao.search.searchresult.LocationSearchResultMainFragment;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAbstractAdapter;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAdapter;
