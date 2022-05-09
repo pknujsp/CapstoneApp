@@ -50,8 +50,8 @@ import com.lifedawn.capstoneapp.map.interfaces.IMap;
 import com.lifedawn.capstoneapp.map.interfaces.MarkerOnClickListener;
 import com.lifedawn.capstoneapp.map.interfaces.OnClickedBottomSheetListener;
 import com.lifedawn.capstoneapp.map.interfaces.OnPoiItemClickListener;
-import com.lifedawn.capstoneapp.map.places.AroundPlacesContentsFragment;
-import com.lifedawn.capstoneapp.map.places.AroundPlacesHeaderFragment;
+import com.lifedawn.capstoneapp.map.places.content.AroundPlacesContentsViewPagerFragment;
+import com.lifedawn.capstoneapp.map.places.header.AroundPlacesHeaderFragment;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.address.AddressResponse;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.place.PlaceResponse;
@@ -134,7 +134,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 			super.onFragmentAttached(fm, f, context);
 			if (f instanceof SearchHistoryFragment) {
 				binding.headerLayout.setVisibility(View.GONE);
-			} else if (f instanceof AroundPlacesContentsFragment) {
+			} else if (f instanceof AroundPlacesContentsViewPagerFragment) {
 				binding.headerLayout.setVisibility(View.GONE);
 				binding.anotherFragmentContainer.setVisibility(View.VISIBLE);
 			}
@@ -156,7 +156,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 			} else if (f instanceof LocationSearchResultMainFragment) {
 				removeMarkers(MarkerType.SEARCH_RESULT_ADDRESS, MarkerType.SEARCH_RESULT_PLACE);
-			} else if (f instanceof AroundPlacesContentsFragment) {
+			} else if (f instanceof AroundPlacesContentsViewPagerFragment) {
 				binding.anotherFragmentContainer.setVisibility(View.GONE);
 				binding.headerLayout.setVisibility(View.VISIBLE);
 				removeAllMarkers();
@@ -222,7 +222,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				}
 
 				AroundPlacesHeaderFragment headerFragment = new AroundPlacesHeaderFragment();
-				AroundPlacesContentsFragment aroundPlacesContentsFragment = new AroundPlacesContentsFragment();
+				AroundPlacesContentsViewPagerFragment aroundPlacesContentsFragment = new AroundPlacesContentsViewPagerFragment();
 				headerFragment.setiConnectContents(aroundPlacesContentsFragment);
 				headerFragment.setOnExtraListDataListener(aroundPlacesContentsFragment);
 
@@ -233,10 +233,10 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				}
 
 				childFragmentManager.beginTransaction().add(binding.aroundPlacesBottomSheet.fragmentContainerView.getId(),
-						aroundPlacesContentsFragment, AroundPlacesContentsFragment.class.getName())
+						aroundPlacesContentsFragment, AroundPlacesContentsViewPagerFragment.class.getName())
 						.add(binding.anotherFragmentContainer.getId(), headerFragment,
 								AroundPlacesHeaderFragment.class.getName())
-						.addToBackStack(AroundPlacesContentsFragment.class.getName()).commitAllowingStateLoss();
+						.addToBackStack(AroundPlacesContentsViewPagerFragment.class.getName()).commitAllowingStateLoss();
 
 				setStateOfBottomSheet(BottomSheetType.AROUND_PLACES, BottomSheetBehavior.STATE_EXPANDED);
 			}
@@ -256,7 +256,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				}
 
 				AroundPlacesHeaderFragment headerFragment = new AroundPlacesHeaderFragment();
-				AroundPlacesContentsFragment aroundPlacesContentsFragment = new AroundPlacesContentsFragment();
+				AroundPlacesContentsViewPagerFragment aroundPlacesContentsFragment = new AroundPlacesContentsViewPagerFragment();
 				headerFragment.setiConnectContents(aroundPlacesContentsFragment);
 				headerFragment.setOnExtraListDataListener(aroundPlacesContentsFragment);
 
@@ -267,10 +267,10 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				}
 
 				childFragmentManager.beginTransaction().add(binding.aroundPlacesBottomSheet.fragmentContainerView.getId(),
-						aroundPlacesContentsFragment, AroundPlacesContentsFragment.class.getName())
+						aroundPlacesContentsFragment, AroundPlacesContentsViewPagerFragment.class.getName())
 						.add(binding.anotherFragmentContainer.getId(), headerFragment,
 								AroundPlacesHeaderFragment.class.getName())
-						.addToBackStack(AroundPlacesContentsFragment.class.getName()).commitAllowingStateLoss();
+						.addToBackStack(AroundPlacesContentsViewPagerFragment.class.getName()).commitAllowingStateLoss();
 
 				setStateOfBottomSheet(BottomSheetType.AROUND_PLACES, BottomSheetBehavior.STATE_EXPANDED);
 			}

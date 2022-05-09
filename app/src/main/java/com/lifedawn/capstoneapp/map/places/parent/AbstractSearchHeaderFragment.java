@@ -1,4 +1,4 @@
-package com.lifedawn.capstoneapp.map.places;
+package com.lifedawn.capstoneapp.map.places.parent;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -28,9 +28,8 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
-import com.lifedawn.capstoneapp.common.interfaces.OnDbQueryCallback;
-import com.lifedawn.capstoneapp.common.repository.CustomPlaceCategoryRepository;
 import com.lifedawn.capstoneapp.databinding.FragmentAbstractSearchHeaderBinding;
+import com.lifedawn.capstoneapp.kakao.search.viewmodel.SearchPlaceShareViewModel;
 import com.lifedawn.capstoneapp.main.MyApplication;
 import com.lifedawn.capstoneapp.map.BottomSheetType;
 import com.lifedawn.capstoneapp.map.LocationDto;
@@ -41,17 +40,17 @@ import com.lifedawn.capstoneapp.map.interfaces.IMap;
 import com.lifedawn.capstoneapp.map.interfaces.MarkerOnClickListener;
 import com.lifedawn.capstoneapp.map.interfaces.OnExtraListDataListener;
 import com.lifedawn.capstoneapp.map.interfaces.OnPoiItemClickListener;
+import com.lifedawn.capstoneapp.map.places.interfaces.IConnectContents;
+import com.lifedawn.capstoneapp.map.places.interfaces.IConnectHeader;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
-import com.lifedawn.capstoneapp.room.dto.CustomPlaceCategoryDto;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public abstract class AbstractSearchHeaderFragment extends Fragment implements OnExtraListDataListener<Constant>, IConnectHeader {
 	protected FragmentAbstractSearchHeaderBinding binding;
 	protected IMap iMap;
+	protected MapViewModel.IMapPoint iMapPoint;
 	protected MapViewModel mapViewModel;
 	protected BottomSheetController bottomSheetController;
 	protected OnPoiItemClickListener mapOnPoiItemClickListener;
@@ -59,6 +58,7 @@ public abstract class AbstractSearchHeaderFragment extends Fragment implements O
 	protected OnExtraListDataListener<Constant> onExtraListDataListener;
 	protected Bundle bundle;
 	protected BottomSheetType bottomSheetType;
+	protected SearchPlaceShareViewModel searchPlaceShareViewModel;
 
 	protected static int currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_MAP_CENTER;
 	protected static int currentSearchSortTypeCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_SORT_TYPE_ACCURACY;
@@ -73,7 +73,9 @@ public abstract class AbstractSearchHeaderFragment extends Fragment implements O
 				bottomSheetController.setStateOfBottomSheet(bottomSheetType, BottomSheetBehavior.STATE_COLLAPSED);
 				getParentFragmentManager().popBackStack();
 			}
+
 		}
+
 	};
 
 	protected final MarkerOnClickListener markerOnClickListener = new MarkerOnClickListener() {
@@ -114,12 +116,21 @@ public abstract class AbstractSearchHeaderFragment extends Fragment implements O
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		searchPlaceShareViewModel = new ViewModelProvider(requireActivity()).get(SearchPlaceShareViewModel.class);
 		mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
 		iMap = mapViewModel.getiMapData();
+		iMapPoint = mapViewModel.getiMapPoint();
 		bottomSheetController = mapViewModel.getBottomSheetController();
 		mapOnPoiItemClickListener = mapViewModel.getPoiItemOnClickListener();
 
 		bundle = savedInstanceState == null ? getArguments() : savedInstanceState;
+		loadMapCenterPoint();
+	}
+
+	protected void loadMapCenterPoint() {
+		LocationDto mapCenter = new LocationDto();
+		mapCenter.setLatitude(iMapPoint.getCenterPoint().latitude).setLongitude(iMapPoint.getCenterPoint().longitude);
+		searchPlaceShareViewModel.setMapCenterLocationDto(mapCenter);
 	}
 
 	@Override
@@ -202,7 +213,7 @@ public abstract class AbstractSearchHeaderFragment extends Fragment implements O
 		super.onDestroy();
 	}
 
-	protected void createTabs(List<AroundPlacesContentsFragment.PlaceFragment> fragmentList, List<String> tabNamesList) {
+	protected void createTabs(List<? extends AbstractSearchContentViewPagerItemFragment> fragmentList, List<String> tabNamesList) {
 		iConnectContents.setViewPager(fragmentList);
 
 		new TabLayoutMediator(binding.categoryTabLayout, iConnectContents.getViewPager2(), new TabLayoutMediator.TabConfigurationStrategy() {
@@ -265,4 +276,13 @@ public abstract class AbstractSearchHeaderFragment extends Fragment implements O
 		return currentSearchSortTypeCriteria;
 	}
 
+	@Override
+	public Double getLatitude() {
+		return searchPlaceShareViewModel.getCriteriaLocationDto().getLatitudeAsDouble();
+	}
+
+	@Override
+	public Double getLongitude() {
+		return searchPlaceShareViewModel.getCriteriaLocationDto().getLongitudeAsDouble();
+	}
 }

@@ -1,10 +1,7 @@
 package com.lifedawn.capstoneapp.kakao.search.datasource;
 
 import androidx.annotation.NonNull;
-import androidx.paging.PositionalDataSource;
 
-import com.lifedawn.capstoneapp.retrofits.Queries;
-import com.lifedawn.capstoneapp.retrofits.RetrofitClient;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.place.PlaceResponse;
 
@@ -16,23 +13,23 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class RestaurantDataSource extends PositionalDataSource<PlaceResponse.Documents> {
+public class RestaurantDataSource extends KakaoLocalApiDataSource<PlaceResponse.Documents> {
 	private final String NECESSARY_CATEGORY_NAME = "음식점";
 
-	private Queries querys;
 	private PlaceResponse.Meta placeMeta;
-	private LocalApiPlaceParameter localApiPlaceParameter;
 	private String categoryName;
 
 	public RestaurantDataSource(LocalApiPlaceParameter localApiParameter) {
-		this.localApiPlaceParameter = localApiParameter;
+		super(localApiParameter);
 	}
+
 
 	@Override
 	public void loadInitial(@NonNull LoadInitialParams params, @NonNull LoadInitialCallback<PlaceResponse.Documents> callback) {
-		querys = RetrofitClient.getApiService(RetrofitClient.ServiceType.KAKAO_LOCAL);
+		super.loadInitial(params, callback);
+
 		Map<String, String> queryMap = localApiPlaceParameter.getParameterMap();
-		Call<PlaceResponse> call = querys.getPlaceKeyword(queryMap);
+		Call<PlaceResponse> call = queries.getPlaceKeyword(queryMap);
 
 		call.enqueue(new Callback<PlaceResponse>() {
 			@Override
@@ -61,12 +58,12 @@ public class RestaurantDataSource extends PositionalDataSource<PlaceResponse.Doc
 
 	@Override
 	public void loadRange(@NonNull LoadRangeParams params, @NonNull LoadRangeCallback<PlaceResponse.Documents> callback) {
-		querys = RetrofitClient.getApiService(RetrofitClient.ServiceType.KAKAO_LOCAL);
+		super.loadRange(params, callback);
 
 		if (!placeMeta.isEnd()) {
 			localApiPlaceParameter.setPage(Integer.toString(Integer.parseInt(localApiPlaceParameter.getPage()) + 1));
 			Map<String, String> queryMap = localApiPlaceParameter.getParameterMap();
-			Call<PlaceResponse> call = querys.getPlaceKeyword(queryMap);
+			Call<PlaceResponse> call = queries.getPlaceKeyword(queryMap);
 
 			call.enqueue(new Callback<PlaceResponse>() {
 				@Override

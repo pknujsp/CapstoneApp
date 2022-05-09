@@ -1,31 +1,17 @@
 package com.lifedawn.capstoneapp.kakao.search.viewmodel;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
 
-import com.lifedawn.capstoneapp.kakao.search.datasource.RestaurantDataSource;
 import com.lifedawn.capstoneapp.kakao.search.datasourcefactory.RestaurantDataSourceFactory;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.place.PlaceResponse;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class RestaurantViewModel extends ViewModel {
-	private LiveData<PagedList<PlaceResponse.Documents>> pagedListLiveData;
-	private RestaurantDataSourceFactory dataSourceFactory;
-	private MutableLiveData<RestaurantDataSource> dataSourceMutableLiveData;
-	private Executor executor;
-	private PagedList.Config config;
+public class RestaurantViewModel extends KakaoLocalApiViewModel<PlaceResponse.Documents> {
 
-	public RestaurantViewModel() {
-		executor = Executors.newSingleThreadExecutor();
-		//pagedListLiveData = new MutableLiveData<>();
-	}
-
+	@Override
 	public void init(LocalApiPlaceParameter placeParameter, PagedList.BoundaryCallback<PlaceResponse.Documents> boundaryCallback) {
 		dataSourceFactory = new RestaurantDataSourceFactory(placeParameter);
 		dataSourceMutableLiveData = dataSourceFactory.getLiveData();
@@ -39,12 +25,9 @@ public class RestaurantViewModel extends ViewModel {
 
 		pagedListLiveData = new LivePagedListBuilder<Integer, PlaceResponse.Documents>(dataSourceFactory, config)
 				.setBoundaryCallback(boundaryCallback)
-				.setFetchExecutor(executor)
+				.setFetchExecutor(Executors.newSingleThreadExecutor())
 				.build();
 	}
 
-	public LiveData<PagedList<PlaceResponse.Documents>> getPagedListMutableLiveData() {
-		return pagedListLiveData;
-	}
 
 }

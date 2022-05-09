@@ -1,10 +1,7 @@
 package com.lifedawn.capstoneapp.kakao.search.datasource;
 
 import androidx.annotation.NonNull;
-import androidx.paging.PositionalDataSource;
 
-import com.lifedawn.capstoneapp.retrofits.Queries;
-import com.lifedawn.capstoneapp.retrofits.RetrofitClient;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.place.PlaceResponse;
 
@@ -16,18 +13,17 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class PlaceItemDataSource extends PositionalDataSource<PlaceResponse.Documents> {
-	private Queries queries;
+public class PlaceItemDataSource extends KakaoLocalApiDataSource<PlaceResponse.Documents> {
 	private PlaceResponse.Meta placeMeta;
-	private LocalApiPlaceParameter localApiPlaceParameter;
-	
+
 	public PlaceItemDataSource(LocalApiPlaceParameter localApiParameter) {
-		this.localApiPlaceParameter = localApiParameter;
+		super(localApiParameter);
 	}
-	
+
+
 	@Override
 	public void loadInitial(@NonNull LoadInitialParams params, @NonNull LoadInitialCallback<PlaceResponse.Documents> callback) {
-		queries = RetrofitClient.getApiService(RetrofitClient.ServiceType.KAKAO_LOCAL);
+		super.loadInitial(params, callback);
 		Map<String, String> queryMap = localApiPlaceParameter.getParameterMap();
 		Call<PlaceResponse> call = queries.getPlaceKeyword(queryMap);
 		
@@ -57,7 +53,7 @@ public class PlaceItemDataSource extends PositionalDataSource<PlaceResponse.Docu
 	
 	@Override
 	public void loadRange(@NonNull LoadRangeParams params, @NonNull LoadRangeCallback<PlaceResponse.Documents> callback) {
-		queries = RetrofitClient.getApiService(RetrofitClient.ServiceType.KAKAO_LOCAL);
+		super.loadRange(params, callback);
 		
 		if (!placeMeta.isEnd()) {
 			localApiPlaceParameter.setPage(Integer.toString(Integer.parseInt(localApiPlaceParameter.getPage()) + 1));

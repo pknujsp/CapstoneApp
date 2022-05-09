@@ -92,6 +92,10 @@ public class LocationDto implements Serializable {
 		return latitude;
 	}
 
+	public Double getLatitudeAsDouble() {
+		return Double.parseDouble(latitude);
+	}
+
 	public LocationDto setLatitude(String latitude) {
 		this.latitude = latitude;
 		return this;
@@ -104,6 +108,10 @@ public class LocationDto implements Serializable {
 
 	public String getLongitude() {
 		return longitude;
+	}
+
+	public Double getLongitudeAsDouble() {
+		return Double.parseDouble(longitude);
 	}
 
 	public LocationDto setLongitude(String longitude) {
