@@ -72,7 +72,7 @@ public class RestaurantHeaderFragment extends AbstractSearchHeaderFragment {
 					R.id.search_around_map_center : R.id.search_around_promise_location);
 		} else {
 			iMap.removeMarkers(MarkerType.RESTAURANT);
-			bottomSheetController.setStateOfBottomSheet(BottomSheetType.AROUND_PLACES, BottomSheetBehavior.STATE_COLLAPSED);
+			bottomSheetController.setStateOfBottomSheet(BottomSheetType.LOCATION_ITEM, BottomSheetBehavior.STATE_COLLAPSED);
 
 			if (binding.categoryTabLayout.getTabCount() > 0) {
 				binding.categoryTabLayout.clearOnTabSelectedListeners();

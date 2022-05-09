@@ -99,7 +99,7 @@ public class AroundPlacesHeaderFragment extends AbstractSearchHeaderFragment {
 
 		} else {
 			iMap.removeMarkers(MarkerType.AROUND_PLACE);
-			bottomSheetController.setStateOfBottomSheet(BottomSheetType.AROUND_PLACES, BottomSheetBehavior.STATE_COLLAPSED);
+			bottomSheetController.setStateOfBottomSheet(BottomSheetType.LOCATION_ITEM, BottomSheetBehavior.STATE_COLLAPSED);
 
 			if (binding.categoryTabLayout.getTabCount() > 0) {
 				binding.categoryTabLayout.clearOnTabSelectedListeners();
