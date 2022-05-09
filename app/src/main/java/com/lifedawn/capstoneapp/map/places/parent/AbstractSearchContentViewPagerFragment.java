@@ -35,6 +35,9 @@ public abstract class AbstractSearchContentViewPagerFragment extends Fragment im
 	protected MapViewModel mapViewModel;
 	protected MarkerType markerType;
 
+	protected ViewPager2.OnPageChangeCallback onPageChangeCallback;
+
+
 	public AbstractSearchContentViewPagerFragment(MarkerType markerType) {
 		this.markerType = markerType;
 	}
@@ -79,6 +82,7 @@ public abstract class AbstractSearchContentViewPagerFragment extends Fragment im
 				fragment.clearResponses();
 			}
 		}
+
 		viewPagerAdapter.getFragment(tabPosition).requestQuery();
 	}
 
@@ -89,18 +93,22 @@ public abstract class AbstractSearchContentViewPagerFragment extends Fragment im
 
 	@Override
 	public void setViewPager(List<? extends AbstractSearchContentViewPagerItemFragment> fragmentList) {
-		viewPagerAdapter = new ContentViewPagerAdapter(this);
-		viewPagerAdapter.setFragmentList(fragmentList);
+		viewPagerAdapter = new ContentViewPagerAdapter(this, fragmentList);
 
 		binding.viewPager.setAdapter(viewPagerAdapter);
-		binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+
+		if (onPageChangeCallback != null) {
+			binding.viewPager.unregisterOnPageChangeCallback(onPageChangeCallback);
+			onPageChangeCallback = null;
+		}
+
+		onPageChangeCallback = new ViewPager2.OnPageChangeCallback() {
 			int lastPosition;
 			boolean initializing = true;
 			AbstractSearchContentViewPagerItemFragment fragment;
 
 			@Override
 			public void onPageSelected(int position) {
-				super.onPageSelected(position);
 				fragment = viewPagerAdapter.getFragment(position);
 
 				if (!initializing) {
@@ -117,6 +125,7 @@ public abstract class AbstractSearchContentViewPagerFragment extends Fragment im
 							}
 						});
 					}
+
 				} else {
 					fragment.getLifecycle().addObserver(new DefaultLifecycleObserver() {
 						@Override
@@ -130,7 +139,9 @@ public abstract class AbstractSearchContentViewPagerFragment extends Fragment im
 				initializing = false;
 				lastPosition = position;
 			}
-		});
+		};
+
+		binding.viewPager.registerOnPageChangeCallback(onPageChangeCallback);
 	}
 
 	@Override

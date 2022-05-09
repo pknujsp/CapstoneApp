@@ -1,6 +1,5 @@
-package com.lifedawn.capstoneapp.map.places.content;
+package com.lifedawn.capstoneapp.kakao.restaurant;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,35 +10,32 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.paging.PagedList;
-import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickedListItemListener;
-import com.lifedawn.capstoneapp.databinding.PlaceRecyclerViewItemBinding;
-import com.lifedawn.capstoneapp.kakao.search.callback.PlaceItemCallback;
-import com.lifedawn.capstoneapp.kakao.search.util.MapUtil;
 import com.lifedawn.capstoneapp.kakao.search.viewmodel.PlacesViewModel;
+import com.lifedawn.capstoneapp.kakao.search.viewmodel.RestaurantViewModel;
 import com.lifedawn.capstoneapp.map.MarkerType;
 import com.lifedawn.capstoneapp.map.interfaces.MarkerOnClickListener;
 import com.lifedawn.capstoneapp.map.interfaces.OnPoiItemClickListener;
+import com.lifedawn.capstoneapp.map.places.content.PlacesSearchResultAdapter;
 import com.lifedawn.capstoneapp.map.places.interfaces.IConnectHeader;
 import com.lifedawn.capstoneapp.map.places.parent.AbstractSearchContentViewPagerItemFragment;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.place.PlaceResponse;
 
-public class AroundPlacesSearchContentViewPagerItemFragment extends AbstractSearchContentViewPagerItemFragment {
-	private PlacesViewModel placesViewModel;
+public class RestaurantContentViewPagerItemFragment extends AbstractSearchContentViewPagerItemFragment {
+	private RestaurantViewModel restaurantViewModel;
 
-	public AroundPlacesSearchContentViewPagerItemFragment(MarkerOnClickListener markerOnClickListener, OnPoiItemClickListener onPoiItemClickListener, IConnectHeader iConnectHeader) {
+	public RestaurantContentViewPagerItemFragment(MarkerOnClickListener markerOnClickListener, OnPoiItemClickListener onPoiItemClickListener, IConnectHeader iConnectHeader) {
 		super(markerOnClickListener, onPoiItemClickListener, iConnectHeader);
 	}
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
+		restaurantViewModel = new ViewModelProvider(this).get(RestaurantViewModel.class);
 	}
 
 	@Nullable
@@ -61,10 +57,10 @@ public class AroundPlacesSearchContentViewPagerItemFragment extends AbstractSear
 
 	@Override
 	public void setAdapter(LocalApiPlaceParameter parameter) {
-		adapter = new PlacesSearchResultAdapter(getContext(), new OnClickedListItemListener<PlaceResponse.Documents>() {
+		adapter = new RestaurantSearchResultAdapter(getContext(), new OnClickedListItemListener<PlaceResponse.Documents>() {
 			@Override
 			public void onClicked(PlaceResponse.Documents e) {
-				onPoiItemClickListener.onPOIItemSelectedByList(e, MarkerType.AROUND_PLACE, null);
+				onPoiItemClickListener.onPOIItemSelectedByList(e, MarkerType.RESTAURANT, null);
 			}
 		});
 
@@ -74,7 +70,7 @@ public class AroundPlacesSearchContentViewPagerItemFragment extends AbstractSear
 				super.onItemRangeInserted(positionStart, itemCount);
 
 				if (positionStart > 0) {
-					iMap.addExtraMarkers(adapter.getCurrentList().snapshot(), MarkerType.AROUND_PLACE, markerOnClickListener);
+					iMap.addExtraMarkers(adapter.getCurrentList().snapshot(), MarkerType.RESTAURANT, markerOnClickListener);
 				} else {
 					if (getActivity() != null) {
 						getActivity().runOnUiThread(new Runnable() {
@@ -86,15 +82,15 @@ public class AroundPlacesSearchContentViewPagerItemFragment extends AbstractSear
 					}
 
 					if (itemCount > 0) {
-						iMap.createMarkers(adapter.getCurrentList().snapshot(), MarkerType.AROUND_PLACE, markerOnClickListener);
-						iMap.showMarkers(MarkerType.AROUND_PLACE);
+						iMap.createMarkers(adapter.getCurrentList().snapshot(), MarkerType.RESTAURANT, markerOnClickListener);
+						iMap.showMarkers(MarkerType.RESTAURANT);
 					}
 				}
 			}
 		});
 		binding.recyclerView.setAdapter(adapter);
 
-		placesViewModel.init(parameter, new PagedList.BoundaryCallback<PlaceResponse.Documents>() {
+		restaurantViewModel.init(parameter, new PagedList.BoundaryCallback<PlaceResponse.Documents>() {
 			@Override
 			public void onZeroItemsLoaded() {
 				super.onZeroItemsLoaded();
@@ -108,7 +104,7 @@ public class AroundPlacesSearchContentViewPagerItemFragment extends AbstractSear
 			}
 		});
 
-		placesViewModel.getPagedListMutableLiveData().observe(getViewLifecycleOwner(), new Observer<PagedList<PlaceResponse.Documents>>() {
+		restaurantViewModel.getPagedListMutableLiveData().observe(getViewLifecycleOwner(), new Observer<PagedList<PlaceResponse.Documents>>() {
 			@Override
 			public void onChanged(PagedList<PlaceResponse.Documents> placeDocuments) {
 				adapter.submitList(placeDocuments);

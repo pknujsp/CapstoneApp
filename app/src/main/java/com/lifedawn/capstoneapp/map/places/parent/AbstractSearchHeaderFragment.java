@@ -45,6 +45,7 @@ import com.lifedawn.capstoneapp.map.places.interfaces.IConnectHeader;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractSearchHeaderFragment extends Fragment implements OnExtraListDataListener<Constant>, IConnectHeader {
@@ -62,6 +63,12 @@ public abstract class AbstractSearchHeaderFragment extends Fragment implements O
 
 	protected static int currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_MAP_CENTER;
 	protected static int currentSearchSortTypeCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_SORT_TYPE_ACCURACY;
+
+	protected List<String> tabNameList = new ArrayList<>();
+
+	public AbstractSearchHeaderFragment(BottomSheetType bottomSheetType) {
+		this.bottomSheetType = bottomSheetType;
+	}
 
 	protected final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
 		@Override
@@ -185,8 +192,8 @@ public abstract class AbstractSearchHeaderFragment extends Fragment implements O
 								MyApplication.MAP_SEARCH_RANGE = value;
 								sharedPreferences.edit().putInt(SharedPreferenceConstant.MAP_SEARCH_RANGE.getVal(), value).apply();
 								binding.searchMaxRange.setText(new String(value + "km"));
-								iConnectContents.loadPlaces(binding.categoryTabLayout.getSelectedTabPosition());
 								dialog.dismiss();
+								init(binding.categoryTabLayout.getSelectedTabPosition());
 							}
 						})
 						.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -204,7 +211,6 @@ public abstract class AbstractSearchHeaderFragment extends Fragment implements O
 		int range = sharedPreferences.getInt(SharedPreferenceConstant.MAP_SEARCH_RANGE.getVal(), 1);
 		binding.searchMaxRange.setText(new String(range + "km"));
 
-		init();
 	}
 
 	@Override
@@ -213,9 +219,8 @@ public abstract class AbstractSearchHeaderFragment extends Fragment implements O
 		super.onDestroy();
 	}
 
-	protected void createTabs(List<? extends AbstractSearchContentViewPagerItemFragment> fragmentList, List<String> tabNamesList) {
-		iConnectContents.setViewPager(fragmentList);
 
+	protected void createTabs(List<String> tabNamesList) {
 		new TabLayoutMediator(binding.categoryTabLayout, iConnectContents.getViewPager2(), new TabLayoutMediator.TabConfigurationStrategy() {
 			@Override
 			public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
@@ -223,9 +228,12 @@ public abstract class AbstractSearchHeaderFragment extends Fragment implements O
 			}
 		}).attach();
 
+
+		binding.searchCriteriaToggleGroup.clearOnButtonCheckedListeners();
 		binding.searchCriteriaToggleGroup.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
 			boolean initializing = true;
 
+			@SuppressLint("NonConstantResourceId")
 			@Override
 			public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
 				if (isChecked) {
@@ -234,23 +242,22 @@ public abstract class AbstractSearchHeaderFragment extends Fragment implements O
 							currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION;
 							break;
 						case R.id.search_around_map_center:
+							loadMapCenterPoint();
 							currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_MAP_CENTER;
 							break;
 					}
-				}
+					searchPlaceShareViewModel.setCriteriaType(currentSearchMapPointCriteria);
 
-				if (!initializing) {
-					iConnectContents.loadPlaces(binding.categoryTabLayout.getSelectedTabPosition());
+					if (!initializing) {
+						init(binding.categoryTabLayout.getSelectedTabPosition());
+					}
 				}
 				initializing = false;
-
 			}
 		});
-		binding.searchCriteriaToggleGroup.check(currentSearchMapPointCriteria == LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_MAP_CENTER ?
-				R.id.search_around_map_center : R.id.search_around_promise_location);
 	}
 
-	protected void init() {
+	protected void init(Integer lastPositionOnTab) {
 
 	}
 

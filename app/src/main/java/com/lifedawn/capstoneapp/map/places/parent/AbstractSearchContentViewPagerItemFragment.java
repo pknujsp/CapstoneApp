@@ -59,7 +59,6 @@ public abstract class AbstractSearchContentViewPagerItemFragment extends Fragmen
 
 		mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
 		iMap = mapViewModel.getiMapData();
-
 	}
 
 	@Override
@@ -84,7 +83,6 @@ public abstract class AbstractSearchContentViewPagerItemFragment extends Fragmen
 		binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 		binding.recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 	}
-
 
 	public void clearResponses() {
 		binding.recyclerView.setAdapter(null);
@@ -113,6 +111,7 @@ public abstract class AbstractSearchContentViewPagerItemFragment extends Fragmen
 				adapter.unregisterAdapterDataObserver(this);
 			}
 		});
+
 		binding.recyclerView.scrollBy(0, 10000);
 	}
 

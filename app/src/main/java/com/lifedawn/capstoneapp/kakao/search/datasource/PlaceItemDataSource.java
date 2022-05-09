@@ -26,8 +26,7 @@ public class PlaceItemDataSource extends KakaoLocalApiDataSource<PlaceResponse.D
 		super.loadInitial(params, callback);
 		Map<String, String> queryMap = localApiPlaceParameter.getParameterMap();
 		Call<PlaceResponse> call = queries.getPlaceKeyword(queryMap);
-		
-		
+
 		call.enqueue(new Callback<PlaceResponse>() {
 			@Override
 			public void onResponse(Call<PlaceResponse> call, Response<PlaceResponse> response) {

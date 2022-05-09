@@ -23,7 +23,7 @@ public class CustomPlaceCategoryRepository implements ICustomPlaceCategoryReposi
 
 	@Override
 	public void getAll(OnDbQueryCallback<List<CustomPlaceCategoryDto>> callback) {
-		MyApplication.EXECUTOR_SERVICE.execute(new Runnable() {
+		MyApplication.EXECUTOR_SERVICE.submit(new Runnable() {
 			@Override
 			public void run() {
 				callback.onResult(dao.getAll());

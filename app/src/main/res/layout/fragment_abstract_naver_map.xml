@@ -114,9 +114,9 @@
                         android:elevation="3dp"
                         android:text="@string/promise_location"
                         android:textColor="@color/black"
+                        android:visibility="gone"
                         app:checkedIconVisible="false"
                         app:closeIconVisible="false"
-                        android:visibility="gone"
                         />
 
 
@@ -129,9 +129,9 @@
                         android:elevation="3dp"
                         android:text="@string/findRoute"
                         android:textColor="@color/black"
+                        android:visibility="gone"
                         app:checkedIconVisible="false"
                         app:closeIconVisible="false"
-                        android:visibility="gone"
                         />
 
                 </com.google.android.material.chip.ChipGroup>
@@ -167,13 +167,13 @@
         </FrameLayout>
 
         <include
-            android:id="@+id/location_search_bottom_sheet"
-            layout="@layout/bottom_sheet_location_search"
+            android:id="@+id/placeslist_bottom_sheet"
+            layout="@layout/place_list_bottom_sheet_view"
             />
 
         <include
-            android:id="@+id/placeslist_bottom_sheet"
-            layout="@layout/place_list_bottom_sheet_view"
+            android:id="@+id/location_search_bottom_sheet"
+            layout="@layout/bottom_sheet_location_search"
             />
 
         <include
@@ -181,9 +181,6 @@
             layout="@layout/view_bottom_sheet_around_places"
             />
 
-        <include
-            android:id="@+id/restaurantsBottomSheet"
-            layout="@layout/view_bottom_sheet_restaurants"
-            />
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

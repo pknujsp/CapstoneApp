@@ -42,6 +42,8 @@ import com.lifedawn.capstoneapp.common.util.LocationLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.view.SearchHistoryFragment;
 import com.lifedawn.capstoneapp.databinding.FragmentAbstractNaverMapBinding;
 import com.lifedawn.capstoneapp.kakao.SearchBarFragment;
+import com.lifedawn.capstoneapp.kakao.restaurant.RestaurantContentsViewPagerFragment;
+import com.lifedawn.capstoneapp.kakao.restaurant.RestaurantHeaderFragment;
 import com.lifedawn.capstoneapp.kakao.search.searchresult.LocationSearchResultMainFragment;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAbstractAdapter;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAdapter;
@@ -134,17 +136,10 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 			super.onFragmentAttached(fm, f, context);
 			if (f instanceof SearchHistoryFragment) {
 				binding.headerLayout.setVisibility(View.GONE);
-			} else if (f instanceof AroundPlacesContentsViewPagerFragment) {
+			} else if (f instanceof AroundPlacesContentsViewPagerFragment || f instanceof RestaurantContentsViewPagerFragment) {
 				binding.headerLayout.setVisibility(View.GONE);
 				binding.anotherFragmentContainer.setVisibility(View.VISIBLE);
 			}
-		}
-
-		@Override
-		public void onFragmentCreated(@NonNull @NotNull FragmentManager fm, @NonNull @NotNull Fragment f,
-		                              @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
-			super.onFragmentCreated(fm, f, savedInstanceState);
-
 		}
 
 		@Override
@@ -156,10 +151,10 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 			} else if (f instanceof LocationSearchResultMainFragment) {
 				removeMarkers(MarkerType.SEARCH_RESULT_ADDRESS, MarkerType.SEARCH_RESULT_PLACE);
-			} else if (f instanceof AroundPlacesContentsViewPagerFragment) {
+			} else if (f instanceof AroundPlacesContentsViewPagerFragment || f instanceof RestaurantContentsViewPagerFragment) {
+				removeAllMarkers();
 				binding.anotherFragmentContainer.setVisibility(View.GONE);
 				binding.headerLayout.setVisibility(View.VISIBLE);
-				removeAllMarkers();
 				setStateOfBottomSheet(BottomSheetType.LOCATION_ITEM, BottomSheetBehavior.STATE_COLLAPSED);
 			}
 		}
@@ -204,9 +199,8 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 		setLocationItemsBottomSheet();
 		setLocationSearchBottomSheet();
+		//setRestaurantsBottomSheet();
 		setAroundPlacesBottomSheet();
-
-
 
 		binding.placeChip.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -222,9 +216,9 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				}
 
 				AroundPlacesHeaderFragment headerFragment = new AroundPlacesHeaderFragment();
-				AroundPlacesContentsViewPagerFragment aroundPlacesContentsFragment = new AroundPlacesContentsViewPagerFragment();
-				headerFragment.setiConnectContents(aroundPlacesContentsFragment);
-				headerFragment.setOnExtraListDataListener(aroundPlacesContentsFragment);
+				AroundPlacesContentsViewPagerFragment contentViewPagerFragment = new AroundPlacesContentsViewPagerFragment();
+				headerFragment.setiConnectContents(contentViewPagerFragment);
+				headerFragment.setOnExtraListDataListener(contentViewPagerFragment);
 
 				if (getPromiseLocationDto() != null) {
 					Bundle bundle = new Bundle();
@@ -233,9 +227,8 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				}
 
 				childFragmentManager.beginTransaction().add(binding.aroundPlacesBottomSheet.fragmentContainerView.getId(),
-						aroundPlacesContentsFragment, AroundPlacesContentsViewPagerFragment.class.getName())
-						.add(binding.anotherFragmentContainer.getId(), headerFragment,
-								AroundPlacesHeaderFragment.class.getName())
+						contentViewPagerFragment, AroundPlacesContentsViewPagerFragment.class.getName())
+						.add(binding.anotherFragmentContainer.getId(), headerFragment, AroundPlacesHeaderFragment.class.getName())
 						.addToBackStack(AroundPlacesContentsViewPagerFragment.class.getName()).commitAllowingStateLoss();
 
 				setStateOfBottomSheet(BottomSheetType.AROUND_PLACES, BottomSheetBehavior.STATE_EXPANDED);
@@ -245,7 +238,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 		binding.restaurantsChip.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				//주변 장소 표시
+				//음식점 정보 표시
 				collapseAllExpandedBottomSheets();
 
 				FragmentManager childFragmentManager = getChildFragmentManager();
@@ -255,10 +248,10 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 					childFragmentManager.popBackStack();
 				}
 
-				AroundPlacesHeaderFragment headerFragment = new AroundPlacesHeaderFragment();
-				AroundPlacesContentsViewPagerFragment aroundPlacesContentsFragment = new AroundPlacesContentsViewPagerFragment();
-				headerFragment.setiConnectContents(aroundPlacesContentsFragment);
-				headerFragment.setOnExtraListDataListener(aroundPlacesContentsFragment);
+				RestaurantHeaderFragment headerFragment = new RestaurantHeaderFragment();
+				RestaurantContentsViewPagerFragment contentsViewPagerFragment = new RestaurantContentsViewPagerFragment();
+				headerFragment.setiConnectContents(contentsViewPagerFragment);
+				headerFragment.setOnExtraListDataListener(contentsViewPagerFragment);
 
 				if (getPromiseLocationDto() != null) {
 					Bundle bundle = new Bundle();
@@ -267,10 +260,9 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				}
 
 				childFragmentManager.beginTransaction().add(binding.aroundPlacesBottomSheet.fragmentContainerView.getId(),
-						aroundPlacesContentsFragment, AroundPlacesContentsViewPagerFragment.class.getName())
-						.add(binding.anotherFragmentContainer.getId(), headerFragment,
-								AroundPlacesHeaderFragment.class.getName())
-						.addToBackStack(AroundPlacesContentsViewPagerFragment.class.getName()).commitAllowingStateLoss();
+						contentsViewPagerFragment, RestaurantContentsViewPagerFragment.class.getName())
+						.add(binding.anotherFragmentContainer.getId(), headerFragment, RestaurantHeaderFragment.class.getName())
+						.addToBackStack(RestaurantContentsViewPagerFragment.class.getName()).commitAllowingStateLoss();
 
 				setStateOfBottomSheet(BottomSheetType.AROUND_PLACES, BottomSheetBehavior.STATE_EXPANDED);
 			}
@@ -677,6 +669,18 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				});
 				return;
 
+			case RESTAURANT:
+				RestaurantHeaderFragment restaurantHeaderFragment =
+						(RestaurantHeaderFragment) getChildFragmentManager().findFragmentByTag(
+								RestaurantHeaderFragment.class.getName());
+
+				restaurantHeaderFragment.loadExtraListData(new RecyclerView.AdapterDataObserver() {
+					@Override
+					public void onItemRangeInserted(int positionStart, int itemCount) {
+						super.onItemRangeInserted(positionStart, itemCount);
+					}
+				});
+				return;
 		}
 	}
 
@@ -741,6 +745,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 	}
 
 	protected void setRestaurantsBottomSheet() {
+		/*
 		LinearLayout restaurantsBottomSheet = binding.restaurantsBottomSheet.restaurantsBottomSheet;
 
 		BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(restaurantsBottomSheet);
@@ -765,11 +770,12 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 		bottomSheetViewMap.put(BottomSheetType.RESTAURANT, restaurantsBottomSheet);
 		bottomSheetBehaviorMap.put(BottomSheetType.RESTAURANT, bottomSheetBehavior);
+
+		 */
 	}
 
 	protected void setAroundPlacesBottomSheet() {
 		LinearLayout aroundPlacesBottomSheet = binding.aroundPlacesBottomSheet.aroundPlacesBottomSheet;
-
 
 		BottomSheetBehavior aroundPlacesBottomSheetBehavior = BottomSheetBehavior.from(aroundPlacesBottomSheet);
 		aroundPlacesBottomSheetBehavior.setDraggable(false);
@@ -791,7 +797,6 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 					PointF movePoint = new PointF(0f, -mapTranslationLength);
 					CameraUpdate cameraUpdate = CameraUpdate.scrollBy(movePoint);
 					naverMap.moveCamera(cameraUpdate);
-
 				}
 			}
 
@@ -1124,10 +1129,6 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 	@Override
 	public void onSelected(KakaoLocalDocument kakaoLocalDocument, boolean remove) {
-
-	}
-
-	protected final void openRestaurantFragment() {
 
 	}
 

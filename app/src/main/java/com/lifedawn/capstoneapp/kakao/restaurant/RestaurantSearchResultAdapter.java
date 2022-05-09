@@ -1,4 +1,4 @@
-package com.lifedawn.capstoneapp.map.places.content;
+package com.lifedawn.capstoneapp.kakao.restaurant;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,13 +11,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickedListItemListener;
 import com.lifedawn.capstoneapp.databinding.PlaceRecyclerViewItemBinding;
+import com.lifedawn.capstoneapp.databinding.RestaurantItemviewBinding;
 import com.lifedawn.capstoneapp.kakao.search.util.MapUtil;
 import com.lifedawn.capstoneapp.map.places.parent.SearchResultAdapter;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.place.PlaceResponse;
 
-public class PlacesSearchResultAdapter extends SearchResultAdapter<PlaceResponse.Documents, PlacesSearchResultAdapter.ItemViewHolder> {
+public class RestaurantSearchResultAdapter extends SearchResultAdapter<PlaceResponse.Documents, RestaurantSearchResultAdapter.ItemViewHolder> {
 
-	public PlacesSearchResultAdapter(Context context, OnClickedListItemListener<PlaceResponse.Documents> onClickedListItem) {
+	public RestaurantSearchResultAdapter(Context context, OnClickedListItemListener<PlaceResponse.Documents> onClickedListItem) {
 		super(context, onClickedListItem);
 	}
 
@@ -25,7 +26,12 @@ public class PlacesSearchResultAdapter extends SearchResultAdapter<PlaceResponse
 	@Override
 	public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		return new ItemViewHolder(
-				LayoutInflater.from(context).inflate(R.layout.place_recycler_view_item, parent, false));
+				LayoutInflater.from(context).inflate(R.layout.restaurant_itemview, parent, false));
+	}
+
+	@Override
+	public void onViewRecycled(@NonNull ItemViewHolder holder) {
+		super.onViewRecycled(holder);
 	}
 
 	@Override
@@ -34,22 +40,20 @@ public class PlacesSearchResultAdapter extends SearchResultAdapter<PlaceResponse
 	}
 
 	protected class ItemViewHolder extends RecyclerView.ViewHolder {
-		private PlaceRecyclerViewItemBinding binding;
+		private RestaurantItemviewBinding binding;
 		protected PlaceResponse.Documents item;
 
 		public ItemViewHolder(View view) {
 			super(view);
-			binding = PlaceRecyclerViewItemBinding.bind(view);
+			binding = RestaurantItemviewBinding.bind(view);
 		}
 
 		public void bind() {
 			item = getItem(getBindingAdapterPosition());
 
-			binding.placeName.setText(item.getPlaceName());
-			binding.placeIndex.setText(String.valueOf(getBindingAdapterPosition() + 1));
-			binding.placeCategory.setText(item.getCategoryName());
-			binding.placeAddressName.setText(item.getAddressName());
-			binding.placeDistance.setText(MapUtil.convertMeterToKm(Double.parseDouble(item.getDistance())));
+			binding.restaurantName.setText(item.getPlaceName());
+			binding.restaurantAddress.setText(item.getAddressName());
+			binding.restaurantCategory.setText(item.getCategoryName());
 
 			itemView.getRootView().setOnClickListener(new View.OnClickListener() {
 				@Override

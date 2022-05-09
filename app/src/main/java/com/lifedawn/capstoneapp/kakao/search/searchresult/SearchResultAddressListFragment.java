@@ -103,7 +103,12 @@ public class SearchResultAddressListFragment extends Fragment implements OnExtra
 		LocalApiPlaceParameter parameter = LocalParameterUtil.getAddressParameter(QUERY, LocalApiPlaceParameter.DEFAULT_SIZE,
 				LocalApiPlaceParameter.DEFAULT_PAGE);
 		
-		addressViewModel.init(parameter);
+		addressViewModel.init(parameter, new PagedList.BoundaryCallback<AddressResponse.Documents>() {
+			@Override
+			public void onZeroItemsLoaded() {
+				super.onZeroItemsLoaded();
+			}
+		});
 		addressViewModel.getPagedListMutableLiveData().observe(getViewLifecycleOwner(),
 				new Observer<PagedList<AddressResponse.Documents>>() {
 					@Override

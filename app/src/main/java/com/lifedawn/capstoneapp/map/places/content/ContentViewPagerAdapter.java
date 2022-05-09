@@ -12,12 +12,8 @@ import java.util.List;
 public class ContentViewPagerAdapter extends FragmentStateAdapter {
 	private final List<AbstractSearchContentViewPagerItemFragment> fragmentList = new ArrayList<>();
 
-	public ContentViewPagerAdapter(@NonNull Fragment fragment) {
+	public ContentViewPagerAdapter(@NonNull Fragment fragment, List<? extends AbstractSearchContentViewPagerItemFragment> fragmentList) {
 		super(fragment);
-	}
-
-	public void setFragmentList(List<? extends AbstractSearchContentViewPagerItemFragment> fragmentList) {
-		this.fragmentList.clear();
 		this.fragmentList.addAll(fragmentList);
 	}
 
@@ -35,7 +31,6 @@ public class ContentViewPagerAdapter extends FragmentStateAdapter {
 	public int getItemCount() {
 		return fragmentList.size();
 	}
-
 
 	public List<AbstractSearchContentViewPagerItemFragment> getFragmentList() {
 		return fragmentList;
