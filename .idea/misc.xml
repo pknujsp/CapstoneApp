@@ -12,6 +12,7 @@
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/attendee_simple_info.xml" value="0.5536458333333333" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/bottom_sheet_location_search.xml" value="0.5536458333333333" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/calendar_day_layout.xml" value="0.17806484295845998" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/card_view_places_item.xml" value="0.5536458333333333" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/event_attendee_chip.xml" value="0.36614583333333334" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/event_dialog_fragment.xml" value="0.25364583333333335" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/food_menu_item.xml" value="0.2689969604863222" />
@@ -50,6 +51,8 @@
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_restaurants_tab.xml" value="0.2689969604863222" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_search_bar.xml" value="0.26494427558257344" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_search_restaurant.xml" value="0.26494427558257344" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_search_result_address_list.xml" value="0.38333333333333336" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_search_result_place_list.xml" value="0.3278985507246377" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_weather_info.xml" value="0.4585687382297552" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/item_view_event_list.xml" value="0.25364583333333335" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/item_view_friend.xml" value="0.5" />

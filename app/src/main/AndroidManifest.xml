@@ -74,6 +74,10 @@
         <meta-data
             android:name="com.kakao.sdk.AppKey"
             android:value="0dc55f983ec285210efb88d1389f7c2b" />
+
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
     </application>
 
 </manifest>

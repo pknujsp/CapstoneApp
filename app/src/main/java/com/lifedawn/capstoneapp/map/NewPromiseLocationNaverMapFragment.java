@@ -26,10 +26,6 @@ public class NewPromiseLocationNaverMapFragment extends AbstractNaverMapFragment
 		return null;
 	}
 
-	@Override
-	public void onClickedPlaceBottomSheet(KakaoLocalDocument kakaoLocalDocument) {
-
-	}
 
 	@Override
 	public void onSelected(KakaoLocalDocument kakaoLocalDocument, boolean remove) {

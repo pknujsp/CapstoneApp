@@ -45,6 +45,7 @@ import com.lifedawn.capstoneapp.kakao.SearchBarFragment;
 import com.lifedawn.capstoneapp.kakao.restaurant.RestaurantContentsViewPagerFragment;
 import com.lifedawn.capstoneapp.kakao.restaurant.RestaurantHeaderFragment;
 import com.lifedawn.capstoneapp.kakao.search.searchresult.LocationSearchResultMainFragment;
+import com.lifedawn.capstoneapp.kakao.web.PlaceInfoWebFragment;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAbstractAdapter;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAdapter;
 import com.lifedawn.capstoneapp.map.interfaces.BottomSheetController;
@@ -199,7 +200,6 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 		setLocationItemsBottomSheet();
 		setLocationSearchBottomSheet();
-		//setRestaurantsBottomSheet();
 		setAroundPlacesBottomSheet();
 
 		binding.placeChip.setOnClickListener(new View.OnClickListener() {
@@ -744,35 +744,6 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 		bottomSheetBehaviorMap.put(BottomSheetType.LOCATION_ITEM, locationItemBottomSheetBehavior);
 	}
 
-	protected void setRestaurantsBottomSheet() {
-		/*
-		LinearLayout restaurantsBottomSheet = binding.restaurantsBottomSheet.restaurantsBottomSheet;
-
-		BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(restaurantsBottomSheet);
-		bottomSheetBehavior.setDraggable(false);
-		bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-			float differenceY;
-
-			@Override
-			public void onStateChanged(@NonNull View bottomSheet, int newState) {
-
-			}
-
-			@Override
-			public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-				//expanded일때 offset == 1.0, collapsed일때 offset == 0.0
-				//offset에 따라서 버튼들이 이동하고, 지도의 좌표가 변경되어야 한다.
-				differenceY = bottomSheet.getHeight();
-				float translationValue = -differenceY * slideOffset;
-				binding.naverMapButtonsLayout.getRoot().animate().translationY(translationValue);
-			}
-		});
-
-		bottomSheetViewMap.put(BottomSheetType.RESTAURANT, restaurantsBottomSheet);
-		bottomSheetBehaviorMap.put(BottomSheetType.RESTAURANT, bottomSheetBehavior);
-
-		 */
-	}
 
 	protected void setAroundPlacesBottomSheet() {
 		LinearLayout aroundPlacesBottomSheet = binding.aroundPlacesBottomSheet.aroundPlacesBottomSheet;
@@ -1090,48 +1061,23 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 		}
 	}
 
-	protected final Object[] createBottomSheet(int fragmentContainerViewId) {
-		XmlPullParser parser = getResources().getXml(R.xml.persistent_bottom_sheet_default_attrs);
-		try {
-			parser.next();
-			parser.nextTag();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		AttributeSet attr = Xml.asAttributeSet(parser);
-		LinearLayout bottomSheetView = new LinearLayout(getContext(), attr);
-
-		CoordinatorLayout.LayoutParams layoutParams = new CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-				ViewGroup.LayoutParams.MATCH_PARENT);
-		layoutParams.setBehavior(new BottomSheetBehavior());
-		bottomSheetView.setLayoutParams(layoutParams);
-		bottomSheetView.setClickable(true);
-		bottomSheetView.setOrientation(LinearLayout.VERTICAL);
-
-		binding.naverMapFragmentRootLayout.addView(bottomSheetView);
-
-		//fragmentcontainerview 추가
-		FragmentContainerView fragmentContainerView = new FragmentContainerView(getContext());
-		fragmentContainerView.setId(fragmentContainerViewId);
-		fragmentContainerView.setLayoutParams(
-				new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-		bottomSheetView.addView(fragmentContainerView);
-
-		BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView);
-		bottomSheetBehavior.setDraggable(false);
-		bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-		bottomSheetBehavior.setHideable(false);
-		bottomSheetBehavior.setPeekHeight(0);
-
-		return new Object[]{bottomSheetView, bottomSheetBehavior};
-	}
 
 	@Override
 	public void onSelected(KakaoLocalDocument kakaoLocalDocument, boolean remove) {
 
 	}
 
+	@Override
+	public void onClickedPlaceBottomSheet(KakaoLocalDocument kakaoLocalDocument) {
+		PlaceInfoWebFragment placeInfoWebFragment = new PlaceInfoWebFragment();
+		Bundle bundle = new Bundle();
+		bundle.putString("placeId", ((PlaceResponse.Documents) kakaoLocalDocument).getId());
+		placeInfoWebFragment.setArguments(bundle);
+
+		getParentFragmentManager().beginTransaction().hide(this).add(R.id.fragmentContainerView, placeInfoWebFragment,
+				PlaceInfoWebFragment.class.getName())
+				.addToBackStack(PlaceInfoWebFragment.class.getName()).commitAllowingStateLoss();
+	}
 
 	protected static class MarkerHolder {
 		final KakaoLocalDocument kakaoLocalDocument;

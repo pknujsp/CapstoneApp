@@ -49,6 +49,7 @@ public class PromiseInfoFragment extends Fragment {
 	private AccountViewModel accountViewModel;
 	private ZonedDateTime promiseDateTime;
 	private MultipleRestApiDownloader multipleRestApiDownloader;
+	private Bundle bundle;
 
 	private final DateTimeFormatter START_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy M/d E a h:mm");
 
@@ -56,11 +57,17 @@ public class PromiseInfoFragment extends Fragment {
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Bundle bundle = getArguments();
+		bundle = getArguments() != null ? getArguments() : savedInstanceState;
 
 		eventId = bundle.getString("eventId");
 		friendViewModel = new ViewModelProvider(requireActivity()).get(FriendViewModel.class);
 		accountViewModel = new ViewModelProvider(requireActivity()).get(AccountViewModel.class);
+	}
+
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putAll(bundle);
 	}
 
 	@Nullable
@@ -82,9 +89,9 @@ public class PromiseInfoFragment extends Fragment {
 		});
 		binding.toolbar.fragmentTitle.setText(R.string.promise_info);
 
-		binding.progressLayout.setVisibility(View.GONE);
+		binding.progressLayout.setContentView(binding.weatherLayout);
+		binding.progressLayout.onStarted(getString(R.string.loading_weather_data));
 		binding.todayCurrentWeather.title.setText(R.string.todayCurrentWeather);
-		binding.weatherLayout.setVisibility(View.GONE);
 		binding.updateBtn.setVisibility(View.GONE);
 
 		CalendarRepository.loadEvent(getContext(), eventId,
@@ -158,7 +165,7 @@ public class PromiseInfoFragment extends Fragment {
 									binding.naverMap.setVisibility(View.GONE);
 								}
 								mapFragment.setArguments(bundle);
-								getChildFragmentManager().beginTransaction().add(binding.naverMap.getId(), mapFragment).commit();
+								getChildFragmentManager().beginTransaction().add(binding.naverMap.getId(), mapFragment).commitAllowingStateLoss();
 
 								initAttendeesView(eventObj.getAttendeeList());
 								initRemindersView(eventObj.getReminderList());
@@ -176,27 +183,23 @@ public class PromiseInfoFragment extends Fragment {
 		binding.updateBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				binding.weatherLayout.setVisibility(View.GONE);
-				binding.progressCircular.setVisibility(View.VISIBLE);
-				binding.progressMsg.setText(R.string.loading_weather_data);
+				binding.progressLayout.onStarted(getString(R.string.loading_weather_data));
 				binding.updateBtn.setVisibility(View.GONE);
+
 				refreshWeatherData();
 			}
 		});
 	}
 
 	void refreshWeatherData() {
-		final Double latitude = Double.parseDouble(locationDto.getLatitude());
-		final Double longitude = Double.parseDouble(locationDto.getLongitude());
-
 		multipleRestApiDownloader = WeatherRequest.requestWeatherData(getContext(),
-				latitude, longitude,
+				locationDto.getLatitudeAsDouble(), locationDto.getLongitudeAsDouble(),
 				new BackgroundCallback<WeatherRequest.WeatherResponseResult>() {
 					@Override
 					public void onResultSuccessful(WeatherRequest.WeatherResponseResult weatherResponseResult) {
 						WeatherResponseData.addWeatherResponse(getContext(), weatherResponseResult.getLatitude(),
 								weatherResponseResult.getLongitude(), weatherResponseResult.getMultipleRestApiDownloader());
-						onResultWeather(WeatherResponseData.getWeatherResponse(latitude, longitude));
+						onResultWeather(WeatherResponseData.getWeatherResponse(locationDto.getLatitudeAsDouble(), locationDto.getLongitudeAsDouble()));
 					}
 
 					@Override
@@ -205,9 +208,7 @@ public class PromiseInfoFragment extends Fragment {
 							getActivity().runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									binding.weatherLayout.setVisibility(View.GONE);
-									binding.progressCircular.setVisibility(View.GONE);
-									binding.progressMsg.setText(R.string.failed_loading_weather_data);
+									binding.progressLayout.onFailed(getString(R.string.failed_loading_weather_data));
 									binding.updateBtn.setVisibility(View.VISIBLE);
 								}
 							});
@@ -305,7 +306,7 @@ public class PromiseInfoFragment extends Fragment {
 				@Override
 				public void run() {
 					DateTimeFormatter lastUpdateDateTimeFormatter = DateTimeFormatter.ofPattern("M.d E a hh:mm");
-					binding.lastUpdateDateTime.setText(weatherResponseObj.multipleRestApiDownloader.getRequestDateTime().format(lastUpdateDateTimeFormatter));
+					binding.updateBtn.setText(weatherResponseObj.multipleRestApiDownloader.getRequestDateTime().format(lastUpdateDateTimeFormatter));
 
 					binding.todayCurrentWeather.leftWeatherIcon.setImageResource(currentConditionsDto.getWeatherIcon());
 					binding.todayCurrentWeather.rightWeatherIcon.setVisibility(View.GONE);
@@ -343,8 +344,7 @@ public class PromiseInfoFragment extends Fragment {
 						}
 					}
 
-					binding.weatherLayout.setVisibility(View.VISIBLE);
-					binding.progressLayout.setVisibility(View.GONE);
+					binding.progressLayout.onSuccessful();
 					binding.updateBtn.setVisibility(View.VISIBLE);
 
 				}
@@ -353,10 +353,8 @@ public class PromiseInfoFragment extends Fragment {
 			getActivity().runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					binding.weatherLayout.setVisibility(View.GONE);
+					binding.progressLayout.onFailed(getString(R.string.failed_loading_weather_data));
 					binding.updateBtn.setVisibility(View.VISIBLE);
-					binding.progressCircular.setVisibility(View.GONE);
-					binding.progressMsg.setText(R.string.failed_loading_weather_data);
 				}
 			});
 		}

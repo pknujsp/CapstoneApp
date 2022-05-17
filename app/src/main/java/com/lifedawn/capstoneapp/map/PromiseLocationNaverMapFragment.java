@@ -165,11 +165,6 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 		super.onMapLongClick(pointF, latLng);
 	}
 
-	@Override
-	public void onClickedPlaceBottomSheet(KakaoLocalDocument kakaoLocalDocument) {
-
-	}
-
 
 	private void createSelectedLocationMarker() {
 		LatLng latLng = new LatLng(Double.parseDouble(selectedLocationDtoInEvent.getLatitude()),
