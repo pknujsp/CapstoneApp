@@ -25,7 +25,7 @@ public class RestaurantViewModel extends KakaoLocalApiViewModel<PlaceResponse.Do
 
 		pagedListLiveData = new LivePagedListBuilder<Integer, PlaceResponse.Documents>(dataSourceFactory, config)
 				.setBoundaryCallback(boundaryCallback)
-				.setFetchExecutor(Executors.newSingleThreadExecutor())
+				.setFetchExecutor(executor)
 				.build();
 	}
 

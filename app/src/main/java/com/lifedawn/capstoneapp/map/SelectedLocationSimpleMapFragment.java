@@ -61,6 +61,8 @@ public class SelectedLocationSimpleMapFragment extends AbstractSimpleNaverMapFra
 		showMarkerOfSelectedLocation();
 	}
 
+
+
 	private void showMarkerOfSelectedLocation() {
 		if (locationDto == null) {
 			if (selectedLocationMarker != null) {

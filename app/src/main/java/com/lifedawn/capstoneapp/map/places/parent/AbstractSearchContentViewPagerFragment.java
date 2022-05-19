@@ -1,6 +1,7 @@
 package com.lifedawn.capstoneapp.map.places.parent;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,15 +76,7 @@ public abstract class AbstractSearchContentViewPagerFragment extends Fragment im
 
 	@Override
 	public void loadPlaces(int tabPosition) {
-		iMap.removeMarkers(markerType);
 
-		for (AbstractSearchContentViewPagerItemFragment fragment : viewPagerAdapter.getFragmentList()) {
-			if (fragment.adapter != null) {
-				fragment.clearResponses();
-			}
-		}
-
-		viewPagerAdapter.getFragment(tabPosition).requestQuery();
 	}
 
 	@Override
@@ -94,7 +87,6 @@ public abstract class AbstractSearchContentViewPagerFragment extends Fragment im
 	@Override
 	public void setViewPager(List<? extends AbstractSearchContentViewPagerItemFragment> fragmentList) {
 		viewPagerAdapter = new ContentViewPagerAdapter(this, fragmentList);
-
 		binding.viewPager.setAdapter(viewPagerAdapter);
 
 		if (onPageChangeCallback != null) {
@@ -113,13 +105,16 @@ public abstract class AbstractSearchContentViewPagerFragment extends Fragment im
 
 				if (!initializing) {
 					if (fragment.adapter != null) {
+						Log.e("뷰페이저 체크", fragment.query + " : adapter is not null");
 						iMap.removeMarkers(markerType);
 						iMap.createMarkers(fragment.adapter.getCurrentList().snapshot(), markerType, fragment.markerOnClickListener);
 						iMap.showMarkers(markerType);
 					} else {
+						Log.e("뷰페이저 체크", fragment.query + " : adapter is null");
 						fragment.getLifecycle().addObserver(new DefaultLifecycleObserver() {
 							@Override
 							public void onStart(@NonNull LifecycleOwner owner) {
+								Log.e("뷰페이저 체크", fragment.query + " : onStart");
 								DefaultLifecycleObserver.super.onStart(owner);
 								fragment.requestQuery();
 							}

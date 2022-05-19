@@ -161,7 +161,7 @@ public class WeatherInfoFragment extends DialogFragment {
 		dialog.getWindow().getWindowManager().getDefaultDisplay().getRectSize(rect);
 
 		WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
-		layoutParams.width = (int) (rect.width() * 0.9);
+		layoutParams.width = (int) (rect.width() * 0.95);
 		layoutParams.height = (int) (rect.height() * 0.8);
 
 		dialog.getWindow().setAttributes(layoutParams);
@@ -268,6 +268,7 @@ public class WeatherInfoFragment extends DialogFragment {
 	}
 
 	private void setHourlyForecastView(List<HourlyForecastDto> hourlyForecastDtoList) {
+		binding.hourlyForecastView.removeAllViews();
 		Context context = getContext();
 
 		final int columnCount = hourlyForecastDtoList.size();
@@ -353,6 +354,8 @@ public class WeatherInfoFragment extends DialogFragment {
 	}
 
 	private void setDailyForecastView(List<DailyForecastDto> dailyForecastDtoList) {
+		binding.dailyForecastView.removeAllViews();
+
 		//시각 --------------------------------------------------------------------------
 		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("M.d\nE");
 		//날씨 아이콘

@@ -9,7 +9,7 @@
     <string name="input_email">이메일 주소 입력</string>
     <string name="logout_google">구글 로그아웃</string>
     <string name="app_settings">앱 설정</string>
-    <string name="input_address_or_place">주소또는 장소를 입력</string>
+    <string name="input_address_or_place">주소 또는 장소를 입력</string>
     <string name="notification_on_time">정시에 알림</string>
     <string name="notification_before_10_minutes">10분전에 알림</string>
     <string name="notification_before_30_minutes">30분전에 알림</string>
@@ -251,4 +251,8 @@
     <string name="restaurant">음식점</string>
     <string name="open_map">지도로 보기</string>
     <string name="empty_search_result">검색 결과가 없습니다</string>
+    <string name="failed_loading_event">약속 정보 로드 실패</string>
+    <string name="no_weather_location">날씨를 불러올 위치 없음</string>
+    <string name="msg_edit_promise">약속 내용을 수정하시겠습니까?</string>
+    <string name="empty_search_history">검색 내역이 없습니다</string>
 </resources>

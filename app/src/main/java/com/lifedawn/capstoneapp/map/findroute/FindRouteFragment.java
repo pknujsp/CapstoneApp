@@ -152,7 +152,7 @@ public class FindRouteFragment extends DialogFragment {
 
 		WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
 		layoutParams.width = (int) (rect.width() * 0.9);
-		layoutParams.height = (int) (rect.height() * 0.6);
+		//layoutParams.height = (int) (rect.height() * 0.6);
 
 		dialog.getWindow().setAttributes(layoutParams);
 	}

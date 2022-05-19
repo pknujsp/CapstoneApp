@@ -28,6 +28,7 @@ import com.lifedawn.capstoneapp.common.interfaces.OnFragmentCallback;
 import com.lifedawn.capstoneapp.friends.invitation.InvitationFriendFragment;
 import com.lifedawn.capstoneapp.main.MyApplication;
 import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.map.SelectedLocationSimpleMapFragment;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAbstractAdapter;
 import com.lifedawn.capstoneapp.promise.abstractfragment.AbstractPromiseFragment;
 import com.lifedawn.capstoneapp.reminder.RemindersFragment;
@@ -48,14 +49,15 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 	private Calendar calendarService;
 	private String eventId;
 	private OnFragmentCallback<Boolean> onFragmentCallback;
+	private Bundle bundle;
 
 	private boolean initializing = true;
 
 	private boolean editSummary;
 	private boolean editDescription;
 	private boolean editAttendees;
-	private boolean editLocation;
 	private boolean editReminders;
+	private boolean editLocation;
 
 	public EditPromiseFragment setOnFragmentCallback(OnFragmentCallback<Boolean> onFragmentCallback) {
 		this.onFragmentCallback = onFragmentCallback;
@@ -65,11 +67,14 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (getArguments() != null) {
-			Bundle bundle = getArguments();
-			eventId = bundle.getString("eventId");
-		}
+		bundle = getArguments() != null ? getArguments() : savedInstanceState;
+		eventId = bundle.getString("eventId");
+	}
 
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putAll(bundle);
 	}
 
 	@Override
@@ -107,16 +112,32 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 		binding.saveBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				googleAccountLifeCycleObserver.setInstanceUserRecoverableAuthIntentActivityResultCallback(
-						new ActivityResultCallback<ActivityResult>() {
+				new MaterialAlertDialogBuilder(requireActivity())
+						.setTitle(R.string.edit_promise)
+						.setMessage(R.string.msg_edit_promise)
+						.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 							@Override
-							public void onActivityResult(ActivityResult result) {
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+								googleAccountLifeCycleObserver.setInstanceUserRecoverableAuthIntentActivityResultCallback(
+										new ActivityResultCallback<ActivityResult>() {
+											@Override
+											public void onActivityResult(ActivityResult result) {
+												calendarService = calendarViewModel.getCalendarService();
+												updateEvent();
+											}
+										});
 								calendarService = calendarViewModel.getCalendarService();
 								updateEvent();
 							}
-						});
-				calendarService = calendarViewModel.getCalendarService();
-				updateEvent();
+						}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				}).create().show();
+
+
 			}
 		});
 
@@ -440,16 +461,17 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 		//초대받은 사람들
 		initAttendeesView(originalEvent.getAttendees());
 
-		//장소
-		final String location = originalEvent.getLocation();
-		if (location != null) {
-			locationDto = LocationDto.toLocationDto(location);
-			mapFragment.replaceLocation(locationDto);
+		mapFragment = new SelectedLocationSimpleMapFragment();
+		Bundle bundle = new Bundle();
 
-			if (locationDto != null) {
-				binding.placeName.setText(locationDto.getLocationType() == Constant.PLACE ? locationDto.getPlaceName() : locationDto.getAddressName());
-				binding.naverMap.setVisibility(View.VISIBLE);
-			}
+		//장소
+		final String locationValue = originalEvent.getLocation();
+		if (locationValue != null) {
+			locationDto = LocationDto.toLocationDto(locationValue);
+			bundle.putSerializable("locationDto", locationDto);
+
+			binding.placeName.setText(locationDto.getLocationType() == Constant.PLACE ? locationDto.getPlaceName() : locationDto.getAddressName());
+			binding.naverMap.setVisibility(View.VISIBLE);
 		}
 		//알림
 		Event.Reminders reminders = originalEvent.getReminders();
@@ -459,7 +481,11 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 
 		binding.account.setText(originalEvent.getOrganizer().getDisplayName());
 
+		mapFragment.setArguments(bundle);
+		getChildFragmentManager().beginTransaction().add(binding.naverMap.getId(), mapFragment).commitAllowingStateLoss();
+
 		initializing = false;
+		binding.progressLayout.onSuccessful();
 	}
 
 }

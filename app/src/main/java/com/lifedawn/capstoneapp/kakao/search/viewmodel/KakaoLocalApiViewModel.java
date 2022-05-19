@@ -21,6 +21,7 @@ public abstract class KakaoLocalApiViewModel<T> extends ViewModel {
 	protected KakaoLocalApiDataSourceFactory<T> dataSourceFactory;
 	protected MutableLiveData<KakaoLocalApiDataSource<T>> dataSourceMutableLiveData;
 	protected PagedList.Config config;
+	protected Executor executor = Executors.newFixedThreadPool(5);
 
 	@Override
 	protected void onCleared() {

@@ -37,6 +37,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PromiseInfoFragment extends Fragment {
@@ -81,6 +82,9 @@ public class PromiseInfoFragment extends Fragment {
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
+		binding.rootProgressLayout.setContentView(binding.scrollView);
+		binding.rootProgressLayout.onStarted(null);
+
 		binding.toolbar.backBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -89,8 +93,8 @@ public class PromiseInfoFragment extends Fragment {
 		});
 		binding.toolbar.fragmentTitle.setText(R.string.promise_info);
 
-		binding.progressLayout.setContentView(binding.weatherLayout);
-		binding.progressLayout.onStarted(getString(R.string.loading_weather_data));
+		binding.weatherProgressLayout.setContentView(binding.weatherLayout);
+		binding.weatherProgressLayout.onStarted(getString(R.string.loading_weather_data));
 		binding.todayCurrentWeather.title.setText(R.string.todayCurrentWeather);
 		binding.updateBtn.setVisibility(View.GONE);
 
@@ -98,84 +102,86 @@ public class PromiseInfoFragment extends Fragment {
 				new BackgroundCallback<List<CalendarRepository.EventObj>>() {
 					@Override
 					public void onResultSuccessful(List<CalendarRepository.EventObj> e) {
+						final CalendarRepository.EventObj eventObj = e.get(0);
+						originalEvent = eventObj.getEvent();
+
+						String dtStart = originalEvent.getAsString(CalendarContract.Events.DTSTART);
+						String eventTimeZone = originalEvent.getAsString(CalendarContract.Events.EVENT_TIMEZONE);
+						ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(dtStart)), ZoneId.of(eventTimeZone));
+
+						promiseDateTime = start;
+
+						if (originalEvent.getAsString(CalendarContract.Events.EVENT_LOCATION) != null) {
+							locationDto = LocationDto.toLocationDto(originalEvent.getAsString(CalendarContract.Events.EVENT_LOCATION));
+						}
+
+						mapFragment = new SelectedLocationSimpleMapFragment();
+						Bundle bundle = new Bundle();
+
+						if (locationDto != null) {
+							mapFragment.replaceLocation(locationDto);
+							bundle.putSerializable("locationDto", locationDto);
+
+							final Double latitude = locationDto.getLatitudeAsDouble();
+							final Double longitude = locationDto.getLongitudeAsDouble();
+
+							if (WeatherResponseData.getWeatherResponse(latitude, longitude) != null) {
+								onResultWeather(WeatherResponseData.getWeatherResponse(latitude, longitude));
+							} else {
+								refreshWeatherData();
+							}
+
+							binding.placeName.setOnClickListener(new View.OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									PromiseLocationNaverMapFragment promiseLocationNaverMapFragment =
+											new PromiseLocationNaverMapFragment();
+									Bundle argument = new Bundle();
+									argument.putSerializable("locationDto", locationDto);
+									argument.putSerializable("promiseDateTime", promiseDateTime);
+
+									promiseLocationNaverMapFragment.setArguments(argument);
+
+									FragmentManager fragmentManager = getParentFragmentManager();
+									fragmentManager.beginTransaction().hide(PromiseInfoFragment.this).add(
+											R.id.fragmentContainerView, promiseLocationNaverMapFragment, PromiseLocationNaverMapFragment.class.getName()).addToBackStack(
+											PromiseLocationNaverMapFragment.class.getName()).commitAllowingStateLoss();
+								}
+							});
+						}
+						mapFragment.setArguments(bundle);
+
 						getActivity().runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								final CalendarRepository.EventObj eventObj = e.get(0);
-								originalEvent = eventObj.getEvent();
-
 								binding.title.setText(originalEvent.getAsString(CalendarContract.Events.TITLE) == null ?
 										getString(R.string.no_title) : originalEvent.getAsString(CalendarContract.Events.TITLE));
-
-								String dtStart = originalEvent.getAsString(CalendarContract.Events.DTSTART);
-								String eventTimeZone = originalEvent.getAsString(CalendarContract.Events.EVENT_TIMEZONE);
-								ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(dtStart)), ZoneId.of(eventTimeZone));
-
-								promiseDateTime = start;
 
 								binding.dateTime.setText(start.format(START_DATETIME_FORMATTER));
 								binding.description.setText(originalEvent.getAsString(CalendarContract.Events.DESCRIPTION));
 
-								if (originalEvent.getAsString(CalendarContract.Events.EVENT_LOCATION) != null) {
-									locationDto = LocationDto.toLocationDto(originalEvent.getAsString(CalendarContract.Events.EVENT_LOCATION));
-								}
-
-								mapFragment = new SelectedLocationSimpleMapFragment();
-								Bundle bundle = new Bundle();
-
 								//장소
 								if (locationDto != null) {
-									mapFragment.replaceLocation(locationDto);
-									bundle.putSerializable("locationDto", locationDto);
-
-									if (locationDto != null) {
-										binding.placeName.setText(locationDto.getLocationType() == Constant.PLACE ? locationDto.getPlaceName() : locationDto.getAddressName());
-										binding.naverMap.setVisibility(View.VISIBLE);
-										binding.progressLayout.setVisibility(View.VISIBLE);
-
-										final Double latitude = Double.parseDouble(locationDto.getLatitude());
-										final Double longitude = Double.parseDouble(locationDto.getLongitude());
-
-										if (WeatherResponseData.getWeatherResponse(latitude, longitude) != null) {
-											onResultWeather(WeatherResponseData.getWeatherResponse(latitude, longitude));
-										} else {
-											refreshWeatherData();
-										}
-									}
-
-									binding.placeName.setOnClickListener(new View.OnClickListener() {
-										@Override
-										public void onClick(View v) {
-											PromiseLocationNaverMapFragment promiseLocationNaverMapFragment =
-													new PromiseLocationNaverMapFragment();
-											Bundle argument = new Bundle();
-											argument.putSerializable("locationDto", locationDto);
-											argument.putSerializable("promiseDateTime", promiseDateTime);
-
-											promiseLocationNaverMapFragment.setArguments(argument);
-
-											FragmentManager fragmentManager = getParentFragmentManager();
-											fragmentManager.beginTransaction().hide(PromiseInfoFragment.this).add(
-													R.id.fragmentContainerView, promiseLocationNaverMapFragment, PromiseLocationNaverMapFragment.class.getName()).addToBackStack(
-													PromiseLocationNaverMapFragment.class.getName()).commitAllowingStateLoss();
-										}
-									});
+									binding.placeName.setText(locationDto.getLocationType() == Constant.PLACE ? locationDto.getPlaceName() : locationDto.getAddressName());
+									binding.naverMap.setVisibility(View.VISIBLE);
 								} else {
 									binding.placeName.setText(R.string.no_promise_location);
 									binding.naverMap.setVisibility(View.GONE);
+									binding.weatherProgressLayout.onFailed(getString(R.string.no_weather_location));
 								}
-								mapFragment.setArguments(bundle);
 								getChildFragmentManager().beginTransaction().add(binding.naverMap.getId(), mapFragment).commitAllowingStateLoss();
 
 								initAttendeesView(eventObj.getAttendeeList());
 								initRemindersView(eventObj.getReminderList());
+
+								binding.rootProgressLayout.onSuccessful();
 							}
 						});
 					}
 
 					@Override
 					public void onResultFailed(Exception e) {
-
+						binding.rootProgressLayout.onFailed(getString(R.string.failed_loading_event));
 					}
 				});
 
@@ -183,7 +189,7 @@ public class PromiseInfoFragment extends Fragment {
 		binding.updateBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				binding.progressLayout.onStarted(getString(R.string.loading_weather_data));
+				binding.weatherProgressLayout.onStarted(getString(R.string.loading_weather_data));
 				binding.updateBtn.setVisibility(View.GONE);
 
 				refreshWeatherData();
@@ -208,7 +214,7 @@ public class PromiseInfoFragment extends Fragment {
 							getActivity().runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									binding.progressLayout.onFailed(getString(R.string.failed_loading_weather_data));
+									binding.weatherProgressLayout.onFailed(getString(R.string.failed_loading_weather_data));
 									binding.updateBtn.setVisibility(View.VISIBLE);
 								}
 							});
@@ -237,8 +243,12 @@ public class PromiseInfoFragment extends Fragment {
 			String txt = null;
 			boolean isOrganizer = false;
 
+			List<Chip> chips = new ArrayList<>();
+
 			for (ContentValues eventAttendee : attendeeList) {
 				Chip chip = (Chip) getLayoutInflater().inflate(R.layout.event_attendee_chip, null);
+				chips.add(chip);
+
 				chip.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
@@ -272,6 +282,7 @@ public class PromiseInfoFragment extends Fragment {
 				chip.setText(txt);
 				chip.setCloseIconVisible(false);
 				chip.setCheckable(false);
+
 				binding.attendeeChipGroup.addView(chip);
 			}
 		}
@@ -344,7 +355,7 @@ public class PromiseInfoFragment extends Fragment {
 						}
 					}
 
-					binding.progressLayout.onSuccessful();
+					binding.weatherProgressLayout.onSuccessful();
 					binding.updateBtn.setVisibility(View.VISIBLE);
 
 				}
@@ -353,7 +364,7 @@ public class PromiseInfoFragment extends Fragment {
 			getActivity().runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					binding.progressLayout.onFailed(getString(R.string.failed_loading_weather_data));
+					binding.weatherProgressLayout.onFailed(getString(R.string.failed_loading_weather_data));
 					binding.updateBtn.setVisibility(View.VISIBLE);
 				}
 			});

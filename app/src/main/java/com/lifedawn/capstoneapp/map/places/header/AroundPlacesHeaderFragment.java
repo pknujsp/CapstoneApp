@@ -39,9 +39,11 @@ public class AroundPlacesHeaderFragment extends AbstractSearchHeaderFragment {
 		super.onCreate(savedInstanceState);
 		customPlaceCategoryRepository = new CustomPlaceCategoryRepository(getContext());
 
-		if (bundle.containsKey("locationDto")) {
-			currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION;
-			searchPlaceShareViewModel.setPromiseLocationDto((LocationDto) bundle.getSerializable("locationDto"));
+		if (bundle != null) {
+			if (bundle.containsKey("locationDto")) {
+				currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION;
+				searchPlaceShareViewModel.setPromiseLocationDto((LocationDto) bundle.getSerializable("locationDto"));
+			}
 		} else {
 			currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_MAP_CENTER;
 		}
@@ -107,7 +109,7 @@ public class AroundPlacesHeaderFragment extends AbstractSearchHeaderFragment {
 			}
 
 			createTabs(tabNameList);
-			binding.categoryTabLayout.selectTab(binding.categoryTabLayout.getTabAt(lastPositionOnTab));
+			binding.categoryTabLayout.selectTab(binding.categoryTabLayout.getTabAt(lastPositionOnTab), true);
 		}
 	}
 

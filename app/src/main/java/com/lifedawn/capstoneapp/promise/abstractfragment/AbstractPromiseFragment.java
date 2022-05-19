@@ -90,6 +90,9 @@ public abstract class AbstractPromiseFragment extends Fragment {
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		binding.progressLayout.setContentView(binding.scrollView);
+		binding.progressLayout.onStarted(null);
+
 		binding.toolbar.backBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -171,8 +174,7 @@ public abstract class AbstractPromiseFragment extends Fragment {
 			}
 		});
 
-		mapFragment = new SelectedLocationSimpleMapFragment();
-		getChildFragmentManager().beginTransaction().add(binding.naverMap.getId(), mapFragment).commit();
+
 	}
 
 	@Override

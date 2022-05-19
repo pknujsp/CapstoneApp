@@ -46,47 +46,51 @@ import com.naver.maps.geometry.LatLng;
 public class SearchResultPlaceListFragment extends Fragment implements OnExtraListDataListener<Constant> {
 	private final String QUERY;
 	private final OnClickedListItemListener<PlaceResponse.Documents> placeDocumentsOnClickedListItem;
-	
-	private int currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_MAP_CENTER;
-	private int currentSearchSortTypeCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_SORT_TYPE_ACCURACY;
-	
+
+	public static int currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_MAP_CENTER;
+	public static int currentSearchSortTypeCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_SORT_TYPE_ACCURACY;
+
 	private FragmentLocationSearchResultBinding binding;
 	private PlacesViewModel viewModel;
-	
+
 	private ArrayAdapter<CharSequence> spinnerAdapter;
 	private PlacesAdapter adapter;
-	
-	private Location currentLocation;
+
+	public static Location currentLocation;
 	private FusedLocation fusedLocation;
 	private MapViewModel mapViewModel;
 	private IMap iMap;
-	
+
 	public SearchResultPlaceListFragment(String query, OnClickedListItemListener<PlaceResponse.Documents> placeDocumentsOnClickedListItem) {
 		this.QUERY = query;
 		this.placeDocumentsOnClickedListItem = placeDocumentsOnClickedListItem;
+
+		currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_MAP_CENTER;
+		currentSearchSortTypeCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_SORT_TYPE_ACCURACY;
+		currentLocation = null;
 	}
-	
+
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		fusedLocation = FusedLocation.getInstance(getContext());
-		
+
 		mapViewModel = new ViewModelProvider(getActivity()).get(MapViewModel.class);
 		iMap = mapViewModel.getiMapData();
 	}
-	
+
 	@Nullable
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		binding = FragmentLocationSearchResultBinding.inflate(inflater);
 		return binding.getRoot();
 	}
-	
+
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		binding.searchResultType.setText(getString(R.string.result_place));
-		
+
 		spinnerAdapter = ArrayAdapter.createFromResource(getContext(), R.array.map_search_result_sort_spinner,
 				android.R.layout.simple_spinner_item);
 		spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -95,16 +99,16 @@ public class SearchResultPlaceListFragment extends Fragment implements OnExtraLi
 				currentSearchSortTypeCriteria == LocalApiPlaceParameter.SEARCH_CRITERIA_SORT_TYPE_ACCURACY ? 1 : 0, false);
 		binding.searchSortSpinner.setOnItemSelectedListener(onItemSelectedListener);
 		viewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
-		
+
 		binding.searchResultRecyclerview.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 		binding.searchResultRecyclerview.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-		
+
 		binding.searchCriteriaToggleGroup.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
 			@Override
 			public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
 				if (isChecked) {
 					fusedLocation.cancel();
-					
+
 					switch (checkedId) {
 						case R.id.search_around_current_location:
 							currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION;
@@ -118,16 +122,16 @@ public class SearchResultPlaceListFragment extends Fragment implements OnExtraLi
 				}
 			}
 		});
-		
+
 		binding.searchCriteriaToggleGroup.check(R.id.search_around_map_center);
-		
+
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 	}
-	
+
 	private final AdapterView.OnItemSelectedListener onItemSelectedListener = new AdapterView.OnItemSelectedListener() {
 		@Override
 		public void onItemSelected(AdapterView<?> adapterView, View view, int index, long l) {
@@ -141,20 +145,20 @@ public class SearchResultPlaceListFragment extends Fragment implements OnExtraLi
 					currentSearchSortTypeCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_SORT_TYPE_ACCURACY;
 					break;
 			}
-			
+
 			if (currentSearchMapPointCriteria == LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION) {
 				requestPlacesByGps(QUERY);
 			} else {
 				requestPlaces(QUERY);
 			}
 		}
-		
+
 		@Override
 		public void onNothingSelected(AdapterView<?> adapterView) {
-		
+
 		}
 	};
-	
+
 	private void requestPlacesByGps(String query) {
 		fusedLocation.startLocationUpdates(new FusedLocation.MyLocationCallback() {
 			@Override
@@ -162,20 +166,20 @@ public class SearchResultPlaceListFragment extends Fragment implements OnExtraLi
 				currentLocation = locationResult.getLocations().get(0);
 				requestPlaces(query);
 			}
-			
+
 			@Override
 			public void onFailed(Fail fail) {
 				Toast.makeText(getContext(), R.string.failed_find_current_location, Toast.LENGTH_SHORT).show();
 				binding.searchCriteriaToggleGroup.check(R.id.search_around_map_center);
 			}
 		}, false);
-		
+
 	}
-	
+
 	private void requestPlaces(String query) {
 		String latitude = null;
 		String longitude = null;
-		
+
 		if (currentSearchMapPointCriteria == LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION) {
 			latitude = String.valueOf(currentLocation.getLatitude());
 			longitude = String.valueOf(currentLocation.getLongitude());
@@ -184,10 +188,10 @@ public class SearchResultPlaceListFragment extends Fragment implements OnExtraLi
 			latitude = String.valueOf(latLng.latitude);
 			longitude = String.valueOf(latLng.longitude);
 		}
-		
+
 		LocalApiPlaceParameter parameter = LocalParameterUtil.getPlaceParameter(query, latitude, longitude,
 				LocalApiPlaceParameter.DEFAULT_SIZE, LocalApiPlaceParameter.DEFAULT_PAGE, currentSearchSortTypeCriteria, String.valueOf(MyApplication.MAP_SEARCH_RANGE * 1000));
-		
+
 		adapter = new PlacesAdapter(getContext(), placeDocumentsOnClickedListItem);
 		adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
 			@Override
@@ -213,7 +217,7 @@ public class SearchResultPlaceListFragment extends Fragment implements OnExtraLi
 			}
 		});
 		binding.searchResultRecyclerview.setAdapter(adapter);
-		
+
 		viewModel.init(parameter, new PagedList.BoundaryCallback<PlaceResponse.Documents>() {
 			@Override
 			public void onZeroItemsLoaded() {
@@ -227,12 +231,12 @@ public class SearchResultPlaceListFragment extends Fragment implements OnExtraLi
 			}
 		});
 	}
-	
+
 	@Override
 	public void loadExtraListData(Constant e, RecyclerView.AdapterDataObserver adapterDataObserver) {
-	
+
 	}
-	
+
 	@Override
 	public void loadExtraListData(RecyclerView.AdapterDataObserver adapterDataObserver) {
 		adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -245,35 +249,35 @@ public class SearchResultPlaceListFragment extends Fragment implements OnExtraLi
 		});
 		binding.searchResultRecyclerview.scrollBy(0, 10000);
 	}
-	
-	
+
+
 	private static class PlacesAdapter extends PagedListAdapter<PlaceResponse.Documents, PlacesAdapter.ItemViewHolder> {
 		private Context context;
 		private final OnClickedListItemListener<PlaceResponse.Documents> onClickedListItem;
-		
+
 		public PlacesAdapter(Context context, OnClickedListItemListener<PlaceResponse.Documents> onClickedListItem) {
 			super(new PlaceItemCallback());
 			this.context = context;
 			this.onClickedListItem = onClickedListItem;
 		}
-		
+
 		private class ItemViewHolder extends RecyclerView.ViewHolder {
 			private PlaceRecyclerViewItemBinding binding;
-			
+
 			public ItemViewHolder(View view) {
 				super(view);
 				binding = PlaceRecyclerViewItemBinding.bind(view);
 			}
-			
+
 			public void bind() {
 				PlaceResponse.Documents item = getItem(getBindingAdapterPosition());
-				
+
 				binding.placeName.setText(item.getPlaceName());
 				binding.placeIndex.setText(String.valueOf(getBindingAdapterPosition() + 1));
 				binding.placeCategory.setText(item.getCategoryName());
 				binding.placeAddressName.setText(item.getAddressName());
 				binding.placeDistance.setText(MapUtil.convertMeterToKm(Double.parseDouble(item.getDistance())));
-				
+
 				itemView.getRootView().setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {
@@ -282,20 +286,20 @@ public class SearchResultPlaceListFragment extends Fragment implements OnExtraLi
 				});
 			}
 		}
-		
-		
+
+
 		@NonNull
 		@Override
 		public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 			return new PlacesAdapter.ItemViewHolder(
 					LayoutInflater.from(parent.getContext()).inflate(R.layout.place_recycler_view_item, parent, false));
 		}
-		
+
 		@Override
 		public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
 			holder.bind();
 		}
-		
-		
+
+
 	}
 }

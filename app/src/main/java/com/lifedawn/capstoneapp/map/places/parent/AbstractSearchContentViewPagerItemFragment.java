@@ -1,6 +1,7 @@
 package com.lifedawn.capstoneapp.map.places.parent;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.databinding.FragmentAbstractContentResultBinding;
 import com.lifedawn.capstoneapp.kakao.search.LocalParameterUtil;
@@ -48,6 +50,10 @@ public abstract class AbstractSearchContentViewPagerItemFragment extends Fragmen
 		this.onPoiItemClickListener = onPoiItemClickListener;
 	}
 
+	public String getQuery() {
+		return query;
+	}
+
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -78,18 +84,23 @@ public abstract class AbstractSearchContentViewPagerItemFragment extends Fragmen
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		binding.progressLayout.setContentView(binding.recyclerView);
-		binding.progressLayout.onStarted(null);
+		binding.progressLayout.onSuccessful();
 
 		binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 		binding.recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-	}
 
-	public void clearResponses() {
-		binding.recyclerView.setAdapter(null);
-		adapter = null;
+		if (adapter != null) {
+			Log.e(query, "adapter 연결완료");
+			binding.recyclerView.setAdapter(adapter);
+
+			if (adapter.getItemCount() == 0) {
+				binding.progressLayout.onFailed(getString(R.string.empty_search_result));
+			}
+		}
 	}
 
 	public void requestQuery() {
+		binding.progressLayout.onStarted(null);
 		setAdapter(LocalParameterUtil.getPlaceParameter(query, latitude.toString(), longitude.toString(),
 				LocalApiPlaceParameter.DEFAULT_SIZE, LocalApiPlaceParameter.DEFAULT_PAGE, iConnectHeader.getSearchSortCriteria(), String.valueOf(MyApplication.MAP_SEARCH_RANGE * 1000)));
 	}

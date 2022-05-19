@@ -1,5 +1,6 @@
 package com.lifedawn.capstoneapp.kakao.search.searchresult;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.util.ArrayMap;
 import android.view.LayoutInflater;
@@ -34,6 +35,7 @@ import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalResponse;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.address.AddressResponse;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.place.PlaceResponse;
+import com.naver.maps.geometry.LatLng;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -106,9 +108,22 @@ public class LocationSearchResultMainFragment extends Fragment implements OnExtr
 	public void searchLocation() {
 		final LocalApiPlaceParameter addressParameter = LocalParameterUtil.getAddressParameter(query, "1",
 				LocalApiPlaceParameter.DEFAULT_PAGE);
-		final LocalApiPlaceParameter placeParameter = LocalParameterUtil.getPlaceParameter(query, null, null, "1",
-				LocalApiPlaceParameter.DEFAULT_PAGE, LocalApiPlaceParameter.SEARCH_CRITERIA_SORT_TYPE_ACCURACY,
-				String.valueOf(MyApplication.MAP_SEARCH_RANGE * 1000));
+		String latitude = null;
+		String longitude = null;
+
+		if (SearchResultPlaceListFragment.currentSearchMapPointCriteria == LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION) {
+			latitude = String.valueOf(SearchResultPlaceListFragment.currentLocation.getLatitude());
+			longitude = String.valueOf(SearchResultPlaceListFragment.currentLocation.getLongitude());
+		} else {
+			LatLng latLng = mapViewModel.getMapCenterPoint();
+			latitude = String.valueOf(latLng.latitude);
+			longitude = String.valueOf(latLng.longitude);
+		}
+
+		final LocalApiPlaceParameter placeParameter = LocalParameterUtil.getPlaceParameter(query, latitude, longitude,
+				"1", LocalApiPlaceParameter.DEFAULT_PAGE,
+				LocalApiPlaceParameter.SEARCH_CRITERIA_SORT_TYPE_ACCURACY, String.valueOf(MyApplication.MAP_SEARCH_RANGE * 1000));
+
 
 		SearchResultChecker.checkExisting(addressParameter, placeParameter, new HttpCallback<List<KakaoLocalResponse>>() {
 			@Override

@@ -80,7 +80,7 @@ public class RestaurantHeaderFragment extends AbstractSearchHeaderFragment {
 			}
 
 			createTabs(tabNameList);
-			binding.categoryTabLayout.selectTab(binding.categoryTabLayout.getTabAt(lastPositionOnTab));
+			binding.categoryTabLayout.selectTab(binding.categoryTabLayout.getTabAt(lastPositionOnTab), true);
 		}
 	}
 

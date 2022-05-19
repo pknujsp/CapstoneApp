@@ -26,6 +26,7 @@ import com.lifedawn.capstoneapp.common.interfaces.HttpCallback;
 import com.lifedawn.capstoneapp.common.interfaces.OnFragmentCallback;
 import com.lifedawn.capstoneapp.friends.invitation.InvitationFriendFragment;
 import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.map.SelectedLocationSimpleMapFragment;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAbstractAdapter;
 import com.lifedawn.capstoneapp.promise.abstractfragment.AbstractPromiseFragment;
 import com.lifedawn.capstoneapp.reminder.RemindersFragment;
@@ -67,6 +68,9 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 		binding.time.setText(now.format(START_TIME_FORMATTER));
 		binding.time.setTag(now.toLocalTime());
 		setAccount(accountViewModel.getUsingAccountType(), accountViewModel.getLastSignInAccount());
+
+		mapFragment = new SelectedLocationSimpleMapFragment();
+		getChildFragmentManager().beginTransaction().add(binding.naverMap.getId(), mapFragment).commitAllowingStateLoss();
 
 		binding.saveBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -116,6 +120,13 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 				saveNewEvent(event);
 			}
 		});
+
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		binding.progressLayout.onSuccessful();
 	}
 
 	private void saveNewEvent(Event event) {

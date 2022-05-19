@@ -252,13 +252,17 @@
 
         <Button
             android:id="@+id/saveBtn"
-            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginEnd="0dp"
-            android:layout_marginBottom="-1dp"
-            android:text="@string/save" />
+            android:text="@string/save"
+            />
+
+        <com.lifedawn.capstoneapp.common.view.ProgressView
+            android:id="@+id/progressLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            />
     </RelativeLayout>
 </layout>

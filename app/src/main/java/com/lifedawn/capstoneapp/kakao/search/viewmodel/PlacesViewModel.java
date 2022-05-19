@@ -20,7 +20,7 @@ public class PlacesViewModel extends KakaoLocalApiViewModel<PlaceResponse.Docume
 				Integer.parseInt(LocalApiPlaceParameter.DEFAULT_SIZE) * 2).setPageSize(15).setPrefetchDistance(4).build();
 		
 		pagedListLiveData = new LivePagedListBuilder<Integer, PlaceResponse.Documents>(dataSourceFactory, config).setBoundaryCallback(
-				boundaryCallback).setFetchExecutor(Executors.newSingleThreadExecutor()).build();
+				boundaryCallback).setFetchExecutor(executor).build();
 	}
 
 }

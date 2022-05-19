@@ -125,7 +125,7 @@
                         />
 
                     <com.lifedawn.capstoneapp.common.view.ProgressView
-                        android:id="@+id/progressLayout"
+                        android:id="@+id/weatherProgressLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         />
@@ -203,6 +203,13 @@
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
+
+        <com.lifedawn.capstoneapp.common.view.ProgressView
+            android:id="@+id/rootProgressLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            />
     </RelativeLayout>
 
 </layout>

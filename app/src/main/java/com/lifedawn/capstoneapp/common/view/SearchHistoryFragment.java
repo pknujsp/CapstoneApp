@@ -31,36 +31,38 @@ public class SearchHistoryFragment extends Fragment {
 	private SearchHistoryViewModel viewModel;
 	private List<SearchHistoryDto> searchHistoryDtoList;
 	private boolean initializing = true;
-	
+
 	public void setOnClickedHistoryItemListener(OnClickedHistoryItemListener onClickedHistoryItemListener) {
 		this.onClickedHistoryItemListener = onClickedHistoryItemListener;
 	}
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		Bundle bundle = getArguments();
 		searchHistoryType = (SearchHistoryDto.SearchHistoryType) bundle.getSerializable(BundleConstant.SEARCH_HISTORY_TYPE.name());
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		binding = FragmentSearchHistoryBinding.inflate(inflater);
 		return binding.getRoot();
 	}
-	
+
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		
+		binding.progressLayout.setContentView(binding.recyclerView);
+		binding.progressLayout.onSuccessful();
+
 		viewModel = new ViewModelProvider(requireActivity()).get(SearchHistoryViewModel.class);
 		viewModel.getAddedLiveData().observe(getViewLifecycleOwner(), new Observer<SearchHistoryDto>() {
 			@Override
 			public void onChanged(SearchHistoryDto searchHistoryDto) {
 				if (!initializing) {
 					if (searchHistoryDto.getSearchHistoryType() == SearchHistoryDto.SearchHistoryType.MAP) {
-						
+
 						if (getActivity() != null) {
 							getActivity().runOnUiThread(new Runnable() {
 								@Override
@@ -74,13 +76,13 @@ public class SearchHistoryFragment extends Fragment {
 				}
 			}
 		});
-		
+
 		adapter = new HistoryListAdapter(new OnClickedHistoryItemListener() {
 			@Override
 			public void onClickedValue(SearchHistoryDto searchHistoryDto, int position) {
 				onClickedHistoryItemListener.onClickedValue(searchHistoryDto, position);
 			}
-			
+
 			@Override
 			public void onClickedRemove(SearchHistoryDto searchHistoryDto, int position) {
 				viewModel.delete(searchHistoryDto.getId(), null);
@@ -89,9 +91,33 @@ public class SearchHistoryFragment extends Fragment {
 				onClickedHistoryItemListener.onClickedRemove(searchHistoryDto, position);
 			}
 		});
-		
+
+		adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+			@Override
+			public void onChanged() {
+				super.onChanged();
+
+				if (adapter.getItemCount() > 0) {
+					binding.progressLayout.onSuccessful();
+				} else {
+					binding.progressLayout.onFailed(getString(R.string.empty_search_history));
+				}
+			}
+
+			@Override
+			public void onItemRangeRemoved(int positionStart, int itemCount) {
+				super.onItemRangeRemoved(positionStart, itemCount);
+
+				if (adapter.getItemCount() > 0) {
+					binding.progressLayout.onSuccessful();
+				} else {
+					binding.progressLayout.onFailed(getString(R.string.empty_search_history));
+				}
+			}
+		});
+
 		binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-		
+
 		viewModel.getAll(SearchHistoryDto.SearchHistoryType.MAP.name(), new OnDbQueryCallback<List<SearchHistoryDto>>() {
 			@Override
 			public void onResult(List<SearchHistoryDto> e) {
@@ -103,72 +129,76 @@ public class SearchHistoryFragment extends Fragment {
 							adapter.setSearchHistoryDtoList(searchHistoryDtoList);
 							binding.recyclerView.setAdapter(adapter);
 							initializing = false;
+
+							if (e.isEmpty()) {
+								binding.progressLayout.onFailed(getString(R.string.empty_search_history));
+							}
 						}
 					});
 				}
 			}
 		});
 	}
-	
+
 	@Override
 	public void onDestroyView() {
 		viewModel.getAddedLiveData().removeObservers(getViewLifecycleOwner());
 		super.onDestroyView();
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 	}
-	
+
 	public interface OnClickedHistoryItemListener {
 		void onClickedValue(SearchHistoryDto searchHistoryDto, int position);
-		
+
 		void onClickedRemove(SearchHistoryDto searchHistoryDto, int position);
 	}
-	
+
 	private static class HistoryListAdapter extends RecyclerView.Adapter<HistoryListAdapter.ViewHolder> {
 		private List<SearchHistoryDto> searchHistoryDtoList;
 		private OnClickedHistoryItemListener onClickedHistoryItemListener;
-		
-		
+
+
 		public HistoryListAdapter(OnClickedHistoryItemListener onClickedHistoryItemListener) {
 			this.onClickedHistoryItemListener = onClickedHistoryItemListener;
 		}
-		
+
 		public void setSearchHistoryDtoList(List<SearchHistoryDto> searchHistoryDtoList) {
 			this.searchHistoryDtoList = searchHistoryDtoList;
 		}
-		
+
 		@NonNull
 		@Override
 		public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 			return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.search_history_item, null));
 		}
-		
+
 		@Override
 		public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 			holder.onBind(searchHistoryDtoList.get(position));
 		}
-		
+
 		@Override
 		public int getItemCount() {
 			return searchHistoryDtoList.size();
 		}
-		
+
 		private class ViewHolder extends RecyclerView.ViewHolder {
 			private SearchHistoryItemBinding binding;
-			
+
 			public ViewHolder(@NonNull View itemView) {
 				super(itemView);
 				binding = SearchHistoryItemBinding.bind(itemView);
 			}
-			
+
 			public void onBind(SearchHistoryDto searchHistoryDto) {
 				int position = getBindingAdapterPosition();
-				
+
 				binding.value.setText(searchHistoryDto.getValue());
-				
+
 				binding.getRoot().setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
