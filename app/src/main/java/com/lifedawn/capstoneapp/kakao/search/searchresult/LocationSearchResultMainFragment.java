@@ -106,7 +106,7 @@ public class LocationSearchResultMainFragment extends Fragment implements OnExtr
 	}
 
 	public void searchLocation() {
-		final LocalApiPlaceParameter addressParameter = LocalParameterUtil.getAddressParameter(query, "1",
+		LocalApiPlaceParameter addressParameter = LocalParameterUtil.getAddressParameter(query, "1",
 				LocalApiPlaceParameter.DEFAULT_PAGE);
 		String latitude = null;
 		String longitude = null;
