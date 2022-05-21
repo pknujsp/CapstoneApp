@@ -116,6 +116,8 @@ public class FindRouteFragment extends DialogFragment {
 
 								onFindRouteListener.onResult(currentLocation, response.route.traoptimal.get(0).path);
 								binding.progressLayout.onSuccessful();
+
+								getDialog().hide();
 							}
 						});
 					}

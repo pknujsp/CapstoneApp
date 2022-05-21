@@ -209,7 +209,6 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 		selectedLocationInEventMarker.setMap(naverMap);
 		selectedLocationInEventMarker.setWidth(markerWidth);
 		selectedLocationInEventMarker.setHeight(markerHeight);
-		//selectedLocationInEventMarker.setIcon(OverlayImage.fromResource(R.drawable.current_location_icon));
 		selectedLocationInEventMarker.setForceShowIcon(true);
 		selectedLocationInEventMarker.setCaptionColor(Color.BLUE);
 		selectedLocationInEventMarker.setCaptionHaloColor(Color.rgb(200, 255, 200));
@@ -282,6 +281,10 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 
 		path.setCoords(coords);
 		path.setMap(naverMap);
+		path.setColor(Color.GREEN);
+		path.setWidth(15);
+		path.setOutlineWidth(4);
+		path.setOutlineColor(Color.BLUE);
 
 		showMarkers(MarkerType.PATH);
 	}
