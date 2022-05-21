@@ -1,9 +1,13 @@
 package com.lifedawn.capstoneapp.map;
 
+import static com.lifedawn.capstoneapp.common.constants.Constant.ADDRESS;
+import static com.lifedawn.capstoneapp.common.constants.Constant.PLACE;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.PointF;
 import android.location.Location;
 import android.os.Bundle;
@@ -73,6 +77,7 @@ import com.naver.maps.map.Projection;
 import com.naver.maps.map.overlay.LocationOverlay;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.Overlay;
+import com.naver.maps.map.overlay.PathOverlay;
 import com.naver.maps.map.util.CameraUtils;
 import com.naver.maps.map.util.FusedLocationSource;
 import com.naver.maps.map.util.MarkerIcons;
@@ -81,6 +86,7 @@ import org.jetbrains.annotations.NotNull;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,6 +124,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 	private int placeBottomSheetSelectBtnVisibility = View.GONE;
 	private int placeBottomSheetUnSelectBtnVisibility = View.GONE;
+
 
 
 	protected final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
@@ -220,11 +227,12 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				headerFragment.setiConnectContents(contentViewPagerFragment);
 				headerFragment.setOnExtraListDataListener(contentViewPagerFragment);
 
+				Bundle bundle = new Bundle();
+
 				if (getPromiseLocationDto() != null) {
-					Bundle bundle = new Bundle();
 					bundle.putSerializable("locationDto", getPromiseLocationDto());
-					headerFragment.setArguments(bundle);
 				}
+				headerFragment.setArguments(bundle);
 
 				childFragmentManager.beginTransaction().add(binding.aroundPlacesBottomSheet.fragmentContainerView.getId(),
 						contentViewPagerFragment, AroundPlacesContentsViewPagerFragment.class.getName())
@@ -253,11 +261,13 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				headerFragment.setiConnectContents(contentsViewPagerFragment);
 				headerFragment.setOnExtraListDataListener(contentsViewPagerFragment);
 
+				Bundle bundle = new Bundle();
+
 				if (getPromiseLocationDto() != null) {
-					Bundle bundle = new Bundle();
 					bundle.putSerializable("locationDto", getPromiseLocationDto());
-					headerFragment.setArguments(bundle);
 				}
+				headerFragment.setArguments(bundle);
+
 
 				childFragmentManager.beginTransaction().add(binding.aroundPlacesBottomSheet.fragmentContainerView.getId(),
 						contentsViewPagerFragment, RestaurantContentsViewPagerFragment.class.getName())
@@ -1078,6 +1088,8 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				PlaceInfoWebFragment.class.getName())
 				.addToBackStack(PlaceInfoWebFragment.class.getName()).commitAllowingStateLoss();
 	}
+
+
 
 	protected static class MarkerHolder {
 		final KakaoLocalDocument kakaoLocalDocument;

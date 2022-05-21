@@ -34,6 +34,7 @@ import com.lifedawn.capstoneapp.retrofits.RetrofitClient;
 import com.lifedawn.capstoneapp.retrofits.response.naver.directions5.Root;
 import com.lifedawn.capstoneapp.weather.DataProviderType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -46,6 +47,9 @@ public class FindRouteFragment extends DialogFragment {
 	private MultipleRestApiDownloader multipleRestApiDownloader;
 	private FusedLocation fusedLocation;
 	private LocationLifeCycleObserver locationLifeCycleObserver;
+
+	private OnFindRouteListener onFindRouteListener;
+	private Location currentLocation;
 
 	private final ProgressView.OnResultListener onResultListener = new ProgressView.OnResultListener() {
 		@Override
@@ -63,6 +67,11 @@ public class FindRouteFragment extends DialogFragment {
 			binding.updateBtn.setVisibility(View.GONE);
 		}
 	};
+
+	public FindRouteFragment setOnFindRouteListener(OnFindRouteListener onFindRouteListener) {
+		this.onFindRouteListener = onFindRouteListener;
+		return this;
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -104,6 +113,8 @@ public class FindRouteFragment extends DialogFragment {
 								duration = TimeUnit.MILLISECONDS.toMinutes(duration);
 
 								binding.time.setText(new String(duration + "분"));
+
+								onFindRouteListener.onResult(currentLocation, response.route.traoptimal.get(0).path);
 								binding.progressLayout.onSuccessful();
 							}
 						});
@@ -205,7 +216,7 @@ public class FindRouteFragment extends DialogFragment {
 			fusedLocation.startLocationUpdates(new FusedLocation.MyLocationCallback() {
 				@Override
 				public void onSuccessful(LocationResult locationResult) {
-					Location currentLocation = locationResult.getLocations().get(0);
+					currentLocation = locationResult.getLocations().get(0);
 					startLocationDto = new LocationDto();
 					startLocationDto.setLatitude(String.valueOf(currentLocation.getLatitude()));
 					startLocationDto.setLongitude(String.valueOf(currentLocation.getLongitude()));
@@ -250,5 +261,9 @@ public class FindRouteFragment extends DialogFragment {
 		}
 
 
+	}
+
+	public interface OnFindRouteListener {
+		void onResult(Location currentLocation, ArrayList<ArrayList<Double>> path);
 	}
 }

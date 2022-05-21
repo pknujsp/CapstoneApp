@@ -255,4 +255,5 @@
     <string name="no_weather_location">날씨를 불러올 위치 없음</string>
     <string name="msg_edit_promise">약속 내용을 수정하시겠습니까?</string>
     <string name="empty_search_history">검색 내역이 없습니다</string>
+    <string name="current_location">현재 위치</string>
 </resources>

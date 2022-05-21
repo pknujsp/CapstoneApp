@@ -20,4 +20,40 @@ public class Traoptimal{
     @SerializedName("guide")
     @Expose
     public ArrayList<Guide> guide;
+
+    public Summary getSummary() {
+        return summary;
+    }
+
+    public Traoptimal setSummary(Summary summary) {
+        this.summary = summary;
+        return this;
+    }
+
+    public ArrayList<ArrayList<Double>> getPath() {
+        return path;
+    }
+
+    public Traoptimal setPath(ArrayList<ArrayList<Double>> path) {
+        this.path = path;
+        return this;
+    }
+
+    public ArrayList<Section> getSection() {
+        return section;
+    }
+
+    public Traoptimal setSection(ArrayList<Section> section) {
+        this.section = section;
+        return this;
+    }
+
+    public ArrayList<Guide> getGuide() {
+        return guide;
+    }
+
+    public Traoptimal setGuide(ArrayList<Guide> guide) {
+        this.guide = guide;
+        return this;
+    }
 }

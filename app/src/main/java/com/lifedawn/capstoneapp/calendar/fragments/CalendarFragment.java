@@ -814,31 +814,14 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 							});
 
 							ContentValues event = eventList.get(position).getEvent();
-							String title = event.getAsString(CalendarContract.Events.TITLE);
-							//attendeeList = eventList.get(getBindingAdapterPosition()).getAttendeeList();
+							String title = event.containsKey(CalendarContract.Events.TITLE) ?
+									event.getAsString(CalendarContract.Events.TITLE) : "";
 							binding.eventTitle.setText(new String((position + 1) + " - " + (title.isEmpty() ?
 									getString(R.string.no_title) : title)));
 
 							ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(event.getAsString(CalendarContract.Events.DTSTART))),
 									ZoneId.of(event.getAsString(CalendarContract.Events.EVENT_TIMEZONE)));
 							binding.dateTime.setText(EVENT_DATE_TIME_FORMATTER.format(start));
-
-							/*
-							boolean fixed = true;
-
-							for (ContentValues attendee : attendeeList) {
-								if (attendee.containsKey(CalendarContract.Attendees.ATTENDEE_STATUS) &&
-										attendee.getAsInteger(CalendarContract.Attendees.ATTENDEE_STATUS)
-												!= CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED) {
-									fixed = false;
-									break;
-								}
-							}
-
-							binding.getRoot().setBackgroundColor(fixed ? acceptedEventColor : eventColor);
-
-							 */
-
 						}
 
 					}

@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.constants.Constant;
@@ -26,16 +28,33 @@ import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.overlay.InfoWindow;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.Overlay;
+import com.naver.maps.map.overlay.PathOverlay;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 	private LocationDto selectedLocationDtoInEvent;
 	private Marker selectedLocationInEventMarker;
 	private InfoWindow selectedLocationInEventInfoWindow;
 	private Bundle bundle;
+
+	private PathOverlay path;
+	private Marker currentMarker;
+
+	private FragmentManager.FragmentLifecycleCallbacks fragmentLifecycleCallbacks = new FragmentManager.FragmentLifecycleCallbacks() {
+		@Override
+		public void onFragmentDestroyed(@NonNull FragmentManager fm, @NonNull Fragment f) {
+			super.onFragmentDestroyed(fm, f);
+
+			if (f instanceof FindRouteFragment) {
+				removePath();
+			}
+		}
+	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -47,6 +66,7 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 		}
 
 		selectedLocationDtoInEvent = (LocationDto) bundle.getSerializable("locationDto");
+		getChildFragmentManager().registerFragmentLifecycleCallbacks(fragmentLifecycleCallbacks, false);
 	}
 
 	@Override
@@ -99,6 +119,13 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 
 				FindRouteFragment findRouteFragment = new FindRouteFragment();
 
+				findRouteFragment.setOnFindRouteListener(new FindRouteFragment.OnFindRouteListener() {
+					@Override
+					public void onResult(Location currentLocation, ArrayList<ArrayList<Double>> path) {
+						createPath(currentLocation, path);
+					}
+				});
+
 				Bundle infoBundle = new Bundle();
 				infoBundle.putSerializable("goalLocationDto", selectedLocationDtoInEvent);
 				findRouteFragment.setArguments(infoBundle);
@@ -125,6 +152,7 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 
 	@Override
 	public void onDestroy() {
+		getChildFragmentManager().unregisterFragmentLifecycleCallbacks(fragmentLifecycleCallbacks);
 		super.onDestroy();
 	}
 
@@ -229,6 +257,9 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 
 		selectedLocationInEventMarker.performClick();
 		moveCameraToPromiseLocation();
+
+		MARKERS_MAP.put(MarkerType.PATH, new ArrayList<>());
+		MARKERS_MAP.get(MarkerType.PATH).add(selectedLocationInEventMarker);
 	}
 
 	private void moveCameraToPromiseLocation() {
@@ -236,5 +267,57 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 				Double.parseDouble(selectedLocationDtoInEvent.getLongitude()));
 		CameraUpdate cameraUpdate = CameraUpdate.scrollTo(latLng);
 		naverMap.moveCamera(cameraUpdate);
+	}
+
+	private void createPath(Location currentLocation, ArrayList<ArrayList<Double>> pathList) {
+		removePath();
+
+		path = new PathOverlay();
+
+		showMarkerOfCurrentLocation(currentLocation);
+		List<LatLng> coords = new ArrayList<>();
+		for (ArrayList<Double> path : pathList) {
+			coords.add(new LatLng(path.get(1), path.get(0)));
+		}
+
+		path.setCoords(coords);
+		path.setMap(naverMap);
+
+		showMarkers(MarkerType.PATH);
+	}
+
+	private void showMarkerOfCurrentLocation(Location currentLocation) {
+		if (currentMarker == null) {
+			currentMarker = new Marker();
+			String caption = getString(R.string.current_location);
+
+			currentMarker.setCaptionText(caption);
+			currentMarker.setCaptionColor(Color.BLACK);
+
+			int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 32f, getResources().getDisplayMetrics());
+			int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 42f, getResources().getDisplayMetrics());
+			currentMarker.setWidth(width);
+			currentMarker.setHeight(height);
+
+			MARKERS_MAP.get(MarkerType.PATH).add(currentMarker);
+		}
+
+		if (currentMarker.getMap() != null) {
+			currentMarker.setMap(naverMap);
+		}
+
+		currentMarker.setPosition(
+				new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+		currentMarker.setMap(naverMap);
+	}
+
+	private void removePath() {
+		if (path != null) {
+			path.setMap(naverMap);
+		}
+
+		if (currentMarker != null) {
+			currentMarker.setMap(null);
+		}
 	}
 }
