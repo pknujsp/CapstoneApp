@@ -22,12 +22,14 @@ import com.lifedawn.capstoneapp.map.findroute.FindRouteFragment;
 import com.lifedawn.capstoneapp.retrofits.response.naver.directions5.Root;
 import com.lifedawn.capstoneapp.weather.WeatherInfoFragment;
 import com.naver.maps.geometry.LatLng;
+import com.naver.maps.geometry.LatLngBounds;
 import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.overlay.InfoWindow;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.Overlay;
 import com.naver.maps.map.overlay.PathOverlay;
+import com.naver.maps.map.util.CameraUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -343,6 +345,7 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 		path.setOutlineWidth(4);
 		path.setOutlineColor(Color.BLUE);
 
+		naverMap.setContentPadding(0, 0, 0, binding.findRoutesBottomSheet.getRoot().getHeight());
 		showMarkers(MarkerType.PATH);
 	}
 
@@ -379,5 +382,7 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 		if (currentMarker != null) {
 			currentMarker.setMap(null);
 		}
+
+		naverMap.setContentPadding(0, 0, 0, 0);
 	}
 }
