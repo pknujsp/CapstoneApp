@@ -1,12 +1,10 @@
 package com.lifedawn.capstoneapp.map;
 
-import android.content.Intent;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,10 +15,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.map.findroute.FindRouteFragment;
-import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
+import com.lifedawn.capstoneapp.retrofits.response.naver.directions5.Root;
 import com.lifedawn.capstoneapp.weather.WeatherInfoFragment;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.CameraUpdate;
@@ -32,9 +31,9 @@ import com.naver.maps.map.overlay.PathOverlay;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 	private LocationDto selectedLocationDtoInEvent;
@@ -46,12 +45,24 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 	private Marker currentMarker;
 
 	private FragmentManager.FragmentLifecycleCallbacks fragmentLifecycleCallbacks = new FragmentManager.FragmentLifecycleCallbacks() {
+
+		@Override
+		public void onFragmentAttached(@NonNull FragmentManager fm, @NonNull Fragment f, @NonNull Context context) {
+			super.onFragmentAttached(fm, f, context);
+
+			if (f instanceof FindRouteFragment) {
+				binding.headerLayout.setVisibility(View.GONE);
+			}
+		}
+
 		@Override
 		public void onFragmentDestroyed(@NonNull FragmentManager fm, @NonNull Fragment f) {
 			super.onFragmentDestroyed(fm, f);
 
 			if (f instanceof FindRouteFragment) {
 				removePath();
+				binding.headerLayout.setVisibility(View.VISIBLE);
+				setStateOfBottomSheet(BottomSheetType.FIND_ROUTES, BottomSheetBehavior.STATE_COLLAPSED);
 			}
 		}
 	};
@@ -117,11 +128,31 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 
 				*/
 
+				binding.findRoutesBottomSheet.progressLayout.onStarted(getString(R.string.calculating_routes));
+
 				FindRouteFragment findRouteFragment = new FindRouteFragment();
 
 				findRouteFragment.setOnFindRouteListener(new FindRouteFragment.OnFindRouteListener() {
 					@Override
-					public void onResult(Location currentLocation, ArrayList<ArrayList<Double>> path) {
+					public void onResult(Location currentLocation, ArrayList<ArrayList<Double>> path, Root response, LocationDto startLocation, LocationDto goalLocation) {
+						if (response == null) {
+							binding.findRoutesBottomSheet.progressLayout.onFailed(getString(R.string.failed_finding_routes));
+							return;
+						}
+
+						binding.findRoutesBottomSheet.departureLocation.setText(startLocation.getAddressName());
+						binding.findRoutesBottomSheet.arrivalLocation.setText(goalLocation.getAddressName());
+
+						float distance = Integer.parseInt(response.route.traoptimal.get(0).summary.distance) / 1000f;
+						distance = (float) (Math.round(distance * 1000) / 1000.0);
+
+						binding.findRoutesBottomSheet.distance.setText(new String(distance + "km"));
+
+						long duration = Long.parseLong(response.route.traoptimal.get(0).summary.duration);
+						duration = TimeUnit.MILLISECONDS.toMinutes(duration);
+
+						binding.findRoutesBottomSheet.time.setText(new String(duration + "분"));
+						binding.findRoutesBottomSheet.progressLayout.onSuccessful();
 						createPath(currentLocation, path);
 					}
 				});
@@ -130,9 +161,35 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 				infoBundle.putSerializable("goalLocationDto", selectedLocationDtoInEvent);
 				findRouteFragment.setArguments(infoBundle);
 
-				findRouteFragment.show(getChildFragmentManager(), WeatherInfoFragment.class.getName());
+				collapseAllExpandedBottomSheets();
 
+				FragmentManager childFragmentManager = getChildFragmentManager();
+				int backStackCount = childFragmentManager.getBackStackEntryCount();
 
+				for (int count = 0; count < backStackCount; count++) {
+					childFragmentManager.popBackStack();
+				}
+
+				binding.findRoutesBottomSheet.updateBtn.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						binding.findRoutesBottomSheet.progressLayout.onStarted(getString(R.string.calculating_routes));
+						findRouteFragment.findRoutes();
+					}
+				});
+
+				binding.findRoutesBottomSheet.closeBtn.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						getChildFragmentManager().popBackStack();
+					}
+				});
+
+				childFragmentManager.beginTransaction().add(binding.findRoutesBottomSheet.fragmentContainerView.getId(),
+						findRouteFragment, FindRouteFragment.class.getName())
+						.addToBackStack(FindRouteFragment.class.getName()).commitAllowingStateLoss();
+
+				setStateOfBottomSheet(BottomSheetType.FIND_ROUTES, BottomSheetBehavior.STATE_EXPANDED);
 			}
 		});
 
@@ -316,7 +373,7 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 
 	private void removePath() {
 		if (path != null) {
-			path.setMap(naverMap);
+			path.setMap(null);
 		}
 
 		if (currentMarker != null) {

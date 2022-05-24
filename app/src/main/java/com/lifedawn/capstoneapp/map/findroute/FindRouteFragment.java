@@ -1,8 +1,6 @@
 package com.lifedawn.capstoneapp.map.findroute;
 
 import android.Manifest;
-import android.app.Dialog;
-import android.graphics.Rect;
 import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
@@ -11,13 +9,12 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 
 import android.util.ArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.android.gms.location.LocationResult;
@@ -37,9 +34,8 @@ import com.lifedawn.capstoneapp.weather.DataProviderType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-public class FindRouteFragment extends DialogFragment {
+public class FindRouteFragment extends Fragment {
 	private FragmentFindRouteBinding binding;
 	private LocationDto startLocationDto;
 	private LocationDto goalLocationDto;
@@ -101,23 +97,8 @@ public class FindRouteFragment extends DialogFragment {
 						getActivity().runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								binding.departureLocation.setText(startLocationDto.getAddressName());
-								binding.arrivalLocation.setText(goalLocationDto.getAddressName());
-
-								float distance = Integer.parseInt(response.route.traoptimal.get(0).summary.distance) / 1000f;
-								distance = (float) (Math.round(distance * 1000) / 1000.0);
-
-								binding.distance.setText(new String(distance + "km"));
-
-								long duration = Long.parseLong(response.route.traoptimal.get(0).summary.duration);
-								duration = TimeUnit.MILLISECONDS.toMinutes(duration);
-
-								binding.time.setText(new String(duration + "분"));
-
-								onFindRouteListener.onResult(currentLocation, response.route.traoptimal.get(0).path);
-								binding.progressLayout.onSuccessful();
-
-								getDialog().hide();
+								onFindRouteListener.onResult(currentLocation, response.route.traoptimal.get(0).path, response, startLocationDto
+										, goalLocationDto);
 							}
 						});
 					}
@@ -126,7 +107,7 @@ public class FindRouteFragment extends DialogFragment {
 						getActivity().runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								binding.progressLayout.onFailed(getString(R.string.failed_finding_routes));
+								onFindRouteListener.onResult(null, null, null, null, null);
 							}
 						});
 					}
@@ -155,20 +136,6 @@ public class FindRouteFragment extends DialogFragment {
 		return binding.getRoot();
 	}
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		Dialog dialog = getDialog();
-
-		Rect rect = new Rect();
-		dialog.getWindow().getWindowManager().getDefaultDisplay().getRectSize(rect);
-
-		WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
-		layoutParams.width = (int) (rect.width() * 0.9);
-		//layoutParams.height = (int) (rect.height() * 0.6);
-
-		dialog.getWindow().setAttributes(layoutParams);
-	}
 
 	@Override
 	public void onDestroy() {
@@ -192,14 +159,14 @@ public class FindRouteFragment extends DialogFragment {
 		binding.closeBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				dismiss();
+				getParentFragmentManager().popBackStack();
 			}
 		});
 
 		findRoutes();
 	}
 
-	private void findRoutes() {
+	public void findRoutes() {
 		binding.progressLayout.onStarted(getString(R.string.calculating_routes));
 
 		if (!fusedLocation.isOnGps()) {
@@ -210,7 +177,7 @@ public class FindRouteFragment extends DialogFragment {
 				}
 			});
 			Toast.makeText(getActivity(), getString(R.string.request_to_make_gps_on), Toast.LENGTH_SHORT).show();
-			dismiss();
+			getParentFragmentManager().popBackStack();
 			return;
 		}
 
@@ -262,10 +229,9 @@ public class FindRouteFragment extends DialogFragment {
 					});
 		}
 
-
 	}
 
 	public interface OnFindRouteListener {
-		void onResult(Location currentLocation, ArrayList<ArrayList<Double>> path);
+		void onResult(Location currentLocation, ArrayList<ArrayList<Double>> path, Root response, LocationDto startLocation, LocationDto goalLocation);
 	}
 }

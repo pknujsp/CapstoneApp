@@ -126,7 +126,6 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 	private int placeBottomSheetUnSelectBtnVisibility = View.GONE;
 
 
-
 	protected final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
 		@Override
 		public void handleOnBackPressed() {
@@ -208,6 +207,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 		setLocationItemsBottomSheet();
 		setLocationSearchBottomSheet();
 		setAroundPlacesBottomSheet();
+		setFindRoutesBottomSheet();
 
 		binding.placeChip.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -795,6 +795,49 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 		bottomSheetBehaviorMap.put(BottomSheetType.AROUND_PLACES, aroundPlacesBottomSheetBehavior);
 	}
 
+	protected void setFindRoutesBottomSheet() {
+		binding.findRoutesBottomSheet.progressLayout.setContentView(binding.findRoutesBottomSheet.contentLayout);
+		binding.findRoutesBottomSheet.progressLayout.onSuccessful();
+
+		LinearLayout findRoutesBottomSheet = binding.findRoutesBottomSheet.findRoutesBottomSheet;
+
+		BottomSheetBehavior findRoutesBottomSheetBehavior = BottomSheetBehavior.from(findRoutesBottomSheet);
+		findRoutesBottomSheetBehavior.setDraggable(false);
+		findRoutesBottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+			float differenceY;
+
+			@Override
+			public void onStateChanged(@NonNull View bottomSheet, int newState) {
+				if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+					Projection projection = naverMap.getProjection();
+					LatLng latLng = naverMap.getContentBounds().getCenter();
+
+					PointF point = projection.toScreenLocation(latLng);
+
+					final int newMapViewContentHeight =
+							binding.naverMapViewLayout.getHeight() - bottomSheet.getHeight();
+					mapTranslationLength = (float) (point.y - (binding.naverMapViewLayout.getHeight() / 2 - newMapViewContentHeight / 2));
+
+					PointF movePoint = new PointF(0f, -mapTranslationLength);
+					CameraUpdate cameraUpdate = CameraUpdate.scrollBy(movePoint);
+					naverMap.moveCamera(cameraUpdate);
+				}
+			}
+
+			@Override
+			public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+				//expanded일때 offset == 1.0, collapsed일때 offset == 0.0
+				//offset에 따라서 버튼들이 이동하고, 지도의 좌표가 변경되어야 한다.
+				differenceY = bottomSheet.getHeight();
+				float translationValue = -differenceY * slideOffset;
+				binding.naverMapButtonsLayout.getRoot().animate().translationY(translationValue);
+			}
+		});
+
+		bottomSheetViewMap.put(BottomSheetType.FIND_ROUTES, findRoutesBottomSheet);
+		bottomSheetBehaviorMap.put(BottomSheetType.FIND_ROUTES, findRoutesBottomSheetBehavior);
+	}
+
 	public void setPlaceBottomSheetSelectBtnVisibility(int placeBottomSheetSelectBtnVisibility) {
 		this.placeBottomSheetSelectBtnVisibility = placeBottomSheetSelectBtnVisibility;
 	}
@@ -1088,7 +1131,6 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				PlaceInfoWebFragment.class.getName())
 				.addToBackStack(PlaceInfoWebFragment.class.getName()).commitAllowingStateLoss();
 	}
-
 
 
 	protected static class MarkerHolder {

@@ -181,6 +181,11 @@
             layout="@layout/view_bottom_sheet_around_places"
             />
 
+        <include
+            android:id="@+id/findRoutesBottomSheet"
+            layout="@layout/view_bottom_sheet_find_routes"
+            />
+
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
