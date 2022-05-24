@@ -52,6 +52,14 @@ public class NotificationActivity extends AppCompatActivity {
 	private EndNotificationReceiver endNotificationReceiver = new EndNotificationReceiver();
 	private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("M.d E a hh:mm");
 
+	private Bundle bundle;
+
+	@Override
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putAll(bundle);
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		getWindow().addFlags(
@@ -69,7 +77,7 @@ public class NotificationActivity extends AppCompatActivity {
 		friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
 		accountViewModel = new ViewModelProvider(this).get(AccountViewModel.class);
 
-		Bundle bundle = getIntent().getExtras();
+		bundle = savedInstanceState == null ? getIntent().getExtras() : savedInstanceState;
 		eventIdList = bundle.getLongArray("eventIdArr");
 		notificationId = bundle.getInt("notificationId");
 

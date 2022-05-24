@@ -12,6 +12,15 @@
         android:padding="16dp"
         >
 
+        <TextView
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginBottom="8dp"
+            android:text="@string/add_friend"
+            />
+
         <EditText
             android:id="@+id/emailEditText"
             style="@style/ThemeOverlay.Material3.TextInputEditText.FilledBox"

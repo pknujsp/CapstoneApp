@@ -27,101 +27,109 @@ import java.io.Serializable;
 public class RemindersFragment extends Fragment {
 	private FragmentRemindersBinding binding;
 	private OnEventReminderResultListener onEventReminderResultListener;
-	
+
 	private Handler repeatUpdateHandler = new Handler();
 	private boolean cIncrement = false;
 	private boolean cDecrement = false;
-	
+
 	private final int WEEK = 0;
 	private final int DAY = 1;
 	private final int HOUR = 2;
 	private final int MINUTE = 3;
-	
+
 	private Integer previousMinutes;
 	private RequestType requestType;
-	
+
+	private Bundle bundle;
+
 	public enum RequestType implements Serializable {
 		EDIT, ADD
 	}
-	
+
 	public void setOnEventReminderResultListener(OnEventReminderResultListener onEventReminderResultListener) {
 		this.onEventReminderResultListener = onEventReminderResultListener;
 	}
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		bundle = savedInstanceState == null ? getArguments() : savedInstanceState;
 	}
-	
+
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putAll(bundle);
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		binding = FragmentRemindersBinding.inflate(inflater);
 		return binding.getRoot();
 	}
-	
+
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		
+
 		binding.reminderSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				binding.contentLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
 			}
 		});
-		
+
 		binding.radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
-					binding.customLayout.setVisibility(binding.customRadio.isChecked() ? View.VISIBLE : View.GONE);
+				binding.customLayout.setVisibility(binding.customRadio.isChecked() ? View.VISIBLE : View.GONE);
 			}
 		});
-		
+
 		binding.reminderWeekValue.addTextChangedListener(textWatcher);
 		binding.reminderDayValue.addTextChangedListener(textWatcher);
 		binding.reminderHourValue.addTextChangedListener(textWatcher);
 		binding.reminderMinuteValue.addTextChangedListener(textWatcher);
-		
+
 		binding.upWeek.setOnClickListener(onUpClickListener);
 		binding.upDay.setOnClickListener(onUpClickListener);
 		binding.upHour.setOnClickListener(onUpClickListener);
 		binding.upMinute.setOnClickListener(onUpClickListener);
-		
+
 		binding.upWeek.setOnLongClickListener(onUpLongClickListener);
 		binding.upDay.setOnLongClickListener(onUpLongClickListener);
 		binding.upHour.setOnLongClickListener(onUpLongClickListener);
 		binding.upMinute.setOnLongClickListener(onUpLongClickListener);
-		
+
 		binding.upWeek.setOnTouchListener(onTouchListener);
 		binding.upDay.setOnTouchListener(onTouchListener);
 		binding.upHour.setOnTouchListener(onTouchListener);
 		binding.upMinute.setOnTouchListener(onTouchListener);
-		
+
 		binding.downWeek.setOnClickListener(onDownClickListener);
 		binding.downDay.setOnClickListener(onDownClickListener);
 		binding.downHour.setOnClickListener(onDownClickListener);
 		binding.downMinute.setOnClickListener(onDownClickListener);
-		
+
 		binding.downWeek.setOnLongClickListener(onDownLongClickListener);
 		binding.downDay.setOnLongClickListener(onDownLongClickListener);
 		binding.downHour.setOnLongClickListener(onDownLongClickListener);
 		binding.downMinute.setOnLongClickListener(onDownLongClickListener);
-		
+
 		binding.downWeek.setOnTouchListener(onTouchListener);
 		binding.downDay.setOnTouchListener(onTouchListener);
 		binding.downHour.setOnTouchListener(onTouchListener);
 		binding.downMinute.setOnTouchListener(onTouchListener);
-		
-		
+
+
 	}
-	
+
 	@Override
 	public void onResume() {
 		// 알람 추가/수정 여부 확인
-		Bundle bundle = getArguments();
 		requestType = (RequestType) bundle.getSerializable("requestType");
-		
+
 		switch (requestType) {
 			case ADD: {
 				binding.reminderSwitch.setChecked(true);
@@ -131,14 +139,14 @@ public class RemindersFragment extends Fragment {
 			case EDIT: {
 				// 수정할 경우에는 분, 메소드 인수를 받음
 				previousMinutes = bundle.getInt("previousMinutes", 0);
-				
+
 				ReminderUtil.ReminderTimeObj reminderDto = ReminderUtil.make(previousMinutes);
-				
+
 				binding.reminderWeekValue.setText(String.valueOf(reminderDto.getWeek()));
 				binding.reminderDayValue.setText(String.valueOf(reminderDto.getDay()));
 				binding.reminderHourValue.setText(String.valueOf(reminderDto.getHour()));
 				binding.reminderMinuteValue.setText(String.valueOf(reminderDto.getMinute()));
-				
+
 				binding.reminderSwitch.setChecked(true);
 				binding.customRadio.setChecked(true);
 				break;
@@ -146,12 +154,12 @@ public class RemindersFragment extends Fragment {
 		}
 		super.onResume();
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		//정시에 알림도 있음
 		Integer newMinutes = null;
-		
+
 		if (binding.reminderSwitch.isChecked()) {
 			if (binding.customRadio.isChecked()) {
 				newMinutes = ReminderUtil.toMinutes(
@@ -164,22 +172,22 @@ public class RemindersFragment extends Fragment {
 				newMinutes = Integer.parseInt(String.valueOf(checkedRadio.getTag()));
 			}
 		}
-		
-		
+
+
 		switch (requestType) {
 			case ADD: {
 				if (binding.reminderSwitch.isChecked()) {
 					EventReminder reminder = new EventReminder();
 					reminder.setMinutes(newMinutes);
 					reminder.setMethod("popup");
-					
+
 					onEventReminderResultListener.onResultAddedReminder(reminder);
 				} else {
 					//추가 하지 않음
 				}
 				break;
 			}
-			
+
 			case EDIT: {
 				if (binding.reminderSwitch.isChecked()) {
 					if (previousMinutes == newMinutes) {
@@ -189,7 +197,7 @@ public class RemindersFragment extends Fragment {
 						EventReminder reminder = new EventReminder();
 						reminder.setMinutes(newMinutes);
 						reminder.setMethod("popup");
-						
+
 						onEventReminderResultListener.onResultModifiedReminder(reminder, previousMinutes);
 					}
 				} else {
@@ -201,13 +209,13 @@ public class RemindersFragment extends Fragment {
 		}
 		super.onDestroy();
 	}
-	
+
 	private final TextWatcher textWatcher = new TextWatcher() {
 		@Override
 		public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-		
+
 		}
-		
+
 		@Override
 		public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 			if (charSequence.length() == 0) {
@@ -223,50 +231,50 @@ public class RemindersFragment extends Fragment {
 			} else {
 				boolean invalidValue = false;
 				String value = null;
-				
+
 				if (charSequence.toString().startsWith("0") && charSequence.length() >= 2) {
 					invalidValue = true;
 					value = Integer.toString(Integer.parseInt(charSequence.toString()));
 				}
-				
+
 				if (binding.reminderMinuteValue.isFocused()) {
 					if (Integer.parseInt(charSequence.toString()) > 59) {
 						binding.reminderMinuteValue.setText("59");
 					} else if (invalidValue) {
 						binding.reminderMinuteValue.setText(value);
 					}
-					
+
 				} else if (binding.reminderHourValue.isFocused()) {
 					if (Integer.parseInt(charSequence.toString()) < 0) {
 						binding.reminderHourValue.setText("0");
 					} else if (invalidValue) {
 						binding.reminderHourValue.setText(value);
 					}
-					
+
 				} else if (binding.reminderDayValue.isFocused()) {
 					if (Integer.parseInt(charSequence.toString()) < 0) {
 						binding.reminderDayValue.setText("0");
 					} else if (invalidValue) {
 						binding.reminderDayValue.setText(value);
 					}
-					
+
 				} else if (binding.reminderWeekValue.isFocused()) {
 					if (Integer.parseInt(charSequence.toString()) < 0) {
 						binding.reminderWeekValue.setText("0");
 					} else if (invalidValue) {
 						binding.reminderWeekValue.setText(value);
 					}
-					
+
 				}
 			}
 		}
-		
+
 		@Override
 		public void afterTextChanged(Editable editable) {
-		
+
 		}
 	};
-	
+
 	private void increaseValue(int type) {
 		int value = 0;
 		switch (type) {
@@ -288,8 +296,8 @@ public class RemindersFragment extends Fragment {
 				break;
 		}
 	}
-	
-	
+
+
 	private void decreaseValue(int type) {
 		int value = 0;
 		switch (type) {
@@ -311,7 +319,7 @@ public class RemindersFragment extends Fragment {
 				break;
 		}
 	}
-	
+
 	private final View.OnClickListener onUpClickListener = new View.OnClickListener() {
 		@SuppressLint("NonConstantResourceId")
 		@Override
@@ -332,13 +340,13 @@ public class RemindersFragment extends Fragment {
 			}
 		}
 	};
-	
+
 	private final View.OnLongClickListener onUpLongClickListener = new View.OnLongClickListener() {
 		@SuppressLint("NonConstantResourceId")
 		@Override
 		public boolean onLongClick(View view) {
 			cIncrement = true;
-			
+
 			switch (view.getId()) {
 				case R.id.up_week:
 					repeatUpdateHandler.post(new RptUpdater(WEEK));
@@ -356,7 +364,7 @@ public class RemindersFragment extends Fragment {
 			return true;
 		}
 	};
-	
+
 	private final View.OnClickListener onDownClickListener = new View.OnClickListener() {
 		@SuppressLint("NonConstantResourceId")
 		@Override
@@ -377,13 +385,13 @@ public class RemindersFragment extends Fragment {
 			}
 		}
 	};
-	
+
 	private final View.OnLongClickListener onDownLongClickListener = new View.OnLongClickListener() {
 		@SuppressLint("NonConstantResourceId")
 		@Override
 		public boolean onLongClick(View view) {
 			cDecrement = true;
-			
+
 			switch (view.getId()) {
 				case R.id.down_week:
 					repeatUpdateHandler.post(new RptUpdater(WEEK));
@@ -401,8 +409,8 @@ public class RemindersFragment extends Fragment {
 			return true;
 		}
 	};
-	
-	
+
+
 	private final View.OnTouchListener onTouchListener = new View.OnTouchListener() {
 		@Override
 		public boolean onTouch(View view, MotionEvent event) {
@@ -416,14 +424,14 @@ public class RemindersFragment extends Fragment {
 			return false;
 		}
 	};
-	
+
 	class RptUpdater implements Runnable {
 		int type;
-		
+
 		public RptUpdater(int type) {
 			this.type = type;
 		}
-		
+
 		public void run() {
 			if (cIncrement) {
 				increaseValue(type);
@@ -434,12 +442,12 @@ public class RemindersFragment extends Fragment {
 			}
 		}
 	}
-	
+
 	public interface OnEventReminderResultListener {
 		void onResultModifiedReminder(EventReminder reminder, int previousMinutes);
-		
+
 		void onResultAddedReminder(EventReminder reminder);
-		
+
 		void onResultRemovedReminder(int previousMinutes);
 	}
 }

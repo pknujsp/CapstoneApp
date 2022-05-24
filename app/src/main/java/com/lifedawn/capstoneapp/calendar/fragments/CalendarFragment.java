@@ -377,16 +377,37 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 			@Override
 			public void onResultSuccessful(Boolean e) {
 				loadCalendar();
+				if (e) {
+					if (getActivity() != null) {
+						getActivity().runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								Toast.makeText(getContext(), R.string.succeed_update_event, Toast.LENGTH_SHORT).show();
+							}
+						});
+					}
+				}
 			}
 
 			@Override
 			public void onResultFailed(Exception e) {
-				Toast.makeText(getContext(), R.string.failed_sync_calendar, Toast.LENGTH_SHORT).show();
+
+				if (getActivity() != null) {
+					getActivity().runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Toast.makeText(getContext(), R.string.failed_sync_calendar, Toast.LENGTH_SHORT).show();
+
+						}
+					});
+				}
 			}
 
 			@Override
 			public void onSyncStarted() {
 				super.onSyncStarted();
+				Toast.makeText(getContext(), R.string.start_update_event, Toast.LENGTH_SHORT).show();
+
 			}
 
 			@Override

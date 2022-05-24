@@ -3,6 +3,7 @@ package com.lifedawn.capstoneapp.promise.fixedpromise;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -26,6 +28,7 @@ import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.calendar.fragments.SyncCalendarCallback;
 import com.lifedawn.capstoneapp.common.classes.AlreadySyncingException;
 import com.lifedawn.capstoneapp.common.constants.Constant;
+import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.interfaces.IRefreshCalendar;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
@@ -196,17 +199,39 @@ public class FixedPromiseFragment extends Fragment implements IRefreshCalendar {
 			@Override
 			public void onResultSuccessful(Boolean e) {
 				refreshEvents();
+
+				if (e) {
+					if (getActivity() != null) {
+						getActivity().runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								Toast.makeText(getContext(), R.string.succeed_update_event, Toast.LENGTH_SHORT).show();
+							}
+						});
+					}
+				}
 			}
 
 			@Override
 			public void onResultFailed(Exception e) {
-				Toast.makeText(getContext(), R.string.failed_sync_calendar, Toast.LENGTH_SHORT).show();
-				binding.refreshLayout.setRefreshing(false);
+
+				if (getActivity() != null) {
+					getActivity().runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Toast.makeText(getContext(), R.string.failed_sync_calendar, Toast.LENGTH_SHORT).show();
+							binding.refreshLayout.setRefreshing(false);
+
+						}
+					});
+				}
 			}
 
 			@Override
 			public void onSyncStarted() {
 				super.onSyncStarted();
+				Toast.makeText(getContext(), R.string.start_update_event, Toast.LENGTH_SHORT).show();
+
 			}
 
 			@Override

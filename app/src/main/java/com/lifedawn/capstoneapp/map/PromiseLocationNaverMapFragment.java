@@ -96,6 +96,7 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 	@Override
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		setFindRoutesBottomSheet();
 
 		binding.weatherChip.setVisibility(View.VISIBLE);
 		binding.weatherChip.setOnClickListener(new View.OnClickListener() {
@@ -139,6 +140,7 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 					public void onResult(Location currentLocation, ArrayList<ArrayList<Double>> path, Root response, LocationDto startLocation, LocationDto goalLocation) {
 						if (response == null) {
 							binding.findRoutesBottomSheet.progressLayout.onFailed(getString(R.string.failed_finding_routes));
+							removePath();
 							return;
 						}
 
@@ -155,6 +157,7 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 
 						binding.findRoutesBottomSheet.time.setText(new String(duration + "분"));
 						binding.findRoutesBottomSheet.progressLayout.onSuccessful();
+
 						createPath(currentLocation, path);
 					}
 				});
@@ -366,7 +369,7 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 		}
 
 		if (currentMarker.getMap() != null) {
-			currentMarker.setMap(naverMap);
+			currentMarker.setMap(null);
 		}
 
 		currentMarker.setPosition(

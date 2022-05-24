@@ -3,6 +3,7 @@ package com.lifedawn.capstoneapp.promise.mypromise;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.calendar.fragments.SyncCalendarCallback;
@@ -118,17 +120,30 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 
 			@Override
 			public void onClickedRemoveEvent(CalendarRepository.EventObj event, int position) {
-				CalendarRepository.removeEvent(getContext(), event.getEvent(), new BackgroundCallback<ContentValues>() {
+				new MaterialAlertDialogBuilder(requireActivity()).setTitle(R.string.remove_event)
+						.setMessage(R.string.msg_remove_event).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					@Override
-					public void onResultSuccessful(ContentValues e) {
-						refreshEvents();
-					}
+					public void onClick(DialogInterface dialog, int which) {
+						CalendarRepository.removeEvent(getContext(), event.getEvent(), new BackgroundCallback<ContentValues>() {
+							@Override
+							public void onResultSuccessful(ContentValues e) {
+								syncCalendars();
+							}
 
+							@Override
+							public void onResultFailed(Exception e) {
+
+							}
+						});
+						dialog.dismiss();
+					}
+				}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 					@Override
-					public void onResultFailed(Exception e) {
-
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
 					}
-				});
+				}).create().show();
+
 			}
 
 			@Override
@@ -231,12 +246,31 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 			@Override
 			public void onResultSuccessful(Boolean e) {
 				refreshEvents();
+
+				if (e) {
+					if (getActivity() != null) {
+						getActivity().runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								Toast.makeText(getContext(), R.string.succeed_update_event, Toast.LENGTH_SHORT).show();
+							}
+						});
+					}
+				}
 			}
 
 			@Override
 			public void onResultFailed(Exception e) {
-				Toast.makeText(getContext(), R.string.failed_sync_calendar, Toast.LENGTH_SHORT).show();
-				binding.refreshLayout.setRefreshing(false);
+				if (getActivity() != null) {
+					getActivity().runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Toast.makeText(getContext(), R.string.failed_sync_calendar, Toast.LENGTH_SHORT).show();
+							binding.refreshLayout.setRefreshing(false);
+
+						}
+					});
+				}
 			}
 
 			@Override
@@ -251,6 +285,7 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 			@Override
 			public void onSyncStarted() {
 				super.onSyncStarted();
+				Toast.makeText(getContext(), R.string.start_update_event, Toast.LENGTH_SHORT).show();
 			}
 		});
 	}

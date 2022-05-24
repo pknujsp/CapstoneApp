@@ -6,10 +6,11 @@
     <LinearLayout
         android:id="@+id/findRoutesBottomSheet"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="240dp"
         android:background="@drawable/bottomsheet_background"
         android:clickable="true"
         android:focusable="false"
+        android:gravity="center_vertical"
         android:orientation="vertical"
         android:padding="16dp"
         app:behavior_hideable="false"
@@ -24,120 +25,130 @@
             android:visibility="gone"
             />
 
-
-        <LinearLayout
-            android:id="@+id/contentLayout"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="vertical"
             >
 
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:text="@string/departureLocation"
-                android:textColor="@color/black"
-                />
-
-            <TextView
-                android:id="@+id/departureLocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="departureLocation"
-                android:textSize="15sp"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:text="@string/arrivalLocation"
-                android:textColor="@color/black"
-                />
-
-            <TextView
-                android:id="@+id/arrivalLocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="arrivalLocation"
-                android:textSize="15sp"
-                />
-
             <LinearLayout
+                android:id="@+id/contentLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 >
 
 
-                <LinearLayout
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="16dp"
-                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/departureLocation"
+                    android:textColor="@color/black"
+                    />
+
+                <TextView
+                    android:id="@+id/departureLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:maxLines="1"
+                    android:minLines="1"
+                    android:text="departureLocation"
+                    android:textSize="15sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/arrivalLocation"
+                    android:textColor="@color/black"
+                    />
+
+                <TextView
+                    android:id="@+id/arrivalLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:maxLines="1"
+                    android:minLines="1"
+                    android:text="arrivalLocation"
+                    android:textSize="15sp"
+                    />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
                     >
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
-                        android:text="@string/time"
-                        android:textColor="@color/black"
-                        />
 
-                    <TextView
-                        android:id="@+id/time"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="time"
-                        android:textSize="15sp"
-                        />
+                        android:layout_marginRight="16dp"
+                        android:orientation="vertical"
+                        >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:text="@string/time"
+                            android:textColor="@color/black"
+                            />
+
+                        <TextView
+                            android:id="@+id/time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:text="time"
+                            android:textSize="15sp"
+                            />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:text="@string/distance"
+                            android:textColor="@color/black"
+                            />
+
+                        <TextView
+                            android:id="@+id/distance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:text="distance"
+                            android:textSize="15sp"
+                            />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    >
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
-                        android:text="@string/distance"
-                        android:textColor="@color/black"
-                        />
-
-                    <TextView
-                        android:id="@+id/distance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="distance"
-                        android:textSize="15sp"
-                        />
-
-                </LinearLayout>
 
             </LinearLayout>
 
+            <com.lifedawn.capstoneapp.common.view.ProgressView
+                android:id="@+id/progressLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                />
 
-        </LinearLayout>
-
-        <com.lifedawn.capstoneapp.common.view.ProgressView
-            android:id="@+id/progressLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            />
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"

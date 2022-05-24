@@ -45,12 +45,15 @@ public class ProfileFragment extends DialogFragment {
 	private final SyncCalendarCallback<Boolean> syncCalendarCallback = new SyncCalendarCallback<Boolean>() {
 		@Override
 		public void onResultSuccessful(Boolean finished) {
+
 			super.onResultSuccessful(finished);
 			if (finished) {
 				if (getActivity() != null) {
 					getActivity().runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
+							Toast.makeText(getContext(), R.string.succeed_update_event, Toast.LENGTH_SHORT).show();
+
 							SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
 							String lastUpdateDateTime = sharedPreferences.getString(SharedPreferenceConstant.LAST_UPDATE_DATETIME.getVal(), "");
 
@@ -66,8 +69,18 @@ public class ProfileFragment extends DialogFragment {
 		@Override
 		public void onResultFailed(Exception e) {
 			super.onResultFailed(e);
-			Toast.makeText(getContext(), R.string.failed_sync_calendar, Toast.LENGTH_SHORT).show();
-			binding.progressCircular.setVisibility(View.GONE);
+
+
+			if (getActivity() != null) {
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						Toast.makeText(getContext(), R.string.failed_sync_calendar, Toast.LENGTH_SHORT).show();
+						binding.progressCircular.setVisibility(View.GONE);
+
+					}
+				});
+			}
 		}
 
 		@Override
@@ -79,6 +92,8 @@ public class ProfileFragment extends DialogFragment {
 		@Override
 		public void onSyncStarted() {
 			super.onSyncStarted();
+			Toast.makeText(getContext(), R.string.start_update_event, Toast.LENGTH_SHORT).show();
+
 			binding.progressCircular.setVisibility(View.VISIBLE);
 		}
 	};

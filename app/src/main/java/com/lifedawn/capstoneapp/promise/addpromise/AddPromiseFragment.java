@@ -221,7 +221,7 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 		} else {
 			Bundle bundle = new Bundle();
 			bundle.putInt("previousMinutes", eventReminder.getMinutes());
-			bundle.putSerializable("requestCode", RemindersFragment.RequestType.EDIT);
+			bundle.putSerializable("requestType", RemindersFragment.RequestType.EDIT);
 
 			RemindersFragment eventReminderFragment = new RemindersFragment();
 			eventReminderFragment.setOnEventReminderResultListener(new RemindersFragment.OnEventReminderResultListener() {

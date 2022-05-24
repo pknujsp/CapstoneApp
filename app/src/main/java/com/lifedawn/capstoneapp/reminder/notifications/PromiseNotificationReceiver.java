@@ -1,5 +1,6 @@
 package com.lifedawn.capstoneapp.reminder.notifications;
 
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -13,6 +14,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.os.PowerManager;
 import android.provider.CalendarContract;
 import android.util.Log;
 
@@ -40,7 +42,6 @@ public class PromiseNotificationReceiver extends BroadcastReceiver {
 		Log.e("PromiseNotificationReceiver", action);
 
 		if (action.equals(CalendarContract.ACTION_EVENT_REMINDER)) {
-
 			Bundle bundle = new Bundle();
 			bundle.putLong(CalendarContract.CalendarAlerts.ALARM_TIME, intent.getExtras().getLong(CalendarContract.CalendarAlerts.ALARM_TIME));
 			bundle.putString("action", intent.getAction());
@@ -73,5 +74,15 @@ public class PromiseNotificationReceiver extends BroadcastReceiver {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	private boolean isScreenOn(Context context) {
+		PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+		return pm.isInteractive();
+	}
+
+	private boolean checkDeviceLock(Context context) {
+		KeyguardManager myKM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+		return myKM.inKeyguardRestrictedInputMode();
 	}
 }

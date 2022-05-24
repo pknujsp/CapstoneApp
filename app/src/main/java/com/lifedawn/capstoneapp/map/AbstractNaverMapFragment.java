@@ -207,7 +207,6 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 		setLocationItemsBottomSheet();
 		setLocationSearchBottomSheet();
 		setAroundPlacesBottomSheet();
-		setFindRoutesBottomSheet();
 
 		binding.placeChip.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -799,12 +798,9 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 		binding.findRoutesBottomSheet.progressLayout.setContentView(binding.findRoutesBottomSheet.contentLayout);
 		binding.findRoutesBottomSheet.progressLayout.onSuccessful();
 
-		LinearLayout findRoutesBottomSheet = binding.findRoutesBottomSheet.findRoutesBottomSheet;
-
-		BottomSheetBehavior findRoutesBottomSheetBehavior = BottomSheetBehavior.from(findRoutesBottomSheet);
+		BottomSheetBehavior findRoutesBottomSheetBehavior = BottomSheetBehavior.from(binding.findRoutesBottomSheet.findRoutesBottomSheet);
 		findRoutesBottomSheetBehavior.setDraggable(false);
 		findRoutesBottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-			float differenceY;
 
 			@Override
 			public void onStateChanged(@NonNull View bottomSheet, int newState) {
@@ -814,13 +810,11 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 			public void onSlide(@NonNull View bottomSheet, float slideOffset) {
 				//expanded일때 offset == 1.0, collapsed일때 offset == 0.0
 				//offset에 따라서 버튼들이 이동하고, 지도의 좌표가 변경되어야 한다.
-				differenceY = bottomSheet.getHeight();
-				float translationValue = -differenceY * slideOffset;
-				binding.naverMapButtonsLayout.getRoot().animate().translationY(translationValue);
+				binding.naverMapButtonsLayout.getRoot().animate().translationY(-bottomSheet.getHeight() * slideOffset);
 			}
 		});
 
-		bottomSheetViewMap.put(BottomSheetType.FIND_ROUTES, findRoutesBottomSheet);
+		bottomSheetViewMap.put(BottomSheetType.FIND_ROUTES, binding.findRoutesBottomSheet.findRoutesBottomSheet);
 		bottomSheetBehaviorMap.put(BottomSheetType.FIND_ROUTES, findRoutesBottomSheetBehavior);
 	}
 

@@ -105,7 +105,7 @@ public class NotificationService extends Service {
 								PendingIntent.FLAG_UPDATE_CURRENT);
 						builder.setContentIntent(pendingIntent);
 						//알림 관련 처리
-						notificationManager.notify(notificationId++, builder.build());
+						notificationManager.notify(notificationId, builder.build());
 					}
 
 					if (wake) {
