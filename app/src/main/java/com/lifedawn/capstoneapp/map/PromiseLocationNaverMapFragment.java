@@ -354,6 +354,9 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 
 	private void showMarkerOfCurrentLocation(Location currentLocation) {
 		if (currentMarker == null) {
+			if (MARKERS_MAP.get(MarkerType.PATH).size() > 1) {
+				MARKERS_MAP.get(MarkerType.PATH).remove(1);
+			}
 			currentMarker = new Marker();
 			String caption = getString(R.string.current_location);
 

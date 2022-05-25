@@ -1102,14 +1102,16 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 	@Override
 	public void onClickedPlaceBottomSheet(KakaoLocalDocument kakaoLocalDocument) {
-		PlaceInfoWebFragment placeInfoWebFragment = new PlaceInfoWebFragment();
-		Bundle bundle = new Bundle();
-		bundle.putString("placeId", ((PlaceResponse.Documents) kakaoLocalDocument).getId());
-		placeInfoWebFragment.setArguments(bundle);
+		if (kakaoLocalDocument instanceof PlaceResponse.Documents) {
+			PlaceInfoWebFragment placeInfoWebFragment = new PlaceInfoWebFragment();
+			Bundle bundle = new Bundle();
+			bundle.putString("placeId", ((PlaceResponse.Documents) kakaoLocalDocument).getId());
+			placeInfoWebFragment.setArguments(bundle);
 
-		getParentFragmentManager().beginTransaction().hide(this).add(R.id.fragmentContainerView, placeInfoWebFragment,
-				PlaceInfoWebFragment.class.getName())
-				.addToBackStack(PlaceInfoWebFragment.class.getName()).commitAllowingStateLoss();
+			getParentFragmentManager().beginTransaction().hide(this).add(R.id.fragmentContainerView, placeInfoWebFragment,
+					PlaceInfoWebFragment.class.getName())
+					.addToBackStack(PlaceInfoWebFragment.class.getName()).commitAllowingStateLoss();
+		}
 	}
 
 
