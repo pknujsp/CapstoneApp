@@ -335,6 +335,10 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 						new BackgroundCallback<List<CalendarRepository.EventObj>>() {
 							@Override
 							public void onResultSuccessful(List<CalendarRepository.EventObj> eventObjList) {
+								if (getActivity() == null) {
+									return;
+								}
+
 								List<Integer> removeIndexList = new ArrayList<>();
 
 								for (int i = eventObjList.size() - 1; i >= 0; i--) {
@@ -362,6 +366,14 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 										binding.refreshLayout.setRefreshing(false);
 										adapter.setEvents(eventObjList);
 										adapter.notifyDataSetChanged();
+
+										if (adapter.getItemCount() > 0) {
+											binding.warningLayout.getRoot().setVisibility(View.GONE);
+										} else {
+											binding.warningLayout.getRoot().setVisibility(View.VISIBLE);
+											binding.warningLayout.warningText.setText(R.string.empty_received_invitation_promises);
+											binding.warningLayout.btn.setVisibility(View.GONE);
+										}
 									}
 								});
 							}

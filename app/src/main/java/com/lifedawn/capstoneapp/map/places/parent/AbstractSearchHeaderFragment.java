@@ -78,7 +78,7 @@ public abstract class AbstractSearchHeaderFragment extends Fragment implements O
 				bottomSheetController.setStateOfBottomSheet(bottomSheetType, BottomSheetBehavior.STATE_EXPANDED);
 			} else {
 				bottomSheetController.setStateOfBottomSheet(bottomSheetType, BottomSheetBehavior.STATE_COLLAPSED);
-				getParentFragmentManager().popBackStack();
+				getParentFragmentManager().popBackStackImmediate();
 			}
 
 		}
@@ -266,7 +266,11 @@ public abstract class AbstractSearchHeaderFragment extends Fragment implements O
 					searchPlaceShareViewModel.setCriteriaType(currentSearchMapPointCriteria);
 
 					if (!initializing) {
+						if (bottomSheetController.getStateOfBottomSheet(bottomSheetType) == BottomSheetBehavior.STATE_COLLAPSED) {
+							onBackPressedCallback.handleOnBackPressed();
+						}
 						init(binding.categoryTabLayout.getSelectedTabPosition());
+
 					}
 				}
 				initializing = false;
