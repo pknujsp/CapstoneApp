@@ -754,7 +754,6 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 					setEmptyInfo();
 				}
 
-
 				private class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.EventViewHolder> {
 					private List<CalendarRepository.EventObj> eventList;
 					private OnClickPromiseItemListener onClickPromiseItemListener;
