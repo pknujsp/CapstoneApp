@@ -234,7 +234,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 				headerFragment.setArguments(bundle);
 
 				childFragmentManager.beginTransaction().add(binding.aroundPlacesBottomSheet.fragmentContainerView.getId(),
-						contentViewPagerFragment, AroundPlacesContentsViewPagerFragment.class.getName())
+								contentViewPagerFragment, AroundPlacesContentsViewPagerFragment.class.getName())
 						.add(binding.anotherFragmentContainer.getId(), headerFragment, AroundPlacesHeaderFragment.class.getName())
 						.addToBackStack(AroundPlacesContentsViewPagerFragment.class.getName()).commitAllowingStateLoss();
 
@@ -269,7 +269,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 
 
 				childFragmentManager.beginTransaction().add(binding.aroundPlacesBottomSheet.fragmentContainerView.getId(),
-						contentsViewPagerFragment, RestaurantContentsViewPagerFragment.class.getName())
+								contentsViewPagerFragment, RestaurantContentsViewPagerFragment.class.getName())
 						.add(binding.anotherFragmentContainer.getId(), headerFragment, RestaurantHeaderFragment.class.getName())
 						.addToBackStack(RestaurantContentsViewPagerFragment.class.getName()).commitAllowingStateLoss();
 
@@ -920,27 +920,36 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 	public void removeAllMarkers() {
 		Set<MarkerType> keySet = MARKERS_MAP.keySet();
 		for (MarkerType markerType : keySet) {
+
 			List<Marker> markerList = MARKERS_MAP.get(markerType);
 			for (Marker marker : markerList) {
 				marker.setMap(null);
 			}
 
 			markerList.clear();
+
+
 		}
 	}
 
 
 	@Override
 	public void showMarkers(MarkerType... markerTypes) {
-		List<LatLng> latLngList = new ArrayList<>();
-
 		for (MarkerType markerType : markerTypes) {
-			List<Marker> markerList = MARKERS_MAP.get(markerType);
-
-			for (Marker marker : markerList) {
-				latLngList.add(marker.getPosition());
+			if (MARKERS_MAP.containsKey(markerType)) {
+				showMarkers(MARKERS_MAP.get(markerType));
 			}
 		}
+
+	}
+
+	public void showMarkers(List<Marker> markerList) {
+		List<LatLng> latLngList = new ArrayList<>();
+
+		for (Marker marker : markerList) {
+			latLngList.add(marker.getPosition());
+		}
+
 
 		if (!latLngList.isEmpty()) {
 			LatLngBounds latLngBounds = LatLngBounds.from(latLngList);
@@ -1109,7 +1118,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 			placeInfoWebFragment.setArguments(bundle);
 
 			getParentFragmentManager().beginTransaction().hide(this).add(R.id.fragmentContainerView, placeInfoWebFragment,
-					PlaceInfoWebFragment.class.getName())
+							PlaceInfoWebFragment.class.getName())
 					.addToBackStack(PlaceInfoWebFragment.class.getName()).commitAllowingStateLoss();
 		}
 	}

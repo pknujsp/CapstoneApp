@@ -6,7 +6,7 @@
     <LinearLayout
         android:id="@+id/findRoutesBottomSheet"
         android:layout_width="match_parent"
-        android:layout_height="240dp"
+        android:layout_height="290dp"
         android:background="@drawable/bottomsheet_background"
         android:clickable="true"
         android:focusable="false"
@@ -74,6 +74,25 @@
                     android:maxLines="1"
                     android:minLines="1"
                     android:text="arrivalLocation"
+                    android:textSize="15sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/estimatedArrivalTime"
+                    android:textColor="@color/black"
+                    />
+
+                <TextView
+                    android:id="@+id/estimatedArrivalTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:maxLines="1"
+                    android:minLines="1"
+                    android:text="estimatedArrivalTime"
                     android:textSize="15sp"
                     />
 

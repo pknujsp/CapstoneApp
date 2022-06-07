@@ -33,6 +33,10 @@ import com.naver.maps.map.util.CameraUtils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -155,8 +159,14 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 						long duration = Long.parseLong(response.route.traoptimal.get(0).summary.duration);
 						duration = TimeUnit.MILLISECONDS.toMinutes(duration);
 
+						ZonedDateTime now = ZonedDateTime.now();
+						now = now.plusMinutes(duration);
+
 						binding.findRoutesBottomSheet.time.setText(new String(duration + "분"));
 						binding.findRoutesBottomSheet.progressLayout.onSuccessful();
+
+						DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("a hh:mm");
+						binding.findRoutesBottomSheet.estimatedArrivalTime.setText(now.format(dateTimeFormatter));
 
 						createPath(currentLocation, path);
 					}
@@ -191,7 +201,7 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 				});
 
 				childFragmentManager.beginTransaction().add(binding.findRoutesBottomSheet.fragmentContainerView.getId(),
-						findRouteFragment, FindRouteFragment.class.getName())
+								findRouteFragment, FindRouteFragment.class.getName())
 						.addToBackStack(FindRouteFragment.class.getName()).commitAllowingStateLoss();
 
 				setStateOfBottomSheet(BottomSheetType.FIND_ROUTES, BottomSheetBehavior.STATE_EXPANDED);
@@ -318,9 +328,6 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 
 		selectedLocationInEventMarker.performClick();
 		moveCameraToPromiseLocation();
-
-		MARKERS_MAP.put(MarkerType.PATH, new ArrayList<>());
-		MARKERS_MAP.get(MarkerType.PATH).add(selectedLocationInEventMarker);
 	}
 
 	private void moveCameraToPromiseLocation() {
@@ -349,14 +356,15 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 		path.setOutlineColor(Color.BLUE);
 
 		naverMap.setContentPadding(0, 0, 0, binding.findRoutesBottomSheet.getRoot().getHeight());
-		showMarkers(MarkerType.PATH);
+
+		List<Marker> markers = new ArrayList<>();
+		markers.add(selectedLocationInEventMarker);
+		markers.add(currentMarker);
+		showMarkers(markers);
 	}
 
 	private void showMarkerOfCurrentLocation(Location currentLocation) {
 		if (currentMarker == null) {
-			if (MARKERS_MAP.get(MarkerType.PATH).size() > 1) {
-				MARKERS_MAP.get(MarkerType.PATH).remove(1);
-			}
 			currentMarker = new Marker();
 			String caption = getString(R.string.current_location);
 
@@ -367,12 +375,6 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 			int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 42f, getResources().getDisplayMetrics());
 			currentMarker.setWidth(width);
 			currentMarker.setHeight(height);
-
-			MARKERS_MAP.get(MarkerType.PATH).add(currentMarker);
-		}
-
-		if (currentMarker.getMap() != null) {
-			currentMarker.setMap(null);
 		}
 
 		currentMarker.setPosition(

@@ -261,4 +261,5 @@
     <string name="msg_remove_event">약속을 삭제하시겠습니까?</string>
     <string name="start_update_event">약속 목록 업데이트 시작</string>
     <string name="succeed_update_event">약속 목록 업데이트 완료</string>
+    <string name="estimatedArrivalTime">도착 예상 시각</string>
 </resources>
