@@ -122,27 +122,27 @@ public class MyPromiseFragment extends Fragment implements IRefreshCalendar {
 			public void onClickedRemoveEvent(CalendarRepository.EventObj event, int position) {
 				new MaterialAlertDialogBuilder(requireActivity()).setTitle(R.string.remove_event)
 						.setMessage(R.string.msg_remove_event).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						CalendarRepository.removeEvent(getContext(), event.getEvent(), new BackgroundCallback<ContentValues>() {
 							@Override
-							public void onResultSuccessful(ContentValues e) {
-								syncCalendars();
-							}
+							public void onClick(DialogInterface dialog, int which) {
+								CalendarRepository.removeEvent(getContext(), event.getEvent(), new BackgroundCallback<ContentValues>() {
+									@Override
+									public void onResultSuccessful(ContentValues e) {
+										syncCalendars();
+									}
 
+									@Override
+									public void onResultFailed(Exception e) {
+
+									}
+								});
+								dialog.dismiss();
+							}
+						}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 							@Override
-							public void onResultFailed(Exception e) {
-
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
 							}
-						});
-						dialog.dismiss();
-					}
-				}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				}).create().show();
+						}).create().show();
 
 			}
 

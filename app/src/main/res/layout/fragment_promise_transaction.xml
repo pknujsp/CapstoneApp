@@ -1,59 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    >
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        >
 
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabLayout"
-            style="@style/Widget.MaterialComponents.TabLayout"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:background="@color/white"
-            android:textSize="20sp"
-            app:tabTextAppearance="@style/tabTextSizeBold">
+            android:layout_height="48dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            >
 
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/fixedPromise"
+            <TextView
+                android:id="@+id/label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/fixed_promise" />
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:text="@string/promise_info"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                />
 
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/myPromise"
+            <TextView
+                android:id="@+id/invitedEventsBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/my_promise" />
+                android:layout_centerVertical="true"
+                android:layout_marginRight="24dp"
+                android:layout_toLeftOf="@id/newPromiseBtn"
+                android:background="@drawable/round_btn"
+                android:clickable="true"
+                android:text="@string/received_invitation"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                />
 
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/receivedInvitation"
+            <ImageButton
+                android:id="@+id/newPromiseBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/received_invitation" />
-        </com.google.android.material.tabs.TabLayout>
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackground"
+                android:backgroundTint="@color/black"
+                android:src="@drawable/ic_baseline_add_24"
+                />
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPager"
+        </RelativeLayout>
+
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/tabLayout"
-            android:layout_alignParentBottom="true" />
+            >
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/floatingActionBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginRight="24dp"
-            android:layout_marginBottom="24dp"
-            android:src="@drawable/ic_baseline_add_24"
-            app:backgroundTint="@color/lightblue"
-            app:tint="@color/white" />
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/refreshLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                >
 
-    </RelativeLayout>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    />
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+            <include
+                android:id="@+id/warningLayout"
+                layout="@layout/view_warning"
+                android:visibility="gone"
+                />
+        </FrameLayout>
+    </LinearLayout>
 </layout>

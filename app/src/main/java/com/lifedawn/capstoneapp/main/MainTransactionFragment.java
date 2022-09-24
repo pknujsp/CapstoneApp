@@ -12,7 +12,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -31,7 +30,7 @@ import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentMainTransactionBinding;
 import com.lifedawn.capstoneapp.friends.FriendTransactionFragment;
-import com.lifedawn.capstoneapp.promise.PromiseTransactionFragment;
+import com.lifedawn.capstoneapp.promise.PromiseMainFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -80,14 +79,14 @@ public class MainTransactionFragment extends Fragment {
 				boolean newCreate = false;
 
 				if (item.getItemId() == R.id.mainPage) {
-					if (primaryNavigationFragment instanceof PromiseTransactionFragment) {
+					if (primaryNavigationFragment instanceof PromiseMainFragment) {
 						return false;
 					} else {
-						if (!fragmentMap.containsKey(PromiseTransactionFragment.class.getName())) {
-							fragmentMap.put(PromiseTransactionFragment.class.getName(), new PromiseTransactionFragment());
+						if (!fragmentMap.containsKey(PromiseMainFragment.class.getName())) {
+							fragmentMap.put(PromiseMainFragment.class.getName(), new PromiseMainFragment());
 							newCreate = true;
 						}
-						newFragment = fragmentMap.get(PromiseTransactionFragment.class.getName());
+						newFragment = fragmentMap.get(PromiseMainFragment.class.getName());
 					}
 				} else if (item.getItemId() == R.id.friendPage) {
 					if (primaryNavigationFragment instanceof FriendTransactionFragment) {
@@ -157,10 +156,10 @@ public class MainTransactionFragment extends Fragment {
 			}
 		});
 
-		PromiseTransactionFragment promiseTransactionFragment = new PromiseTransactionFragment();
+		PromiseMainFragment promiseMainFragment = new PromiseMainFragment();
 		FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-		fragmentTransaction.add(binding.fragmentContainerView.getId(), promiseTransactionFragment,
-				PromiseTransactionFragment.class.getName()).setPrimaryNavigationFragment(promiseTransactionFragment).commit();
+		fragmentTransaction.add(binding.fragmentContainerView.getId(), promiseMainFragment,
+				PromiseMainFragment.class.getName()).setPrimaryNavigationFragment(promiseMainFragment).commit();
 
 		final GoogleSignInAccount currentSignInAccount = accountViewModel.getCurrentSignInAccount();
 		if (currentSignInAccount == null) {

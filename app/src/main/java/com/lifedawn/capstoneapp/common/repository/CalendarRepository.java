@@ -570,6 +570,7 @@ public class CalendarRepository implements ICalendarRepository {
 
 	public static class EventObj implements Parcelable {
 		private String date;
+		private boolean isMyEvent;
 		private ContentValues event;
 		private List<ContentValues> attendeeList;
 		private List<ContentValues> reminderList;
@@ -580,6 +581,7 @@ public class CalendarRepository implements ICalendarRepository {
 
 		protected EventObj(Parcel in) {
 			date = in.readString();
+			isMyEvent = in.readByte() != 0;
 			event = in.readParcelable(ContentValues.class.getClassLoader());
 			attendeeList = in.createTypedArrayList(ContentValues.CREATOR);
 			reminderList = in.createTypedArrayList(ContentValues.CREATOR);
@@ -596,19 +598,6 @@ public class CalendarRepository implements ICalendarRepository {
 				return new EventObj[size];
 			}
 		};
-
-		@Override
-		public int describeContents() {
-			return 0;
-		}
-
-		@Override
-		public void writeToParcel(Parcel dest, int flags) {
-			dest.writeString(date);
-			dest.writeParcelable(event, flags);
-			dest.writeTypedList(attendeeList);
-			dest.writeTypedList(reminderList);
-		}
 
 		public String getDate() {
 			return date;
@@ -640,6 +629,28 @@ public class CalendarRepository implements ICalendarRepository {
 
 		public void setReminderList(List<ContentValues> reminderList) {
 			this.reminderList = reminderList;
+		}
+
+		public boolean isMyEvent() {
+			return isMyEvent;
+		}
+
+		public void setMyEvent(boolean myEvent) {
+			isMyEvent = myEvent;
+		}
+
+		@Override
+		public int describeContents() {
+			return 0;
+		}
+
+		@Override
+		public void writeToParcel(Parcel dest, int flags) {
+			dest.writeString(date);
+			dest.writeByte((byte) (isMyEvent ? 1 : 0));
+			dest.writeParcelable(event, flags);
+			dest.writeTypedList(attendeeList);
+			dest.writeTypedList(reminderList);
 		}
 	}
 }
