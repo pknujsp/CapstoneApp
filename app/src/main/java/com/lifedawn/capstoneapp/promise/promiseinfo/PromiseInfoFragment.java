@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.chip.Chip;
 import com.lifedawn.capstoneapp.R;
+import com.lifedawn.capstoneapp.chat.VoteMainFragment;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
@@ -97,6 +98,18 @@ public class PromiseInfoFragment extends Fragment {
 		binding.weatherProgressLayout.onStarted(getString(R.string.loading_weather_data));
 		binding.todayCurrentWeather.title.setText(R.string.todayCurrentWeather);
 		binding.updateBtn.setVisibility(View.GONE);
+
+		binding.votePlaces.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				VoteMainFragment voteMainFragment = new VoteMainFragment();
+
+				FragmentManager fragmentManager = getParentFragmentManager();
+				fragmentManager.beginTransaction().hide(PromiseInfoFragment.this).add(
+						R.id.fragmentContainerView, voteMainFragment, VoteMainFragment.class.getName()).addToBackStack(
+						VoteMainFragment.class.getName()).commitAllowingStateLoss();
+			}
+		});
 
 		CalendarRepository.loadEvent(getContext(), eventId,
 				new BackgroundCallback<List<CalendarRepository.EventObj>>() {

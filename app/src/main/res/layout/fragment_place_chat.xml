@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     >
 
@@ -18,28 +19,46 @@
             android:layout_height="wrap_content"
             />
 
-        <com.google.android.material.chip.ChipGroup
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
             >
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/votingInProgressChip"
+            <RadioGroup
+                android:id="@+id/radio_group"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/votingInProgress"
-                />
+                android:orientation="horizontal"
+                >
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/votingInCompleteChip"
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/votingInProgressChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/votingInProgress"
+                    />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/votingInCompleteChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/votingInComplete"
+                    />
+
+            </RadioGroup>
+
+            <ImageButton
+                android:id="@+id/updateBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/votingInComplete"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackground"
+                android:src="@drawable/ic_baseline_refresh_24"
                 />
-
-
-        </com.google.android.material.chip.ChipGroup>
+        </RelativeLayout>
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragment_container"

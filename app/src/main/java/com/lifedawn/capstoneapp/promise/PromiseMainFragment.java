@@ -158,7 +158,7 @@ public class PromiseMainFragment extends Fragment implements IRefreshCalendar {
 		adapter.setOnClickPromiseItemListener(new OnClickPromiseItemListener() {
 
 			public void onClickedEdit(CalendarRepository.EventObj event, int position) {
-				EditPromiseFragment editPromiseFragment = new EditPromiseFragment();
+				final EditPromiseFragment editPromiseFragment = new EditPromiseFragment();
 				editPromiseFragment.setOnFragmentCallback(new OnFragmentCallback<Boolean>() {
 					@Override
 					public void onResult(Boolean e) {
@@ -170,10 +170,10 @@ public class PromiseMainFragment extends Fragment implements IRefreshCalendar {
 
 				editPromiseFragment.setArguments(bundle);
 
-				FragmentManager fragmentManager = getParentFragment().getParentFragment().getParentFragmentManager();
+				FragmentManager fragmentManager = getParentFragment().getParentFragmentManager();
 				fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName())).add(
 						R.id.fragmentContainerView, editPromiseFragment, EditPromiseFragment.class.getName()).addToBackStack(
-						EditPromiseFragment.class.getName()).commit();
+						EditPromiseFragment.class.getName()).commitAllowingStateLoss();
 			}
 
 			@Override
@@ -206,16 +206,16 @@ public class PromiseMainFragment extends Fragment implements IRefreshCalendar {
 
 			@Override
 			public void onClickedEvent(CalendarRepository.EventObj event, int position) {
-				PromiseInfoFragment promiseInfoFragment = new PromiseInfoFragment();
+				final PromiseInfoFragment promiseInfoFragment = new PromiseInfoFragment();
 
 				Bundle bundle = new Bundle();
 				bundle.putString("eventId", event.getEvent().getAsString(CalendarContract.Events._ID));
 				promiseInfoFragment.setArguments(bundle);
 
-				FragmentManager fragmentManager = getParentFragment().getParentFragment().getParentFragmentManager();
+				FragmentManager fragmentManager = getParentFragment().getParentFragmentManager();
 				fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName())).add(
 						R.id.fragmentContainerView, promiseInfoFragment, PromiseInfoFragment.class.getName()).addToBackStack(
-						PromiseInfoFragment.class.getName()).commit();
+						PromiseInfoFragment.class.getName()).commitAllowingStateLoss();
 			}
 
 			@Override
@@ -279,6 +279,7 @@ public class PromiseMainFragment extends Fragment implements IRefreshCalendar {
 						//권한 거부됨
 						binding.warningLayout.warningText.setText(R.string.needs_calendar_permission);
 						ActivityResultCallback<Boolean> activityResultCallback = this;
+
 						binding.warningLayout.btn.setOnClickListener(new View.OnClickListener() {
 							@Override
 							public void onClick(View v) {
@@ -380,6 +381,7 @@ public class PromiseMainFragment extends Fragment implements IRefreshCalendar {
 				if (!syncing) {
 					binding.refreshLayout.setRefreshing(false);
 				}
+
 			}
 		});
 	}
@@ -406,15 +408,11 @@ public class PromiseMainFragment extends Fragment implements IRefreshCalendar {
 											public void onResultSuccessful(List<CalendarRepository.EventObj> myEventObjList) {
 												Set<Integer> myEventIdSet = new HashSet<>();
 												for (CalendarRepository.EventObj eventObj : myEventObjList) {
-													myEventIdSet.add(eventObj.getEvent().getAsInteger(
-															CalendarContract.Events._ID
-													));
+													myEventIdSet.add(eventObj.getEvent().getAsInteger(CalendarContract.Events._ID));
 												}
 
 												for (CalendarRepository.EventObj eventObj : eventObjList) {
-													if (myEventIdSet.contains(eventObj.getEvent().getAsInteger(
-															CalendarContract.Events._ID
-													))) {
+													if (myEventIdSet.contains(eventObj.getEvent().getAsInteger(CalendarContract.Events._ID))) {
 														eventObj.setMyEvent(true);
 													}
 												}
@@ -587,7 +585,7 @@ public class PromiseMainFragment extends Fragment implements IRefreshCalendar {
 				binding.getRoot().setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						onClickPromiseItemListener.onClickedEvent(events.get(getBindingAdapterPosition()), getBindingAdapterPosition());
+						onClickPromiseItemListener.onClickedEvent(events.get(position), position);
 					}
 				});
 
