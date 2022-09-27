@@ -26,33 +26,36 @@
             android:layout_marginRight="16dp"
             >
 
-            <RadioGroup
-                android:id="@+id/radio_group"
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggle_group"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                app:selectionRequired="true"
+                app:singleSelection="true"
                 >
 
-                <com.google.android.material.radiobutton.MaterialRadioButton
-                    android:id="@+id/votingInProgressChip"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/votingInProgressToggle"
+                    style="?attr/materialButtonOutlinedStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/votingInProgress"
                     />
 
-                <com.google.android.material.radiobutton.MaterialRadioButton
-                    android:id="@+id/votingInCompleteChip"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/votingInCompleteToggle"
+                    style="?attr/materialButtonOutlinedStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/votingInComplete"
                     />
 
-            </RadioGroup>
+            </com.google.android.material.button.MaterialButtonToggleGroup>
 
             <ImageButton
                 android:id="@+id/updateBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:background="?attr/selectableItemBackground"

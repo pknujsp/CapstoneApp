@@ -30,7 +30,7 @@ class VoteListFragment : Fragment() {
 
 
         binding.warningLayout.root.visibility = View.VISIBLE
-        binding.warningLayout.warningText.text = getString(R.string.empty_fixed_promises)
+        binding.warningLayout.warningText.text = getString(R.string.empty_votes)
         binding.warningLayout.btn.visibility = View.GONE
 
     }

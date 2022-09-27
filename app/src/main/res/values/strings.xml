@@ -270,4 +270,5 @@
     <string name="votingInProgress_places">장소 투표가 진행중 입니다!</string>
     <string name="votingInComplete_places">장소 투표가 종료 되었습니다!</string>
     <string name="noVote_places">장소 투표가 없습니다!</string>
+    <string name="empty_votes">투표 내역이 없습니다</string>
 </resources>

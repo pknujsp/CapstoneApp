@@ -18,7 +18,7 @@ import java.util.List;
 public class FriendViewModel extends AndroidViewModel implements IFriendRepository {
 	private FriendRepository friendRepository;
 	private List<FriendDto> friendDtoList;
-	private ArrayMap<String, FriendDto> friendDtoArrayMap;
+	private static ArrayMap<String, FriendDto> friendDtoArrayMap;
 
 	public FriendViewModel(@NonNull Application application) {
 		super(application);
@@ -39,7 +39,7 @@ public class FriendViewModel extends AndroidViewModel implements IFriendReposito
 		});
 	}
 
-	public String getName(ContentValues contentValues) {
+	public static String getName(ContentValues contentValues) {
 		String email = contentValues.getAsString(CalendarContract.Attendees.ATTENDEE_EMAIL);
 		if (email == null) {
 			if (contentValues.containsKey(CalendarContract.Events.ORGANIZER)) {
@@ -58,7 +58,7 @@ public class FriendViewModel extends AndroidViewModel implements IFriendReposito
 
 	}
 
-	public String getName(String email) {
+	public static String getName(String email) {
 		if (friendDtoArrayMap.containsKey(email)) {
 			return friendDtoArrayMap.get(email).getName();
 		} else {
@@ -106,4 +106,6 @@ public class FriendViewModel extends AndroidViewModel implements IFriendReposito
 	public void contains(String email, OnDbQueryCallback<Boolean> callback) {
 		friendRepository.contains(email, callback);
 	}
+
+
 }

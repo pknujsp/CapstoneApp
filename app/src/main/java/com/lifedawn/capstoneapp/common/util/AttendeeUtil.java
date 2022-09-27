@@ -19,8 +19,6 @@ public class AttendeeUtil {
 		final int totalCount = attendeeList.size();
 		int count = 1;
 
-		String val = null;
-
 		for (String attendee : attendeeList) {
 			stringBuilder.append(attendee);
 			if (count < totalCount) {

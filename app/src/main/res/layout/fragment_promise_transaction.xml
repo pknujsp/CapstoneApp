@@ -26,7 +26,7 @@
                 android:layout_centerVertical="true"
                 android:text="@string/promise_info"
                 android:textColor="@color/black"
-                android:textSize="17sp"
+                android:textSize="18sp"
                 />
 
             <TextView
@@ -55,6 +55,7 @@
                 />
 
         </RelativeLayout>
+
 
         <FrameLayout
             android:layout_width="match_parent"

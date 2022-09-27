@@ -12,7 +12,8 @@
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_vote.xml" value="0.2390625" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_votelist.xml" value="0.5536458333333333" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/fragment_voting_in_progress.xml" value="0.2390625" />
-        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/item_view_promise.xml" value="0.264" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/item_view_promise.xml" value="0.33" />
+        <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/parentview_promise_expandable_list.xml" value="0.5526041666666667" />
         <entry key="..\:/Android/Android Projects/CapstoneApp/app/src/main/res/layout/view_warning.xml" value="0.25364583333333335" />
       </map>
     </option>

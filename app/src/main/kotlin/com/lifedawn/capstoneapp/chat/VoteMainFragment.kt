@@ -39,18 +39,17 @@ class VoteMainFragment : Fragment() {
 
         }
 
-        binding.radioGroup.setOnCheckedChangeListener(object : RadioGroup.OnCheckedChangeListener {
-            override fun onCheckedChanged(group: RadioGroup?, checkedId: Int) {
-                if (checkedId == R.id.votingInProgressChip) {
+        binding.toggleGroup.addOnButtonCheckedListener { group, checkedId, isChecked ->
+            if (isChecked) {
+                if (checkedId == R.id.votingInProgressToggle) {
                     onCheckedRadio(VoteStatus.VOTING_IN_PROGRESS, true)
                 } else {
                     onCheckedRadio(VoteStatus.VOTING_IN_COMPLETE, true)
                 }
             }
+        }
 
-        })
-
-        binding.votingInProgressChip.isChecked = true
+        binding.toggleGroup.check(R.id.votingInProgressToggle)
     }
 
     private fun onCheckedRadio(type: VoteStatus, isChecked: Boolean) {
