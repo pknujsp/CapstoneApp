@@ -262,7 +262,6 @@
     <string name="start_update_event">약속 목록 업데이트 시작</string>
     <string name="succeed_update_event">약속 목록 업데이트 완료</string>
     <string name="estimatedArrivalTime">도착 예상 시각</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="votingInProgress">진행중인 투표</string>
     <string name="votingInComplete">완료된 투표</string>
@@ -271,4 +270,11 @@
     <string name="votingInComplete_places">장소 투표가 종료 되었습니다!</string>
     <string name="noVote_places">장소 투표가 없습니다!</string>
     <string name="empty_votes">투표 내역이 없습니다</string>
+    <string name="people_participated">명 참여</string>
+    <string name="add_voteitem">항목 추가</string>
+    <string name="vote">투표</string>
+    <string name="again_vote">다시 투표</string>
+    <string name="end_vote">투표 종료</string>
+    <string name="vote_only_single">하나만 선택</string>
+    <string name="vote_multiple">복수 선택</string>
 </resources>

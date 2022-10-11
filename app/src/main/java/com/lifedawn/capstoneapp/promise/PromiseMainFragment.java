@@ -3,7 +3,6 @@ package com.lifedawn.capstoneapp.promise;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.view.LayoutInflater;
@@ -33,7 +32,6 @@ import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.interfaces.IRefreshCalendar;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
-import com.lifedawn.capstoneapp.common.interfaces.OnClickedExpandableListItemListener;
 import com.lifedawn.capstoneapp.common.interfaces.OnFragmentCallback;
 import com.lifedawn.capstoneapp.common.repository.CalendarRepository;
 import com.lifedawn.capstoneapp.common.util.AttendeeUtil;
@@ -48,24 +46,18 @@ import com.lifedawn.capstoneapp.main.MainTransactionFragment;
 import com.lifedawn.capstoneapp.map.LocationDto;
 import com.lifedawn.capstoneapp.promise.addpromise.AddPromiseFragment;
 import com.lifedawn.capstoneapp.promise.editpromise.EditPromiseFragment;
-import com.lifedawn.capstoneapp.promise.fixedpromise.FixedPromiseFragment;
 import com.lifedawn.capstoneapp.promise.promiseinfo.PromiseInfoFragment;
 import com.lifedawn.capstoneapp.promise.receivedinvitation.ReceivedInvitationFragment;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class PromiseMainFragment extends Fragment implements IRefreshCalendar {
@@ -107,7 +99,6 @@ public class PromiseMainFragment extends Fragment implements IRefreshCalendar {
 	@Override
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-
 		binding.invitedEventsBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -161,7 +152,7 @@ public class PromiseMainFragment extends Fragment implements IRefreshCalendar {
 		binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 		binding.recyclerView.addItemDecoration(new RecyclerViewItemDecoration(getContext()));
 
-		adapter = new RecyclerViewAdapter(getContext());
+		adapter = new RecyclerViewAdapter();
 		adapter.setOnClickPromiseItemListener(new OnClickPromiseItemListener() {
 
 			public void onClickedEdit(CalendarRepository.EventObj event, int position) {
@@ -535,11 +526,11 @@ public class PromiseMainFragment extends Fragment implements IRefreshCalendar {
 		private List<CalendarRepository.EventObj> events = new ArrayList<>();
 		private OnClickPromiseItemListener onClickPromiseItemListener;
 
-		private final DateTimeFormatter DATE_TIME_FORMATTER;
+		private final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy/M/d E");
+		private final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("a h:mm");
 		private final String SIGN_IN_ACCOUNT_NAME;
 
-		public RecyclerViewAdapter(Context context) {
-			DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(context.getString(R.string.promiseDateTimeFormat));
+		public RecyclerViewAdapter() {
 			SIGN_IN_ACCOUNT_NAME = accountViewModel.getLastSignInAccountName();
 		}
 
@@ -627,7 +618,9 @@ public class PromiseMainFragment extends Fragment implements IRefreshCalendar {
 				String eventTimeZone = event.getAsString(CalendarContract.Events.EVENT_TIMEZONE);
 				ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(dtStart)), ZoneId.of(eventTimeZone));
 
-				binding.dateTime.setText(start.format(DATE_TIME_FORMATTER));
+				binding.date.setText(start.format(DATE_FORMATTER));
+				binding.time.setText(start.format(TIME_FORMATTER));
+
 				binding.description.setText(event.getAsString(CalendarContract.Events.DESCRIPTION) == null
 						|| event.getAsString(CalendarContract.Events.DESCRIPTION).isEmpty() ?
 						getContext().getString(R.string.noDescription) : event.getAsString(CalendarContract.Events.DESCRIPTION));

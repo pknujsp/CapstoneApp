@@ -15,4 +15,7 @@
     <color name="red">#F30101</color>
     <color name="lightblue">#AEE4FF</color>
     <color name="lightblue2">#C4F4FE</color>
+
+    <color name="vote_completed">#5E5E5E</color>
+    <color name="vote_progress">#673AB7</color>
 </resources>

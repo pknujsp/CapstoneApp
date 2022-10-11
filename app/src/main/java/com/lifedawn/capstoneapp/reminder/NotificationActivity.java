@@ -73,7 +73,9 @@ public class NotificationActivity extends AppCompatActivity {
 		IntentFilter intentFilter = new IntentFilter(PromiseNotificationReceiver.ACTION_CONFIRM_EVENT);
 		registerReceiver(endNotificationReceiver, intentFilter);
 
-		binding = DataBindingUtil.setContentView(this, R.layout.activity_notification);
+		binding = ActivityNotificationBinding.inflate(getLayoutInflater());
+		setContentView(binding.getRoot());
+
 		friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
 		accountViewModel = new ViewModelProvider(this).get(AccountViewModel.class);
 

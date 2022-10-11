@@ -11,7 +11,7 @@ import com.lifedawn.capstoneapp.databinding.FragmentPlaceChatBinding
 import java.io.Serializable
 
 class VoteMainFragment : Fragment() {
-    private lateinit var binding: FragmentPlaceChatBinding;
+    private lateinit var binding: FragmentPlaceChatBinding
 
     enum class VoteStatus : Serializable {
         VOTING_IN_PROGRESS, VOTING_IN_COMPLETE
@@ -55,12 +55,11 @@ class VoteMainFragment : Fragment() {
     private fun onCheckedRadio(type: VoteStatus, isChecked: Boolean) {
         if (isChecked) {
             val voteListFragment = VoteListFragment()
-
             val bundle = Bundle()
             bundle.putSerializable("voteStatus", type)
 
             voteListFragment.arguments = bundle
-            childFragmentManager.beginTransaction().replace(binding.fragmentContainer.id, voteListFragment).commit();
+            childFragmentManager.beginTransaction().replace(binding.fragmentContainer.id, voteListFragment, VoteFragment::class.simpleName).commit();
         }
     }
 

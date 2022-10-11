@@ -1,86 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:orientation="vertical"
     >
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:orientation="vertical"
+        android:layout_height="48dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         >
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            >
+        <TextView
+            android:id="@+id/label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:text="@string/promise_info"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            />
 
-            <TextView
-                android:id="@+id/label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:text="@string/promise_info"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                />
-
-            <TextView
-                android:id="@+id/invitedEventsBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="24dp"
-                android:layout_toLeftOf="@id/newPromiseBtn"
-                android:background="@drawable/round_btn"
-                android:clickable="true"
-                android:text="@string/received_invitation"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                />
-
-            <ImageButton
-                android:id="@+id/newPromiseBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:background="?attr/selectableItemBackground"
-                android:backgroundTint="@color/black"
-                android:src="@drawable/ic_baseline_add_24"
-                />
-
-        </RelativeLayout>
+        <TextView
+            android:id="@+id/invitedEventsBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="16dp"
+            android:layout_toLeftOf="@id/newPromiseBtn"
+            android:background="@drawable/round_btn"
+            android:clickable="true"
+            android:text="@string/received_invitation"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            />
 
 
-        <FrameLayout
+        <TextView
+            android:id="@+id/newPromiseBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/round_btn"
+            android:clickable="true"
+            android:text="@string/add"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            />
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/refreshLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             >
 
-            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                android:id="@+id/refreshLayout"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                >
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    />
-            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-            <include
-                android:id="@+id/warningLayout"
-                layout="@layout/view_warning"
-                android:visibility="gone"
+                android:orientation="vertical"
                 />
-        </FrameLayout>
-    </LinearLayout>
-</layout>
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <include
+            android:id="@+id/warningLayout"
+            layout="@layout/view_warning"
+            android:visibility="gone"
+            />
+
+    </FrameLayout>
+
+</LinearLayout>
