@@ -18,4 +18,6 @@
 
     <color name="vote_completed">#5E5E5E</color>
     <color name="vote_progress">#673AB7</color>
+    <color name="vote_indicator_color_selected">#FFC107</color>
+    <color name="vote_indicator_color_unselected">#3F51B5</color>
 </resources>

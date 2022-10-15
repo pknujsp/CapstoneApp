@@ -58,8 +58,9 @@ class VoteInCompletedFragment : Fragment() {
         val arr = arrayListOf<VoteDataDto>(
                 VoteDataDto(0, "A", 2), VoteDataDto(1, "B", 2), VoteDataDto(2, "C", 1)
         )
+        val myChoices = setOf<Int>(1)
 
-        for (data in arr) {
+        for ((idx, data) in arr.withIndex()) {
             val itemBinding = VoteProgressViewBinding.inflate(layoutInflater)
             itemBinding.title.text = data.itemName
 
@@ -68,6 +69,12 @@ class VoteInCompletedFragment : Fragment() {
 
             itemBinding.progressIndicator.max = voteDto.peopleCount
             itemBinding.progressIndicator.progress = data.selectedCount
+
+            if (myChoices.contains(idx)) {
+                itemBinding.progressIndicator.setIndicatorColor(requireContext().getColor(R.color.vote_indicator_color_selected))
+            } else {
+                itemBinding.progressIndicator.setIndicatorColor(requireContext().getColor(R.color.vote_indicator_color_unselected))
+            }
 
             binding.linearLayout.addView(itemBinding.root)
         }

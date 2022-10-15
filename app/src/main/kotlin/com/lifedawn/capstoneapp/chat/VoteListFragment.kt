@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lifedawn.capstoneapp.R
 import com.lifedawn.capstoneapp.common.interfaces.OnClickedListItemListener
 import com.lifedawn.capstoneapp.databinding.FragmentVotelistBinding
-import com.lifedawn.capstoneapp.databinding.VoteItemViewBinding
 import com.lifedawn.capstoneapp.databinding.VoteSimpleInfoBinding
 import com.lifedawn.capstoneapp.model.VoteInfoDto
 import java.time.ZonedDateTime
@@ -48,8 +47,14 @@ class VoteListFragment : Fragment() {
         binding.recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
         //test data
-        val testData = VoteInfoDto(0, 0, "장소 투표", "장소 선정 투표바랍니다", ZonedDateTime.now().toString(), 5, true, true)
-        voteListAdapter.list.add(testData)
+        val testData1 = VoteInfoDto(0, 0, "장소 투표", "장소 선정 투표바랍니다", ZonedDateTime.now().toString(), 5, completed = true, true)
+        val testData2 = VoteInfoDto(1, 0, "장소 투표2", "장소 선정 투표바랍니다", ZonedDateTime.now().toString(), 5, completed = false, true)
+
+        if (voteStatus == VoteMainFragment.VoteStatus.VOTING_IN_COMPLETE) {
+            voteListAdapter.list.add(testData1)
+        } else {
+            voteListAdapter.list.add(testData2)
+        }
 
         binding.recyclerView.adapter = voteListAdapter
 
