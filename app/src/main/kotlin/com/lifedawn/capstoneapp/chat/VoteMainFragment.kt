@@ -11,7 +11,8 @@ import com.lifedawn.capstoneapp.databinding.FragmentPlaceChatBinding
 import java.io.Serializable
 
 class VoteMainFragment : Fragment() {
-    private lateinit var binding: FragmentPlaceChatBinding
+    private var _binding: FragmentPlaceChatBinding? = null
+    private val binding get() = _binding!!
 
     enum class VoteStatus : Serializable {
         VOTING_IN_PROGRESS, VOTING_IN_COMPLETE
@@ -22,9 +23,11 @@ class VoteMainFragment : Fragment() {
 
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        binding = FragmentPlaceChatBinding.inflate(inflater)
+    override fun onCreateView(
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?,
+    ): View? {
+        _binding = FragmentPlaceChatBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -63,4 +66,8 @@ class VoteMainFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
