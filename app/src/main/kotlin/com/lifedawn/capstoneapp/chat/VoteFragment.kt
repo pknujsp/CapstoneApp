@@ -14,7 +14,8 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 class VoteFragment : Fragment() {
-    private lateinit var binding: FragmentVoteBinding
+    private var _binding: FragmentVoteBinding? = null
+    private val binding get() = _binding!!
     private lateinit var voteDto: VoteInfoDto
     private lateinit var bundle: Bundle
     private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd E a hh:mm")
@@ -23,12 +24,14 @@ class VoteFragment : Fragment() {
         super.onCreate(savedInstanceState)
         bundle = (arguments ?: savedInstanceState) as Bundle
 
-        voteDto = bundle.getSerializable("voteDto") as VoteInfoDto
+        voteDto = bundle.getParcelable("voteDto")!!
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        binding = FragmentVoteBinding.inflate(inflater)
+    override fun onCreateView(
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?,
+    ): View? {
+        _binding = FragmentVoteBinding.inflate(inflater, container, false)
 
         binding.toolbar.fragmentTitle.text = getString(R.string.vote)
         binding.toolbar.backBtn.setOnClickListener {
@@ -52,7 +55,11 @@ class VoteFragment : Fragment() {
         val dateTime = ZonedDateTime.parse(voteDto.dateTime).format(dateTimeFormatter)
         binding.dateTime.text = dateTime
         binding.description.text = voteDto.description
+    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

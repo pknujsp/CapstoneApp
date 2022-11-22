@@ -13,11 +13,12 @@ import com.lifedawn.capstoneapp.common.repository.FriendRepository;
 import com.lifedawn.capstoneapp.common.repositoryinterface.IFriendRepository;
 import com.lifedawn.capstoneapp.room.dto.FriendDto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FriendViewModel extends AndroidViewModel implements IFriendRepository {
-	private FriendRepository friendRepository;
-	private List<FriendDto> friendDtoList;
+	private final FriendRepository friendRepository;
+	private final List<FriendDto> friendDtoList = new ArrayList<>();
 	private static ArrayMap<String, FriendDto> friendDtoArrayMap;
 
 	public FriendViewModel(@NonNull Application application) {
@@ -30,8 +31,10 @@ public class FriendViewModel extends AndroidViewModel implements IFriendReposito
 		friendRepository.getAll(new OnDbQueryCallback<List<FriendDto>>() {
 			@Override
 			public void onResult(List<FriendDto> e) {
-				friendDtoList = e;
+				friendDtoList.clear();
+				friendDtoList.addAll(e);
 				friendDtoArrayMap = new ArrayMap<>();
+
 				for (FriendDto friendDto : friendDtoList) {
 					friendDtoArrayMap.put(friendDto.getEmail(), friendDto);
 				}

@@ -25,7 +25,7 @@ class VoteListFragment : Fragment() {
     private val itemOnClickedListener = OnClickedListItemListener<VoteInfoDto> {
         val voteFragment = VoteFragment()
         val bundle = Bundle()
-        bundle.putSerializable("voteDto", it)
+        bundle.putParcelable("voteDto", it)
         voteFragment.arguments = bundle
 
         val fragmentManager = requireParentFragment().parentFragmentManager
@@ -40,11 +40,11 @@ class VoteListFragment : Fragment() {
         voteStatus = bundle.getSerializable("voteStatus") as VoteMainFragment.VoteStatus
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        binding = FragmentVotelistBinding.inflate(inflater)
-
-        binding.recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+    override fun onCreateView(
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?,
+    ): View? {
+        binding = FragmentVotelistBinding.inflate(inflater, container, false)
 
         //test data
         val testData1 = VoteInfoDto(0, 0, "장소 투표", "장소 선정 투표바랍니다", ZonedDateTime.now().toString(), 5, completed = true, true)

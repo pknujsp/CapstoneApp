@@ -86,7 +86,7 @@ public class PromiseMainFragment extends Fragment implements IRefreshCalendar {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		binding = FragmentPromiseTransactionBinding.inflate(inflater);
+		binding = FragmentPromiseTransactionBinding.inflate(inflater, container, false);
 		return binding.getRoot();
 	}
 
@@ -94,6 +94,12 @@ public class PromiseMainFragment extends Fragment implements IRefreshCalendar {
 	public void onDestroy() {
 		getLifecycle().removeObserver(googleAccountLifeCycleObserver);
 		super.onDestroy();
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		binding = null;
 	}
 
 	@Override
