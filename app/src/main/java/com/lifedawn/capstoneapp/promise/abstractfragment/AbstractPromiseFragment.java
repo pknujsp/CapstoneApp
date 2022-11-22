@@ -82,7 +82,7 @@ public abstract class AbstractPromiseFragment extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		binding = FragmentEditPromiseBinding.inflate(inflater);
+		binding = FragmentEditPromiseBinding.inflate(inflater, container, false);
 		return binding.getRoot();
 	}
 

@@ -1,268 +1,266 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     >
 
-    <RelativeLayout
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@id/saveBtn"
+        android:layout_below="@id/toolbar"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         >
 
-        <include
-            android:id="@+id/toolbar"
-            layout="@layout/toolbar"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            />
-
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/scrollView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@id/saveBtn"
-            android:layout_below="@id/toolbar"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
+            android:orientation="vertical"
             >
 
+            <EditText
+                android:id="@+id/titleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="@string/title_hint"
+                />
+
             <LinearLayout
+                style="@style/LabelValueLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <TextView
+                    style="@style/Label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/promiseDateTime"
+                    />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical|right"
+                    android:orientation="horizontal"
+                    >
+
+                    <TextView
+                        android:id="@+id/date"
+                        style="@style/Value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:text="2022/2/5"
+                        />
+
+                    <TextView
+                        android:id="@+id/time"
+                        style="@style/Value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:text="13:10"
+                        />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/LabelValueLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 >
 
+                <TextView
+                    style="@style/Label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/promiseDescription"
+                    />
+
+
                 <EditText
-                    android:id="@+id/titleEditText"
+                    android:id="@+id/descriptionEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:hint="@string/title_hint"
+                    android:gravity="start|top"
+                    android:hint="@string/description_hint"
+                    android:inputType="textMultiLine"
+                    android:lines="4"
+                    android:textSize="15sp"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/LabelValueLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
+
+                <TextView
+                    style="@style/Label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/promiseInvitedFriends"
+
+                    />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/attendeeChipGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    >
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/invite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/invite_new_friend"
+                        app:chipBackgroundColor="@color/gray"
+                        />
+
+                </com.google.android.material.chip.ChipGroup>
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/LabelValueLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
+
+                <TextView
+                    style="@style/Label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/place"
                     />
 
                 <LinearLayout
-                    style="@style/LabelValueLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    >
-
-                    <TextView
-                        style="@style/Label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/promiseDateTime"
-                        />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical|right"
-                        android:orientation="horizontal"
-                        >
-
-                        <TextView
-                            android:id="@+id/date"
-                            style="@style/Value"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginRight="8dp"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:text="2022/2/5"
-                            />
-
-                        <TextView
-                            android:id="@+id/time"
-                            style="@style/Value"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:text="13:10"
-                            />
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    style="@style/LabelValueLayout"
+                    android:id="@+id/promisePlaceLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     >
 
-                    <TextView
-                        style="@style/Label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/promiseDescription"
-                        />
-
-
-                    <EditText
-                        android:id="@+id/descriptionEditText"
+                    <androidx.fragment.app.FragmentContainerView
+                        android:id="@+id/naverMap"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="start|top"
-                        android:hint="@string/description_hint"
-                        android:inputType="textMultiLine"
-                        android:lines="4"
-                        android:textSize="15sp"
-                        />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    style="@style/LabelValueLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    >
-
-                    <TextView
-                        style="@style/Label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/promiseInvitedFriends"
-
-                        />
-
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/attendeeChipGroup"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        >
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/invite"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/invite_new_friend"
-                            app:chipBackgroundColor="@color/gray"
-                            />
-
-                    </com.google.android.material.chip.ChipGroup>
-                </LinearLayout>
-
-                <LinearLayout
-                    style="@style/LabelValueLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    >
-
-                    <TextView
-                        style="@style/Label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="@string/place"
-                        />
-
-                    <LinearLayout
-                        android:id="@+id/promisePlaceLayout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        >
-
-                        <androidx.fragment.app.FragmentContainerView
-                            android:id="@+id/naverMap"
-                            android:layout_width="match_parent"
-                            android:layout_height="150dp"
-                            android:layout_marginBottom="4dp"
-                            />
-
-                        <TextView
-                            android:id="@+id/placeName"
-                            style="@style/Value"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="right"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:drawableLeft="@drawable/ic_baseline_place_24"
-                            android:gravity="center_vertical"
-                            android:text="@string/no_promise_location"
-                            />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    style="@style/LabelValueLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    >
-
-                    <TextView
-                        style="@style/Label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/notification"
-
-                        />
-
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/reminderChipGroup"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        >
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/addReminderChip"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/addReminder"
-                            app:chipBackgroundColor="@color/gray"
-                            />
-                    </com.google.android.material.chip.ChipGroup>
-                </LinearLayout>
-
-                <LinearLayout
-                    style="@style/LabelValueLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-
-                    >
-
-                    <TextView
-                        style="@style/Label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/account"
+                        android:layout_height="150dp"
+                        android:layout_marginBottom="4dp"
                         />
 
                     <TextView
-                        android:id="@+id/account"
+                        android:id="@+id/placeName"
                         style="@style/Value"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="right"
-                        android:text="email"
+                        android:layout_gravity="right"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:drawableLeft="@drawable/ic_baseline_place_24"
+                        android:gravity="center_vertical"
+                        android:text="@string/no_promise_location"
                         />
-                </LinearLayout>
 
+                </LinearLayout>
 
             </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
 
-        <Button
-            android:id="@+id/saveBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:text="@string/save"
-            />
+            <LinearLayout
+                style="@style/LabelValueLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
 
-        <com.lifedawn.capstoneapp.common.view.ProgressView
-            android:id="@+id/progressLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            />
-    </RelativeLayout>
-</layout>
+                <TextView
+                    style="@style/Label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/notification"
+
+                    />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/reminderChipGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    >
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/addReminderChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/addReminder"
+                        app:chipBackgroundColor="@color/gray"
+                        />
+                </com.google.android.material.chip.ChipGroup>
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/LabelValueLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                >
+
+                <TextView
+                    style="@style/Label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/account"
+                    />
+
+                <TextView
+                    android:id="@+id/account"
+                    style="@style/Value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:text="email"
+                    />
+            </LinearLayout>
+
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <Button
+        android:id="@+id/saveBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="@string/save"
+        />
+
+    <com.lifedawn.capstoneapp.common.view.ProgressView
+        android:id="@+id/progressLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        />
+</RelativeLayout>
