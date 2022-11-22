@@ -17,6 +17,10 @@ class SignUpFragment : Fragment() {
     private val binding get() = _binding!!
     private val accountViewModel by viewModels<AccountViewModel>()
 
+    companion object {
+        const val TAG = "SignUpFragment"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -27,6 +31,10 @@ class SignUpFragment : Fragment() {
             savedInstanceState: Bundle?,
     ): View? {
         _binding = FragmentSignUpBinding.inflate(inflater, container, false)
+        binding.toolbar.fragmentTitle.text = getString(R.string.signup)
+        binding.toolbar.backBtn.setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
         return binding.root
     }
 

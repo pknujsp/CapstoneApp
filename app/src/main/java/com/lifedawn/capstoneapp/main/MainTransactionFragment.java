@@ -20,10 +20,10 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.services.calendar.Calendar;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.ProfileFragment;
-import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.calendar.fragments.CalendarTransactionFragment;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
+import com.lifedawn.capstoneapp.common.repositoryinterface.AccountRepository;
 import com.lifedawn.capstoneapp.common.util.NotificationHelper;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
@@ -40,26 +40,21 @@ import java.util.Objects;
 public class MainTransactionFragment extends Fragment {
 	private FragmentMainTransactionBinding binding;
 	private AccountViewModel accountViewModel;
-	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
 	private CalendarViewModel calendarViewModel;
 	private boolean initializing = true;
+
+	public static final String TAG = "MainTransactionFragment";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		calendarViewModel = new ViewModelProvider(requireActivity()).get(CalendarViewModel.class);
 		accountViewModel = new ViewModelProvider(requireActivity()).get(AccountViewModel.class);
-		googleAccountLifeCycleObserver = new GoogleAccountLifeCycleObserver(requireActivity().getActivityResultRegistry(),
-				requireActivity());
-		getLifecycle().addObserver(googleAccountLifeCycleObserver);
-
-		NotificationHelper notificationHelper = new NotificationHelper(getContext());
-		notificationHelper.createNotificationChannel(NotificationHelper.NotificationType.PROMISE_REMINDER);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		binding = FragmentMainTransactionBinding.inflate(inflater);
+		binding = FragmentMainTransactionBinding.inflate(inflater, container, false);
 		return binding.getRoot();
 	}
 
@@ -67,9 +62,8 @@ public class MainTransactionFragment extends Fragment {
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-
 		binding.bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-			private Map<String, Fragment> fragmentMap = new HashMap<>();
+			private final Map<String, Fragment> fragmentMap = new HashMap<>();
 
 			@Override
 			public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -221,5 +215,9 @@ public class MainTransactionFragment extends Fragment {
 		binding.simpleProfileView.profileName.setText(R.string.local);
 	}
 
-
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		binding = null;
+	}
 }

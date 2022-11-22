@@ -13,12 +13,12 @@ import androidx.preference.PreferenceManager;
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.databinding.ActivityMainBinding;
-import com.lifedawn.capstoneapp.intro.IntroFragment;
+import com.lifedawn.capstoneapp.view.account.SignInFragment;
+import com.lifedawn.capstoneapp.view.intro.IntroFragment;
 import com.lifedawn.capstoneapp.main.MainTransactionFragment;
 
 public class MainActivity extends AppCompatActivity {
 	private ActivityMainBinding binding;
-	private AccountViewModel accountViewModel;
 
 	private final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
 		@Override
@@ -32,9 +32,10 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-		accountViewModel = new ViewModelProvider(this).get(AccountViewModel.class);
+		binding = ActivityMainBinding.inflate(getLayoutInflater());
+		setContentView(binding.getRoot());
 
+		getOnBackPressedDispatcher().addCallback(onBackPressedCallback);
 		init();
 	}
 
@@ -45,16 +46,16 @@ public class MainActivity extends AppCompatActivity {
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
 		if (appInit) {
-			getOnBackPressedDispatcher().addCallback(onBackPressedCallback);
 
-			//maintransactionfragment
 			MainTransactionFragment mainTransactionFragment = new MainTransactionFragment();
 			fragmentTransaction.add(binding.fragmentContainerView.getId(), mainTransactionFragment,
-					MainTransactionFragment.class.getName()).commitAllowingStateLoss();
+							MainTransactionFragment.class.getName()).setPrimaryNavigationFragment(mainTransactionFragment)
+					.commit();
 		} else {
 			//intro
-			IntroFragment introFragment = new IntroFragment();
-			fragmentTransaction.add(binding.fragmentContainerView.getId(), introFragment, IntroFragment.class.getName()).commitAllowingStateLoss();
+			SignInFragment signInFragment = new SignInFragment();
+			fragmentTransaction.add(binding.fragmentContainerView.getId(), signInFragment, SignInFragment.TAG)
+					.setPrimaryNavigationFragment(signInFragment).commit();
 		}
 	}
 

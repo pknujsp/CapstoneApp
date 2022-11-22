@@ -1,6 +1,5 @@
 package com.lifedawn.capstoneapp.promise.receivedinvitation;
 
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,7 +13,6 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
@@ -28,9 +26,7 @@ import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.calendar.fragments.SyncCalendarCallback;
-import com.lifedawn.capstoneapp.common.classes.AlreadySyncingException;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.IRefreshCalendar;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;

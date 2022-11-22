@@ -1,7 +1,6 @@
 package com.lifedawn.capstoneapp.promise;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.provider.CalendarContract;
@@ -26,7 +25,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.calendar.fragments.SyncCalendarCallback;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;

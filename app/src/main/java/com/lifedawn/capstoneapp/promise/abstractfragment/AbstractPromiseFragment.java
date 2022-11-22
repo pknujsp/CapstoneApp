@@ -5,8 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -19,12 +17,9 @@ import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClic
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.google.api.client.util.DateTime;
-import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
-import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.EventReminder;
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.util.ReminderUtil;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
@@ -34,7 +29,6 @@ import com.lifedawn.capstoneapp.map.LocationDto;
 import com.lifedawn.capstoneapp.map.NewPromiseLocationNaverMapFragment;
 import com.lifedawn.capstoneapp.map.SelectedLocationSimpleMapFragment;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAbstractAdapter;
-import com.lifedawn.capstoneapp.promise.editpromise.EditPromiseFragment;
 
 import java.io.Serializable;
 import java.time.LocalDate;

@@ -10,7 +10,7 @@
 
     <TextView
         android:id="@+id/signin_label"
-        style="@style/TextAppearance.MaterialComponents.Headline3"
+        style="@style/TextAppearance.MaterialComponents.Headline4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawableTop="@mipmap/ic_launcher_foreground_appointment"
@@ -69,8 +69,20 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:text="@string/signin"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/signup_btn"
         app:layout_constraintTop_toBottomOf="@id/pw_input_layout"
+        app:layout_constraintVertical_chainStyle="packed"
         />
 
+    <Button
+        android:id="@+id/signup_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/design_default_color_secondary_variant"
+        android:text="@string/signup"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/signInBtn"
+        app:layout_constraintVertical_chainStyle="packed"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -33,7 +33,6 @@ import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.calendar.fragments.SyncCalendarCallback;
 import com.lifedawn.capstoneapp.common.interfaces.HttpCallback;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
