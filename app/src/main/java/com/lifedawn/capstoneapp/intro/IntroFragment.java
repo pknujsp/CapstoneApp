@@ -19,7 +19,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
-import com.lifedawn.capstoneapp.common.repository.AccountRepository;
+import com.lifedawn.capstoneapp.common.repositoryinterface.AccountRepository;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentIntroBinding;
 import com.lifedawn.capstoneapp.main.MainTransactionFragment;
@@ -42,7 +42,7 @@ public class IntroFragment extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		binding = FragmentIntroBinding.inflate(inflater);
+		binding = FragmentIntroBinding.inflate(inflater, container, false);
 		return binding.getRoot();
 	}
 

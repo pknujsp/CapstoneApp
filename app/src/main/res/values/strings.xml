@@ -277,4 +277,10 @@
     <string name="end_vote">투표 종료</string>
     <string name="vote_only_single">하나만 선택</string>
     <string name="vote_multiple">복수 선택</string>
+    <string name="input_pw">비밀번호 입력</string>
+    <string name="check_pw">비밀번호 재 입력</string>
+    <string name="signup">회원가입</string>
+    <string name="failed_signup">회원가입 오류</string>
+    <string name="signup_successful">회원가입 성공</string>
+    <string name="signin">로그인</string>
 </resources>

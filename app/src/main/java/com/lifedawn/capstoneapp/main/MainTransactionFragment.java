@@ -24,7 +24,6 @@ import com.lifedawn.capstoneapp.account.GoogleAccountLifeCycleObserver;
 import com.lifedawn.capstoneapp.calendar.fragments.CalendarTransactionFragment;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
-import com.lifedawn.capstoneapp.common.repository.AccountRepository;
 import com.lifedawn.capstoneapp.common.util.NotificationHelper;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;

@@ -24,7 +24,6 @@ import com.lifedawn.capstoneapp.appsettings.AppSettingsFragment;
 import com.lifedawn.capstoneapp.calendar.fragments.SyncCalendarCallback;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
-import com.lifedawn.capstoneapp.common.repository.AccountRepository;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentProfileBinding;

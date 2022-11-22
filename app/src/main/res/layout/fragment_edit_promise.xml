@@ -221,30 +221,6 @@
                 </com.google.android.material.chip.ChipGroup>
             </LinearLayout>
 
-            <LinearLayout
-                style="@style/LabelValueLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-
-                >
-
-                <TextView
-                    style="@style/Label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/account"
-                    />
-
-                <TextView
-                    android:id="@+id/account"
-                    style="@style/Value"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="right"
-                    android:text="email"
-                    />
-            </LinearLayout>
-
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -254,6 +230,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_margin="8dp"
         android:text="@string/save"
         />
 
