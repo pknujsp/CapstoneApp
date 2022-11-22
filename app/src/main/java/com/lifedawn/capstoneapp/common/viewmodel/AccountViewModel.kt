@@ -15,6 +15,7 @@ import kotlinx.coroutines.withContext
 class AccountViewModel : ViewModel() {
     val signInResult = MutableLiveData<AuthResult?>()
     val signUpResult = MutableLiveData<AuthResult?>()
+    val signOutResult = MutableLiveData<Boolean>()
 
     fun signIn(email: String, pw: String) {
         viewModelScope.launch {
@@ -22,6 +23,7 @@ class AccountViewModel : ViewModel() {
             result.await()
 
             withContext(Main) {
+                signOutResult.value = false
                 signInResult.value = result.await()
             }
         }
@@ -30,6 +32,10 @@ class AccountViewModel : ViewModel() {
     fun signOut() {
         viewModelScope.launch {
             AccountRepositoryImpl.signOut()
+            withContext(Main) {
+                signOutResult.value = true
+                signInResult.value = null
+            }
         }
     }
 

@@ -8,12 +8,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
-import android.util.ArrayMap;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,12 +22,8 @@ import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.databinding.FragmentWeatherInfoBinding;
 import com.lifedawn.capstoneapp.main.MyApplication;
-import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.lifedawn.capstoneapp.retrofits.MultipleRestApiDownloader;
-import com.lifedawn.capstoneapp.retrofits.RetrofitClient;
-import com.lifedawn.capstoneapp.retrofits.response.kma.KmaCurrentConditions;
-import com.lifedawn.capstoneapp.retrofits.response.kma.KmaDailyForecast;
-import com.lifedawn.capstoneapp.retrofits.response.kma.KmaHourlyForecast;
 import com.lifedawn.capstoneapp.weather.customview.DateView;
 import com.lifedawn.capstoneapp.weather.customview.DetailDoubleTemperatureView;
 import com.lifedawn.capstoneapp.weather.customview.DetailSingleTemperatureView;
@@ -39,20 +31,17 @@ import com.lifedawn.capstoneapp.weather.model.CurrentConditionsDto;
 import com.lifedawn.capstoneapp.weather.model.DailyForecastDto;
 import com.lifedawn.capstoneapp.weather.model.HourlyForecastDto;
 import com.lifedawn.capstoneapp.weather.request.WeatherRequest;
-import com.lifedawn.capstoneapp.weather.response.KmaResponseProcessor;
-import com.lifedawn.capstoneapp.weather.util.WeatherUtil;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 
 public class WeatherInfoFragment extends DialogFragment {
 	private FragmentWeatherInfoBinding binding;
-	private LocationDto locationDto;
+	private PlaceDto placeDto;
 	private Bundle bundle;
 	private ZonedDateTime promiseDateTime;
 	private DateView hourlyForecastDateView;
@@ -67,7 +56,7 @@ public class WeatherInfoFragment extends DialogFragment {
 			bundle = savedInstanceState;
 		}
 
-		locationDto = (LocationDto) bundle.getSerializable("locationDto");
+		placeDto = (PlaceDto) bundle.getSerializable("locationDto");
 		promiseDateTime = (ZonedDateTime) bundle.getSerializable("promiseDateTime");
 	}
 
@@ -82,16 +71,16 @@ public class WeatherInfoFragment extends DialogFragment {
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		binding.locationName.setText(locationDto.getAddressName());
+		binding.locationName.setText(placeDto.getAddressName());
 		binding.progressView.setContentView(binding.weatherLayout);
-		binding.progressView.onStarted(new String(locationDto.getAddressName() + "\n" + getString(R.string.loading_weather_data)));
+		binding.progressView.onStarted(new String(placeDto.getAddressName() + "\n" + getString(R.string.loading_weather_data)));
 		binding.todayandpromise.todayCurrentWeather.rainyPosibility.setVisibility(View.GONE);
 
 		binding.todayandpromise.promiseDayCurrentWeather.rainyPosibility.setVisibility(View.GONE);
 		binding.todayandpromise.promiseDayCurrentWeather.precipitationVolume.setVisibility(View.GONE);
 
-		final Double latitude = Double.parseDouble(locationDto.getLatitude());
-		final Double longitude = Double.parseDouble(locationDto.getLongitude());
+		final Double latitude = Double.parseDouble(placeDto.getLatitude());
+		final Double longitude = Double.parseDouble(placeDto.getLongitude());
 
 		if (WeatherResponseData.getWeatherResponse(latitude, longitude) != null) {
 			onResultWeather(WeatherResponseData.getWeatherResponse(latitude, longitude));
@@ -124,9 +113,9 @@ public class WeatherInfoFragment extends DialogFragment {
 	}
 
 	private void refreshData() {
-		binding.progressView.onStarted(new String(locationDto.getAddressName() + "\n" + getString(R.string.loading_weather_data)));
-		final Double latitude = Double.parseDouble(locationDto.getLatitude());
-		final Double longitude = Double.parseDouble(locationDto.getLongitude());
+		binding.progressView.onStarted(new String(placeDto.getAddressName() + "\n" + getString(R.string.loading_weather_data)));
+		final Double latitude = Double.parseDouble(placeDto.getLatitude());
+		final Double longitude = Double.parseDouble(placeDto.getLongitude());
 
 		multipleRestApiDownloader = WeatherRequest.requestWeatherData(getContext(),
 				latitude, longitude,

@@ -1,19 +1,13 @@
 package com.lifedawn.capstoneapp.map;
 
-import static com.lifedawn.capstoneapp.common.constants.Constant.ADDRESS;
-import static com.lifedawn.capstoneapp.common.constants.Constant.PLACE;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.graphics.PointF;
 import android.location.Location;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.util.Xml;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,10 +20,8 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
@@ -59,6 +51,7 @@ import com.lifedawn.capstoneapp.map.interfaces.OnClickedBottomSheetListener;
 import com.lifedawn.capstoneapp.map.interfaces.OnPoiItemClickListener;
 import com.lifedawn.capstoneapp.map.places.content.AroundPlacesContentsViewPagerFragment;
 import com.lifedawn.capstoneapp.map.places.header.AroundPlacesHeaderFragment;
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.address.AddressResponse;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.place.PlaceResponse;
@@ -77,16 +70,13 @@ import com.naver.maps.map.Projection;
 import com.naver.maps.map.overlay.LocationOverlay;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.Overlay;
-import com.naver.maps.map.overlay.PathOverlay;
 import com.naver.maps.map.util.CameraUtils;
 import com.naver.maps.map.util.FusedLocationSource;
 import com.naver.maps.map.util.MarkerIcons;
 
 import org.jetbrains.annotations.NotNull;
-import org.xmlpull.v1.XmlPullParser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -435,7 +425,7 @@ public abstract class AbstractNaverMapFragment extends Fragment implements Locat
 	}
 
 
-	protected abstract LocationDto getPromiseLocationDto();
+	protected abstract PlaceDto getPromiseLocationDto();
 
 	@Override
 	public void onDestroy() {

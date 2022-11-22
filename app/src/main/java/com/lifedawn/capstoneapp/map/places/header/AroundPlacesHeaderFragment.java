@@ -15,7 +15,7 @@ import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.interfaces.OnDbQueryCallback;
 import com.lifedawn.capstoneapp.common.repository.CustomPlaceCategoryRepository;
 import com.lifedawn.capstoneapp.map.BottomSheetType;
-import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.lifedawn.capstoneapp.map.MarkerType;
 import com.lifedawn.capstoneapp.map.places.content.AroundPlacesSearchContentViewPagerItemFragment;
 import com.lifedawn.capstoneapp.map.places.parent.AbstractSearchHeaderFragment;
@@ -42,7 +42,7 @@ public class AroundPlacesHeaderFragment extends AbstractSearchHeaderFragment {
 		if (bundle != null) {
 			if (bundle.containsKey("locationDto")) {
 				currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION;
-				searchPlaceShareViewModel.setPromiseLocationDto((LocationDto) bundle.getSerializable("locationDto"));
+				searchPlaceShareViewModel.setPromiseLocationDto((PlaceDto) bundle.getSerializable("locationDto"));
 			}
 		} else {
 			currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_MAP_CENTER;

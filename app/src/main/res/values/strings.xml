@@ -283,4 +283,5 @@
     <string name="failed_signup">회원가입 오류</string>
     <string name="signup_successful">회원가입 성공</string>
     <string name="signin">로그인</string>
+    <string name="signout">로그아웃</string>
 </resources>

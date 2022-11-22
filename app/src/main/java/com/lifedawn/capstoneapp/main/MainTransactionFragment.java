@@ -18,6 +18,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.services.calendar.Calendar;
+import com.google.firebase.auth.AuthResult;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.account.ProfileFragment;
 import com.lifedawn.capstoneapp.calendar.fragments.CalendarTransactionFragment;
@@ -40,7 +41,6 @@ import java.util.Objects;
 public class MainTransactionFragment extends Fragment {
 	private FragmentMainTransactionBinding binding;
 	private AccountViewModel accountViewModel;
-	private CalendarViewModel calendarViewModel;
 	private boolean initializing = true;
 
 	public static final String TAG = "MainTransactionFragment";
@@ -48,7 +48,6 @@ public class MainTransactionFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		calendarViewModel = new ViewModelProvider(requireActivity()).get(CalendarViewModel.class);
 		accountViewModel = new ViewModelProvider(requireActivity()).get(AccountViewModel.class);
 	}
 
@@ -131,21 +130,15 @@ public class MainTransactionFragment extends Fragment {
 			}
 		});
 
-		accountViewModel.getSignInLiveData().observe(getViewLifecycleOwner(), new Observer<GoogleSignInAccount>() {
-			@Override
-			public void onChanged(GoogleSignInAccount account) {
-				if (!initializing) {
-					onSignIn(account);
-				}
+		accountViewModel.getSignOutResult().observe(getViewLifecycleOwner(), (it) -> {
+			if (it) {
+				onSignOut();
 			}
 		});
 
-		accountViewModel.getSignOutLiveData().observe(getViewLifecycleOwner(), new Observer<GoogleSignInAccount>() {
-			@Override
-			public void onChanged(GoogleSignInAccount account) {
-				if (!initializing) {
-					onSignOut();
-				}
+		accountViewModel.getSignInResult().observe(getViewLifecycleOwner(), (it) -> {
+			if (it != null) {
+				onSignIn();
 			}
 		});
 
@@ -154,60 +147,13 @@ public class MainTransactionFragment extends Fragment {
 		fragmentTransaction.add(binding.fragmentContainerView.getId(), promiseMainFragment,
 				PromiseMainFragment.class.getName()).setPrimaryNavigationFragment(promiseMainFragment).commit();
 
-		final GoogleSignInAccount currentSignInAccount = accountViewModel.getCurrentSignInAccount();
-		if (currentSignInAccount == null) {
-			if (accountViewModel.getLastSignInAccount() != null) {
-				accountViewModel.signIn(googleAccountLifeCycleObserver, new AccountRepository.OnSignCallback() {
-					@Override
-					public void onSignInResult(boolean succeed, @Nullable GoogleSignInAccount signInAccount, @Nullable GoogleAccountCredential googleAccountCredential, @Nullable Exception e) {
-						if (getActivity() != null) {
-							getActivity().runOnUiThread(new Runnable() {
-								@Override
-								public void run() {
-									if (succeed) {
-										onSignIn(signInAccount);
-									} else {
-										Toast.makeText(getContext(), new String(getString(R.string.failed_signin_account) + "\n" + Objects.requireNonNull(e).getLocalizedMessage()), Toast.LENGTH_SHORT).show();
-									}
-								}
-							});
-						}
-
-					}
-
-					@Override
-					public void onSignOutResult(boolean succeed, @Nullable GoogleSignInAccount signOutAccount) {
-
-					}
-				});
-			} else {
-				onSignOut();
-			}
-		} else {
-			onSignIn(currentSignInAccount);
-		}
-
 		initializing = false;
 	}
 
-	private void onSignIn(GoogleSignInAccount account) {
-		binding.simpleProfileView.profileName.setText(account.getDisplayName());
-
-		if (calendarViewModel.getCalendarService() == null) {
-			if (accountViewModel.getUsingAccountType() == Constant.ACCOUNT_GOOGLE) {
-				calendarViewModel.createCalendarService(accountViewModel.getGoogleAccountCredential(), googleAccountLifeCycleObserver,
-						new BackgroundCallback<Calendar>() {
-							@Override
-							public void onResultSuccessful(Calendar e) {
-
-							}
-
-							@Override
-							public void onResultFailed(Exception e) {
-
-							}
-						});
-			}
+	private void onSignIn() {
+		final AuthResult authResult = accountViewModel.getSignInResult().getValue();
+		if (authResult != null) {
+			binding.simpleProfileView.profileName.setText(authResult.getUser().getEmail());
 		}
 	}
 

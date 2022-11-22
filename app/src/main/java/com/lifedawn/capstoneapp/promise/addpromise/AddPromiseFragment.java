@@ -25,7 +25,7 @@ import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.interfaces.HttpCallback;
 import com.lifedawn.capstoneapp.common.interfaces.OnFragmentCallback;
 import com.lifedawn.capstoneapp.friends.invitation.InvitationFriendFragment;
-import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.lifedawn.capstoneapp.map.SelectedLocationSimpleMapFragment;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAbstractAdapter;
 import com.lifedawn.capstoneapp.promise.abstractfragment.AbstractPromiseFragment;
@@ -44,7 +44,9 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 	private LocalDate promiseDate = LocalDate.now();
 	private LocalTime promiseTime = LocalTime.now();
 	private Calendar calendarService;
-	private LocationDto locationDto;
+	private PlaceDto placeDto;
+
+	public static final String TAG = "AddPromiseFragment";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -80,8 +82,8 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 				event.setSummary(binding.titleEditText.getText().toString()).setDescription(
 						binding.descriptionEditText.getText().toString());
 
-				if (locationDto != null) {
-					event.setLocation(locationDto.toString());
+				if (placeDto != null) {
+					event.setLocation(placeDto.toString());
 				}
 
 				final String timeZoneId = TimeZone.getDefault().getID();
@@ -281,8 +283,8 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 
 	@Override
 	protected void onClickedMap() {
-		if (locationDto != null) {
-			String message = locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName() + getString(
+		if (placeDto != null) {
+			String message = placeDto.getLocationType() == Constant.ADDRESS ? placeDto.getAddressName() : placeDto.getPlaceName() + getString(
 					R.string.message_change_location);
 
 			AlertDialog dialog = new MaterialAlertDialogBuilder(getActivity()).setTitle(
@@ -293,11 +295,11 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 							showMap(new LocationItemViewPagerAbstractAdapter.OnClickedLocationBtnListener() {
 								@Override
 								public void onSelected(KakaoLocalDocument kakaoLocalDocument, boolean remove) {
-									locationDto = LocationDto.toLocationDto(kakaoLocalDocument);
-									onSelectedLocation(locationDto);
+									placeDto = PlaceDto.toLocationDto(kakaoLocalDocument);
+									onSelectedLocation(placeDto);
 								}
 							});
-							locationDto = null;
+							placeDto = null;
 							mapFragment.replaceLocation(null);
 							binding.placeName.setText(R.string.no_promise_location);
 							dialogInterface.dismiss();
@@ -313,8 +315,8 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 			showMap(new LocationItemViewPagerAbstractAdapter.OnClickedLocationBtnListener() {
 				@Override
 				public void onSelected(KakaoLocalDocument kakaoLocalDocument, boolean remove) {
-					locationDto = LocationDto.toLocationDto(kakaoLocalDocument);
-					onSelectedLocation(locationDto);
+					placeDto = PlaceDto.toLocationDto(kakaoLocalDocument);
+					onSelectedLocation(placeDto);
 				}
 			});
 		}
@@ -322,7 +324,7 @@ public class AddPromiseFragment extends AbstractPromiseFragment {
 	}
 
 	@Override
-	protected void onSelectedLocation(LocationDto locationDto) {
-		super.onSelectedLocation(locationDto);
+	protected void onSelectedLocation(PlaceDto placeDto) {
+		super.onSelectedLocation(placeDto);
 	}
 }

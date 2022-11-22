@@ -13,7 +13,7 @@ public class AttendeeUtil {
 	}
 
 	public static String toListString(List<String> attendeeList) {
-		StringBuilder stringBuilder = new StringBuilder();
+		final StringBuilder stringBuilder = new StringBuilder();
 		final String divider = ", ";
 
 		final int totalCount = attendeeList.size();

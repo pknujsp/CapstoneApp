@@ -27,7 +27,7 @@ import com.lifedawn.capstoneapp.common.interfaces.HttpCallback;
 import com.lifedawn.capstoneapp.common.interfaces.OnFragmentCallback;
 import com.lifedawn.capstoneapp.friends.invitation.InvitationFriendFragment;
 import com.lifedawn.capstoneapp.main.MyApplication;
-import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.lifedawn.capstoneapp.map.SelectedLocationSimpleMapFragment;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAbstractAdapter;
 import com.lifedawn.capstoneapp.promise.abstractfragment.AbstractPromiseFragment;
@@ -45,7 +45,7 @@ import java.util.TimeZone;
 public class EditPromiseFragment extends AbstractPromiseFragment {
 	private Event originalEvent;
 	private Event editEvent;
-	private LocationDto locationDto;
+	private PlaceDto placeDto;
 	private Calendar calendarService;
 	private String eventId;
 	private OnFragmentCallback<Boolean> onFragmentCallback;
@@ -251,8 +251,8 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 
 	@Override
 	protected void onClickedMap() {
-		if (locationDto != null) {
-			String message = locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName() + getString(
+		if (placeDto != null) {
+			String message = placeDto.getLocationType() == Constant.ADDRESS ? placeDto.getAddressName() : placeDto.getPlaceName() + getString(
 					R.string.message_change_location);
 
 			new MaterialAlertDialogBuilder(getActivity()).setTitle(
@@ -263,16 +263,16 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 							showMap(new LocationItemViewPagerAbstractAdapter.OnClickedLocationBtnListener() {
 								@Override
 								public void onSelected(KakaoLocalDocument kakaoLocalDocument, boolean remove) {
-									locationDto = LocationDto.toLocationDto(kakaoLocalDocument);
-									editEvent.setLocation(locationDto.toString());
-									onSelectedLocation(locationDto);
+									placeDto = PlaceDto.toLocationDto(kakaoLocalDocument);
+									editEvent.setLocation(placeDto.toString());
+									onSelectedLocation(placeDto);
 									editLocation = true;
 								}
 							});
 							editLocation = true;
 							mapFragment.replaceLocation(null);
 							binding.placeName.setText(R.string.no_promise_location);
-							locationDto = null;
+							placeDto = null;
 							editEvent.setLocation(null);
 							dialogInterface.dismiss();
 						}
@@ -286,9 +286,9 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 			showMap(new LocationItemViewPagerAbstractAdapter.OnClickedLocationBtnListener() {
 				@Override
 				public void onSelected(KakaoLocalDocument kakaoLocalDocument, boolean remove) {
-					locationDto = LocationDto.toLocationDto(kakaoLocalDocument);
-					editEvent.setLocation(locationDto.toString());
-					onSelectedLocation(locationDto);
+					placeDto = PlaceDto.toLocationDto(kakaoLocalDocument);
+					editEvent.setLocation(placeDto.toString());
+					onSelectedLocation(placeDto);
 				}
 			});
 		}
@@ -467,10 +467,10 @@ public class EditPromiseFragment extends AbstractPromiseFragment {
 		//장소
 		final String locationValue = originalEvent.getLocation();
 		if (locationValue != null) {
-			locationDto = LocationDto.toLocationDto(locationValue);
-			bundle.putSerializable("locationDto", locationDto);
+			placeDto = PlaceDto.toLocationDto(locationValue);
+			bundle.putSerializable("locationDto", placeDto);
 
-			binding.placeName.setText(locationDto.getLocationType() == Constant.PLACE ? locationDto.getPlaceName() : locationDto.getAddressName());
+			binding.placeName.setText(placeDto.getLocationType() == Constant.PLACE ? placeDto.getPlaceName() : placeDto.getAddressName());
 			binding.naverMap.setVisibility(View.VISIBLE);
 		}
 		//알림

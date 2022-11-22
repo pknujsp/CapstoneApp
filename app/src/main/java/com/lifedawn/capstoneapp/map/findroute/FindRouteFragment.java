@@ -24,7 +24,7 @@ import com.lifedawn.capstoneapp.common.util.Geocoding;
 import com.lifedawn.capstoneapp.common.util.LocationLifeCycleObserver;
 import com.lifedawn.capstoneapp.common.view.ProgressView;
 import com.lifedawn.capstoneapp.databinding.FragmentFindRouteBinding;
-import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.lifedawn.capstoneapp.map.restapi.RequestDirections;
 import com.lifedawn.capstoneapp.retrofits.MultipleRestApiDownloader;
 import com.lifedawn.capstoneapp.retrofits.RetrofitClient;
@@ -37,8 +37,8 @@ import java.util.Map;
 
 public class FindRouteFragment extends Fragment {
 	private FragmentFindRouteBinding binding;
-	private LocationDto startLocationDto;
-	private LocationDto goalLocationDto;
+	private PlaceDto startPlaceDto;
+	private PlaceDto goalPlaceDto;
 	private Bundle bundle;
 	private MultipleRestApiDownloader multipleRestApiDownloader;
 	private FusedLocation fusedLocation;
@@ -78,7 +78,7 @@ public class FindRouteFragment extends Fragment {
 			bundle = savedInstanceState;
 		}
 
-		goalLocationDto = (LocationDto) bundle.getSerializable("goalLocationDto");
+		goalPlaceDto = (PlaceDto) bundle.getSerializable("goalLocationDto");
 		fusedLocation = FusedLocation.getInstance(getContext());
 
 		locationLifeCycleObserver = new LocationLifeCycleObserver(requireActivity().getActivityResultRegistry(), requireActivity());
@@ -97,8 +97,8 @@ public class FindRouteFragment extends Fragment {
 						getActivity().runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								onFindRouteListener.onResult(currentLocation, response.route.traoptimal.get(0).path, response, startLocationDto
-										, goalLocationDto);
+								onFindRouteListener.onResult(currentLocation, response.route.traoptimal.get(0).path, response, startPlaceDto
+										, goalPlaceDto);
 							}
 						});
 					}
@@ -186,21 +186,21 @@ public class FindRouteFragment extends Fragment {
 				@Override
 				public void onSuccessful(LocationResult locationResult) {
 					currentLocation = locationResult.getLocations().get(0);
-					startLocationDto = new LocationDto();
-					startLocationDto.setLatitude(String.valueOf(currentLocation.getLatitude()));
-					startLocationDto.setLongitude(String.valueOf(currentLocation.getLongitude()));
+					startPlaceDto = new PlaceDto();
+					startPlaceDto.setLatitude(String.valueOf(currentLocation.getLatitude()));
+					startPlaceDto.setLongitude(String.valueOf(currentLocation.getLongitude()));
 
 					final RequestDirections.Point startPoint = new RequestDirections.Point(
-							Float.parseFloat(startLocationDto.getLatitude()), Float.parseFloat(startLocationDto.getLongitude())
+							Float.parseFloat(startPlaceDto.getLatitude()), Float.parseFloat(startPlaceDto.getLongitude())
 					);
 					final RequestDirections.Point goalPoint = new RequestDirections.Point(
-							Float.parseFloat(goalLocationDto.getLatitude()), Float.parseFloat(goalLocationDto.getLongitude())
+							Float.parseFloat(goalPlaceDto.getLatitude()), Float.parseFloat(goalPlaceDto.getLongitude())
 					);
 
 					Geocoding.geocoding(getContext(), startPoint.latitude.doubleValue(), startPoint.longitude.doubleValue(), new Geocoding.GeocodingCallback() {
 						@Override
 						public void onGeocodingResult(List<Address> addressList) {
-							startLocationDto.setAddressName(addressList.get(0).getAddressLine(0));
+							startPlaceDto.setAddressName(addressList.get(0).getAddressLine(0));
 							RequestDirections.requestDirections(startPoint, goalPoint, multipleRestApiDownloader);
 						}
 					});
@@ -232,6 +232,6 @@ public class FindRouteFragment extends Fragment {
 	}
 
 	public interface OnFindRouteListener {
-		void onResult(Location currentLocation, ArrayList<ArrayList<Double>> path, Root response, LocationDto startLocation, LocationDto goalLocation);
+		void onResult(Location currentLocation, ArrayList<ArrayList<Double>> path, Root response, PlaceDto startLocation, PlaceDto goalLocation);
 	}
 }

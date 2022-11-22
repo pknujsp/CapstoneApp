@@ -2,13 +2,11 @@ package com.lifedawn.capstoneapp.reminder;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -30,7 +28,7 @@ import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.FriendViewModel;
 import com.lifedawn.capstoneapp.databinding.ActivityNotificationBinding;
 import com.lifedawn.capstoneapp.databinding.AttendeeSimpleInfoBinding;
-import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.lifedawn.capstoneapp.reminder.notifications.NotificationService;
 import com.lifedawn.capstoneapp.reminder.notifications.PromiseNotificationReceiver;
 
@@ -108,10 +106,10 @@ public class NotificationActivity extends AppCompatActivity {
 								if (event.getAsString(CalendarContract.Events.EVENT_LOCATION).isEmpty()) {
 									binding.location.setText(getString(R.string.no_promise_location));
 								} else {
-									LocationDto locationDto = LocationDto.toLocationDto(event.getAsString(CalendarContract.Events.EVENT_LOCATION));
-									if (locationDto != null) {
+									PlaceDto placeDto = PlaceDto.toLocationDto(event.getAsString(CalendarContract.Events.EVENT_LOCATION));
+									if (placeDto != null) {
 										binding.location.setText(
-												locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName());
+												placeDto.getLocationType() == Constant.ADDRESS ? placeDto.getAddressName() : placeDto.getPlaceName());
 									} else {
 										binding.location.setText(event.getAsString(CalendarContract.Events.EVENT_LOCATION));
 									}

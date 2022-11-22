@@ -19,22 +19,19 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.map.findroute.FindRouteFragment;
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.lifedawn.capstoneapp.retrofits.response.naver.directions5.Root;
 import com.lifedawn.capstoneapp.weather.WeatherInfoFragment;
 import com.naver.maps.geometry.LatLng;
-import com.naver.maps.geometry.LatLngBounds;
 import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.overlay.InfoWindow;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.Overlay;
 import com.naver.maps.map.overlay.PathOverlay;
-import com.naver.maps.map.util.CameraUtils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -42,7 +39,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
-	private LocationDto selectedLocationDtoInEvent;
+	private PlaceDto selectedPlaceDtoInEvent;
 	private Marker selectedLocationInEventMarker;
 	private InfoWindow selectedLocationInEventInfoWindow;
 	private Bundle bundle;
@@ -82,7 +79,7 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 			bundle = getArguments();
 		}
 
-		selectedLocationDtoInEvent = (LocationDto) bundle.getSerializable("locationDto");
+		selectedPlaceDtoInEvent = (PlaceDto) bundle.getSerializable("locationDto");
 		getChildFragmentManager().registerFragmentLifecycleCallbacks(fragmentLifecycleCallbacks, false);
 	}
 
@@ -110,7 +107,7 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 				WeatherInfoFragment weatherInfoFragment = new WeatherInfoFragment();
 
 				Bundle infoBundle = new Bundle();
-				infoBundle.putSerializable("locationDto", selectedLocationDtoInEvent);
+				infoBundle.putSerializable("locationDto", selectedPlaceDtoInEvent);
 				infoBundle.putSerializable("promiseDateTime", bundle.getSerializable("promiseDateTime"));
 				weatherInfoFragment.setArguments(infoBundle);
 
@@ -141,7 +138,7 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 
 				findRouteFragment.setOnFindRouteListener(new FindRouteFragment.OnFindRouteListener() {
 					@Override
-					public void onResult(Location currentLocation, ArrayList<ArrayList<Double>> path, Root response, LocationDto startLocation, LocationDto goalLocation) {
+					public void onResult(Location currentLocation, ArrayList<ArrayList<Double>> path, Root response, PlaceDto startLocation, PlaceDto goalLocation) {
 						if (response == null) {
 							binding.findRoutesBottomSheet.progressLayout.onFailed(getString(R.string.failed_finding_routes));
 							removePath();
@@ -173,7 +170,7 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 				});
 
 				Bundle infoBundle = new Bundle();
-				infoBundle.putSerializable("goalLocationDto", selectedLocationDtoInEvent);
+				infoBundle.putSerializable("goalLocationDto", selectedPlaceDtoInEvent);
 				findRouteFragment.setArguments(infoBundle);
 
 				collapseAllExpandedBottomSheets();
@@ -218,8 +215,8 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 	}
 
 	@Override
-	protected LocationDto getPromiseLocationDto() {
-		return selectedLocationDtoInEvent;
+	protected PlaceDto getPromiseLocationDto() {
+		return selectedPlaceDtoInEvent;
 	}
 
 	@Override
@@ -267,8 +264,8 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 
 
 	private void createSelectedLocationMarker() {
-		LatLng latLng = new LatLng(Double.parseDouble(selectedLocationDtoInEvent.getLatitude()),
-				Double.parseDouble(selectedLocationDtoInEvent.getLongitude()));
+		LatLng latLng = new LatLng(Double.parseDouble(selectedPlaceDtoInEvent.getLatitude()),
+				Double.parseDouble(selectedPlaceDtoInEvent.getLongitude()));
 
 		final int markerWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 36f, getResources().getDisplayMetrics());
 		final int markerHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 42f, getResources().getDisplayMetrics());
@@ -309,18 +306,18 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 				StringBuilder stringBuilder = new StringBuilder();
 				stringBuilder.append(getString(R.string.promise_location));
 				stringBuilder.append("\n");
-				if (selectedLocationDtoInEvent.getLocationType() == Constant.PLACE) {
+				if (selectedPlaceDtoInEvent.getLocationType() == Constant.PLACE) {
 					stringBuilder.append(getString(R.string.place));
 					stringBuilder.append(" : ");
-					stringBuilder.append(selectedLocationDtoInEvent.getPlaceName());
+					stringBuilder.append(selectedPlaceDtoInEvent.getPlaceName());
 					stringBuilder.append("\n");
 					stringBuilder.append(getString(R.string.address));
 					stringBuilder.append(" : ");
-					stringBuilder.append(selectedLocationDtoInEvent.getAddressName());
+					stringBuilder.append(selectedPlaceDtoInEvent.getAddressName());
 				} else {
 					stringBuilder.append(getString(R.string.address));
 					stringBuilder.append(" : ");
-					stringBuilder.append(selectedLocationDtoInEvent.getAddressName());
+					stringBuilder.append(selectedPlaceDtoInEvent.getAddressName());
 				}
 				return stringBuilder.toString();
 			}
@@ -331,8 +328,8 @@ public class PromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
 	}
 
 	private void moveCameraToPromiseLocation() {
-		LatLng latLng = new LatLng(Double.parseDouble(selectedLocationDtoInEvent.getLatitude()),
-				Double.parseDouble(selectedLocationDtoInEvent.getLongitude()));
+		LatLng latLng = new LatLng(Double.parseDouble(selectedPlaceDtoInEvent.getLatitude()),
+				Double.parseDouble(selectedPlaceDtoInEvent.getLongitude()));
 		CameraUpdate cameraUpdate = CameraUpdate.scrollTo(latLng);
 		naverMap.moveCamera(cameraUpdate);
 	}

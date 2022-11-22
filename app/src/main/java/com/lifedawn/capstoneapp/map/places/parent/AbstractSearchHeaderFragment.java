@@ -32,7 +32,7 @@ import com.lifedawn.capstoneapp.databinding.FragmentAbstractSearchHeaderBinding;
 import com.lifedawn.capstoneapp.kakao.search.viewmodel.SearchPlaceShareViewModel;
 import com.lifedawn.capstoneapp.main.MyApplication;
 import com.lifedawn.capstoneapp.map.BottomSheetType;
-import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.lifedawn.capstoneapp.map.MapViewModel;
 import com.lifedawn.capstoneapp.map.MarkerType;
 import com.lifedawn.capstoneapp.map.interfaces.BottomSheetController;
@@ -135,7 +135,7 @@ public abstract class AbstractSearchHeaderFragment extends Fragment implements O
 	}
 
 	protected void loadMapCenterPoint() {
-		LocationDto mapCenter = new LocationDto();
+		PlaceDto mapCenter = new PlaceDto();
 		mapCenter.setLatitude(iMapPoint.getCenterPoint().latitude).setLongitude(iMapPoint.getCenterPoint().longitude);
 		searchPlaceShareViewModel.setMapCenterLocationDto(mapCenter);
 	}

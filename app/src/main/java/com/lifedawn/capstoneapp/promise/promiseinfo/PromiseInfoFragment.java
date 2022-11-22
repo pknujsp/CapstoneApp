@@ -24,7 +24,7 @@ import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.FriendViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentPromiseInfoBinding;
 import com.lifedawn.capstoneapp.friends.AttendeeInfoDialog;
-import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.lifedawn.capstoneapp.map.PromiseLocationNaverMapFragment;
 import com.lifedawn.capstoneapp.map.SelectedLocationSimpleMapFragment;
 import com.lifedawn.capstoneapp.retrofits.MultipleRestApiDownloader;
@@ -45,7 +45,7 @@ public class PromiseInfoFragment extends Fragment {
 	private FragmentPromiseInfoBinding binding;
 	private String eventId;
 	private ContentValues originalEvent;
-	private LocationDto locationDto;
+	private PlaceDto placeDto;
 	private SelectedLocationSimpleMapFragment mapFragment;
 	private FriendViewModel friendViewModel;
 	private AccountViewModel accountViewModel;
@@ -125,18 +125,18 @@ public class PromiseInfoFragment extends Fragment {
 						promiseDateTime = start;
 
 						if (originalEvent.getAsString(CalendarContract.Events.EVENT_LOCATION) != null) {
-							locationDto = LocationDto.toLocationDto(originalEvent.getAsString(CalendarContract.Events.EVENT_LOCATION));
+							placeDto = PlaceDto.toLocationDto(originalEvent.getAsString(CalendarContract.Events.EVENT_LOCATION));
 						}
 
 						mapFragment = new SelectedLocationSimpleMapFragment();
 						Bundle bundle = new Bundle();
 
-						if (locationDto != null) {
-							mapFragment.replaceLocation(locationDto);
-							bundle.putSerializable("locationDto", locationDto);
+						if (placeDto != null) {
+							mapFragment.replaceLocation(placeDto);
+							bundle.putSerializable("locationDto", placeDto);
 
-							final Double latitude = locationDto.getLatitudeAsDouble();
-							final Double longitude = locationDto.getLongitudeAsDouble();
+							final Double latitude = placeDto.getLatitudeAsDouble();
+							final Double longitude = placeDto.getLongitudeAsDouble();
 
 							if (WeatherResponseData.getWeatherResponse(latitude, longitude) != null) {
 								onResultWeather(WeatherResponseData.getWeatherResponse(latitude, longitude));
@@ -150,7 +150,7 @@ public class PromiseInfoFragment extends Fragment {
 									PromiseLocationNaverMapFragment promiseLocationNaverMapFragment =
 											new PromiseLocationNaverMapFragment();
 									Bundle argument = new Bundle();
-									argument.putSerializable("locationDto", locationDto);
+									argument.putSerializable("locationDto", placeDto);
 									argument.putSerializable("promiseDateTime", promiseDateTime);
 
 									promiseLocationNaverMapFragment.setArguments(argument);
@@ -174,8 +174,8 @@ public class PromiseInfoFragment extends Fragment {
 								binding.description.setText(originalEvent.getAsString(CalendarContract.Events.DESCRIPTION));
 
 								//장소
-								if (locationDto != null) {
-									binding.placeName.setText(locationDto.getLocationType() == Constant.PLACE ? locationDto.getPlaceName() : locationDto.getAddressName());
+								if (placeDto != null) {
+									binding.placeName.setText(placeDto.getLocationType() == Constant.PLACE ? placeDto.getPlaceName() : placeDto.getAddressName());
 									binding.naverMap.setVisibility(View.VISIBLE);
 								} else {
 									binding.placeName.setText(R.string.no_promise_location);
@@ -212,13 +212,13 @@ public class PromiseInfoFragment extends Fragment {
 
 	void refreshWeatherData() {
 		multipleRestApiDownloader = WeatherRequest.requestWeatherData(getContext(),
-				locationDto.getLatitudeAsDouble(), locationDto.getLongitudeAsDouble(),
+				placeDto.getLatitudeAsDouble(), placeDto.getLongitudeAsDouble(),
 				new BackgroundCallback<WeatherRequest.WeatherResponseResult>() {
 					@Override
 					public void onResultSuccessful(WeatherRequest.WeatherResponseResult weatherResponseResult) {
 						WeatherResponseData.addWeatherResponse(getContext(), weatherResponseResult.getLatitude(),
 								weatherResponseResult.getLongitude(), weatherResponseResult.getMultipleRestApiDownloader());
-						onResultWeather(WeatherResponseData.getWeatherResponse(locationDto.getLatitudeAsDouble(), locationDto.getLongitudeAsDouble()));
+						onResultWeather(WeatherResponseData.getWeatherResponse(placeDto.getLatitudeAsDouble(), placeDto.getLongitudeAsDouble()));
 					}
 
 					@Override

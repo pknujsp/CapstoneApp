@@ -12,6 +12,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.NaverMap;
@@ -21,11 +22,11 @@ import org.jetbrains.annotations.NotNull;
 
 public class SelectedLocationSimpleMapFragment extends AbstractSimpleNaverMapFragment {
 	private Marker selectedLocationMarker;
-	private LocationDto locationDto;
+	private PlaceDto placeDto;
 	private Bundle bundle;
 
-	public void replaceLocation(LocationDto locationDto) {
-		this.locationDto = locationDto;
+	public void replaceLocation(PlaceDto placeDto) {
+		this.placeDto = placeDto;
 		if (mapFragment != null) {
 			showMarkerOfSelectedLocation();
 		}
@@ -36,7 +37,7 @@ public class SelectedLocationSimpleMapFragment extends AbstractSimpleNaverMapFra
 		super.onCreate(savedInstanceState);
 		bundle = savedInstanceState != null ? savedInstanceState : getArguments();
 		if (bundle != null && bundle.containsKey("locationDto")) {
-			locationDto = (LocationDto) bundle.getSerializable("locationDto");
+			placeDto = (PlaceDto) bundle.getSerializable("locationDto");
 		}
 	}
 
@@ -57,14 +58,14 @@ public class SelectedLocationSimpleMapFragment extends AbstractSimpleNaverMapFra
 				return true;
 			}
 		});
-		replaceLocation(locationDto);
+		replaceLocation(placeDto);
 		showMarkerOfSelectedLocation();
 	}
 
 
 
 	private void showMarkerOfSelectedLocation() {
-		if (locationDto == null) {
+		if (placeDto == null) {
 			if (selectedLocationMarker != null) {
 				selectedLocationMarker.setMap(null);
 			}
@@ -72,16 +73,16 @@ public class SelectedLocationSimpleMapFragment extends AbstractSimpleNaverMapFra
 			selectedLocationMarker = new Marker();
 			String caption = null;
 
-			if (locationDto.getLocationType() == ADDRESS) {
-				caption = locationDto.getAddressName();
-			} else if (locationDto.getLocationType() == PLACE) {
-				caption = locationDto.getPlaceName();
+			if (placeDto.getLocationType() == ADDRESS) {
+				caption = placeDto.getAddressName();
+			} else if (placeDto.getLocationType() == PLACE) {
+				caption = placeDto.getPlaceName();
 			}
 
 			selectedLocationMarker.setCaptionText(caption);
 			selectedLocationMarker.setCaptionColor(Color.BLACK);
 			selectedLocationMarker.setPosition(
-					new LatLng(Double.parseDouble(locationDto.getLatitude()), Double.parseDouble(locationDto.getLongitude())));
+					new LatLng(Double.parseDouble(placeDto.getLatitude()), Double.parseDouble(placeDto.getLongitude())));
 
 			int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 32f, getResources().getDisplayMetrics());
 			int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 42f, getResources().getDisplayMetrics());

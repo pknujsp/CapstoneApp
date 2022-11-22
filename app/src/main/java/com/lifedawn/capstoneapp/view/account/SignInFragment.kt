@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.preference.PreferenceManager
 import com.lifedawn.capstoneapp.R
@@ -18,7 +19,7 @@ import com.lifedawn.capstoneapp.main.MainTransactionFragment
 class SignInFragment : Fragment() {
     private var _binding: FragmentSignInBinding? = null
     private val binding get() = _binding!!
-    private val accountViewModel by viewModels<AccountViewModel>()
+    private val accountViewModel by activityViewModels<AccountViewModel>()
 
     companion object {
         const val TAG = "SignInFragment"

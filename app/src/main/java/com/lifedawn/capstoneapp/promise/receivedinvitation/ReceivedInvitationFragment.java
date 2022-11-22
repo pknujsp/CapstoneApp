@@ -42,7 +42,7 @@ import com.lifedawn.capstoneapp.databinding.FragmentReceivedInvitationBinding;
 import com.lifedawn.capstoneapp.databinding.ItemViewInvitedPromiseBinding;
 import com.lifedawn.capstoneapp.main.MainTransactionFragment;
 import com.lifedawn.capstoneapp.main.MyApplication;
-import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.lifedawn.capstoneapp.promise.promiseinfo.PromiseInfoFragment;
 
 import org.jetbrains.annotations.NotNull;
@@ -68,6 +68,8 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 
 	private boolean initializing = true;
 	private boolean successfulResponse;
+
+	public static final String TAG = "ReceivedInvitationFragment";
 
 	public ReceivedInvitationFragment setOnResultInvitedPromiseListener(OnResultInvitedPromiseListener onResultInvitedPromiseListener) {
 		this.onResultInvitedPromiseListener = onResultInvitedPromiseListener;
@@ -506,10 +508,10 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 					if (event.getAsString(CalendarContract.Events.EVENT_LOCATION).isEmpty()) {
 						binding.location.setText(getContext().getString(R.string.no_promise_location));
 					} else {
-						LocationDto locationDto = LocationDto.toLocationDto(event.getAsString(CalendarContract.Events.EVENT_LOCATION));
-						if (locationDto != null) {
+						PlaceDto placeDto = PlaceDto.toLocationDto(event.getAsString(CalendarContract.Events.EVENT_LOCATION));
+						if (placeDto != null) {
 							binding.location.setText(
-									locationDto.getLocationType() == Constant.ADDRESS ? locationDto.getAddressName() : locationDto.getPlaceName());
+									placeDto.getLocationType() == Constant.ADDRESS ? placeDto.getAddressName() : placeDto.getPlaceName());
 						} else {
 							binding.location.setText(event.getAsString(CalendarContract.Events.EVENT_LOCATION));
 						}

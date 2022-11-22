@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAbstractAdapter;
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.lifedawn.capstoneapp.retrofits.response.kakaolocal.KakaoLocalDocument;
 
 public class NewPromiseLocationNaverMapFragment extends AbstractNaverMapFragment {
@@ -22,7 +23,7 @@ public class NewPromiseLocationNaverMapFragment extends AbstractNaverMapFragment
 	}
 
 	@Override
-	protected LocationDto getPromiseLocationDto() {
+	protected PlaceDto getPromiseLocationDto() {
 		return null;
 	}
 

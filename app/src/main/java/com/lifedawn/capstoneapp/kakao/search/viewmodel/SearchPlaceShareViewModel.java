@@ -5,20 +5,20 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
-import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
 
 public class SearchPlaceShareViewModel extends AndroidViewModel {
-	private LocationDto promiseLocationDto;
-	private LocationDto mapCenterLocationDto;
+	private PlaceDto promisePlaceDto;
+	private PlaceDto mapCenterPlaceDto;
 	private int criteriaType;
 
 	public SearchPlaceShareViewModel(@NonNull Application application) {
 		super(application);
 	}
 
-	public SearchPlaceShareViewModel setMapCenterLocationDto(LocationDto mapCenterLocationDto) {
-		this.mapCenterLocationDto = mapCenterLocationDto;
+	public SearchPlaceShareViewModel setMapCenterLocationDto(PlaceDto mapCenterPlaceDto) {
+		this.mapCenterPlaceDto = mapCenterPlaceDto;
 		return this;
 	}
 
@@ -28,21 +28,21 @@ public class SearchPlaceShareViewModel extends AndroidViewModel {
 		return this;
 	}
 
-	public SearchPlaceShareViewModel setPromiseLocationDto(LocationDto promiseLocationDto) {
-		this.promiseLocationDto = promiseLocationDto;
+	public SearchPlaceShareViewModel setPromiseLocationDto(PlaceDto promisePlaceDto) {
+		this.promisePlaceDto = promisePlaceDto;
 		return this;
 	}
 
-	public LocationDto getPromiseLocationDto() {
-		return promiseLocationDto;
+	public PlaceDto getPromiseLocationDto() {
+		return promisePlaceDto;
 	}
 
-	public LocationDto getMapCenterLocationDto() {
-		return mapCenterLocationDto;
+	public PlaceDto getMapCenterLocationDto() {
+		return mapCenterPlaceDto;
 	}
 
-	public LocationDto getCriteriaLocationDto() {
-		return criteriaType == LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION ? promiseLocationDto :
-				mapCenterLocationDto;
+	public PlaceDto getCriteriaLocationDto() {
+		return criteriaType == LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION ? promisePlaceDto :
+				mapCenterPlaceDto;
 	}
 }

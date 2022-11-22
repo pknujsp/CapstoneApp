@@ -16,6 +16,7 @@ import com.lifedawn.capstoneapp.databinding.FragmentAppSettingsBinding;
 
 public class AppSettingsFragment extends Fragment {
 	private FragmentAppSettingsBinding binding;
+	public static final String TAG = "AppSettingsFragment";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

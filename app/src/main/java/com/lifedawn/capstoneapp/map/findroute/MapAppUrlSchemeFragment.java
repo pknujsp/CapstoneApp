@@ -10,7 +10,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,15 +18,15 @@ import android.widget.Toast;
 
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.databinding.FragmentMapAppUrlSchemeBinding;
-import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 
 import java.util.List;
 
 public class MapAppUrlSchemeFragment extends DialogFragment {
 	private FragmentMapAppUrlSchemeBinding binding;
 	private String appName;
-	private LocationDto start;
-	private LocationDto end;
+	private PlaceDto start;
+	private PlaceDto end;
 	private Bundle bundle;
 
 	private String kakaoScheme;
@@ -52,8 +51,8 @@ public class MapAppUrlSchemeFragment extends DialogFragment {
 			bundle = getArguments();
 		}
 
-		start = (LocationDto) bundle.getSerializable("start");
-		end = (LocationDto) bundle.getSerializable("end");
+		start = (PlaceDto) bundle.getSerializable("start");
+		end = (PlaceDto) bundle.getSerializable("end");
 		String packageName = "com.lifedawn.capstoneapp";
 
 		PackageManager packageManager = getContext().getPackageManager();

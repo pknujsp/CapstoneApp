@@ -25,7 +25,7 @@ import com.lifedawn.capstoneapp.common.util.ReminderUtil;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentEditPromiseBinding;
-import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.lifedawn.capstoneapp.map.NewPromiseLocationNaverMapFragment;
 import com.lifedawn.capstoneapp.map.SelectedLocationSimpleMapFragment;
 import com.lifedawn.capstoneapp.map.adapters.LocationItemViewPagerAbstractAdapter;
@@ -279,11 +279,11 @@ public abstract class AbstractPromiseFragment extends Fragment {
 				NewPromiseLocationNaverMapFragment.class.getName()).commit();
 	}
 
-	protected void onSelectedLocation(LocationDto locationDto) {
+	protected void onSelectedLocation(PlaceDto placeDto) {
 		binding.placeName.setText(
-				locationDto.getLocationType() == Constant.PLACE ? locationDto.getPlaceName() : locationDto.getAddressName());
+				placeDto.getLocationType() == Constant.PLACE ? placeDto.getPlaceName() : placeDto.getAddressName());
 		binding.naverMap.setVisibility(View.VISIBLE);
-		mapFragment.replaceLocation(locationDto);
+		mapFragment.replaceLocation(placeDto);
 	}
 
 	protected abstract void onResultDate(LocalDate date);

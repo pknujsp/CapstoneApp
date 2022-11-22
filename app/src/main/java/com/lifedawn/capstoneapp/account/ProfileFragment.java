@@ -24,10 +24,12 @@ import com.lifedawn.capstoneapp.appsettings.AppSettingsFragment;
 import com.lifedawn.capstoneapp.calendar.fragments.SyncCalendarCallback;
 import com.lifedawn.capstoneapp.common.constants.Constant;
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
+import com.lifedawn.capstoneapp.common.repositoryinterface.AccountRepository;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentProfileBinding;
 import com.lifedawn.capstoneapp.main.MainTransactionFragment;
+import com.lifedawn.capstoneapp.view.account.SignInFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -35,189 +37,72 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class ProfileFragment extends DialogFragment {
-	private final DateTimeFormatter LAST_UPDATE_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("MM/dd E a hh:mm");
 	private FragmentProfileBinding binding;
 	private AccountViewModel accountViewModel;
-	private CalendarViewModel calendarViewModel;
-	private GoogleAccountLifeCycleObserver googleAccountLifeCycleObserver;
-	private boolean initializing = true;
-	private final SyncCalendarCallback<Boolean> syncCalendarCallback = new SyncCalendarCallback<Boolean>() {
-		@Override
-		public void onResultSuccessful(Boolean finished) {
 
-			super.onResultSuccessful(finished);
-			if (finished) {
-				if (getActivity() != null) {
-					getActivity().runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							Toast.makeText(getContext(), R.string.succeed_update_event, Toast.LENGTH_SHORT).show();
-
-							SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
-							String lastUpdateDateTime = sharedPreferences.getString(SharedPreferenceConstant.LAST_UPDATE_DATETIME.getVal(), "");
-
-							ZonedDateTime time = ZonedDateTime.parse(lastUpdateDateTime);
-							binding.lastUpdateDateTime.setText(time.format(LAST_UPDATE_DATETIME_FORMATTER));
-							binding.progressCircular.setVisibility(View.GONE);
-						}
-					});
-				}
-			}
-		}
-
-		@Override
-		public void onResultFailed(Exception e) {
-			super.onResultFailed(e);
-
-
-			if (getActivity() != null) {
-				getActivity().runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						Toast.makeText(getContext(), R.string.failed_sync_calendar, Toast.LENGTH_SHORT).show();
-						binding.progressCircular.setVisibility(View.GONE);
-
-					}
-				});
-			}
-		}
-
-		@Override
-		public void onAlreadySyncing() {
-			Toast.makeText(getContext(), R.string.already_syncing, Toast.LENGTH_SHORT).show();
-			binding.progressCircular.setVisibility(syncing ? View.VISIBLE : View.GONE);
-		}
-
-		@Override
-		public void onSyncStarted() {
-			super.onSyncStarted();
-			Toast.makeText(getContext(), R.string.start_update_event, Toast.LENGTH_SHORT).show();
-
-			binding.progressCircular.setVisibility(View.VISIBLE);
-		}
-	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		calendarViewModel = new ViewModelProvider(requireActivity()).get(CalendarViewModel.class);
 		accountViewModel = new ViewModelProvider(requireActivity()).get(AccountViewModel.class);
-		googleAccountLifeCycleObserver = new GoogleAccountLifeCycleObserver(requireActivity().getActivityResultRegistry(),
-				requireActivity());
-		getLifecycle().addObserver(googleAccountLifeCycleObserver);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		binding = FragmentProfileBinding.inflate(inflater);
+		binding = FragmentProfileBinding.inflate(inflater, container, false);
 		return binding.getRoot();
 	}
 
 	@Override
 	public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		binding.progressCircular.setVisibility(View.GONE);
+
+		accountViewModel.getSignOutResult().observe(getViewLifecycleOwner(), it -> {
+			if (it) {
+				onSignOut();
+			}
+		});
+
+		accountViewModel.getSignInResult().observe(getViewLifecycleOwner(), it -> {
+			if (it != null) {
+				onSignIn();
+			}
+		});
 
 		//로그아웃(사인아웃)버튼의 기능 설정
-		binding.signOutBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				accountViewModel.signOut(new AccountRepository.OnSignCallback() {
-					@Override
-					public void onSignInResult(boolean succeed, GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential, Exception e) {
-
-					}
-
-					@Override
-					public void onSignOutResult(boolean succeed, GoogleSignInAccount signOutAccount) {
-						onSignOut();
-					}
-				});
-			}
+		binding.signOutBtn.setOnClickListener(v -> {
+			accountViewModel.signOut();
 		});
 
 		//로그인(사인인)버튼의 기능 설정
-		binding.signInBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				accountViewModel.signIn(googleAccountLifeCycleObserver, new AccountRepository.OnSignCallback() {
-					@Override
-					public void onSignInResult(boolean succeed, GoogleSignInAccount signInAccount, GoogleAccountCredential googleAccountCredential, Exception e) {
-						if (getActivity() != null) {
-							getActivity().runOnUiThread(new Runnable() {
-								@Override
-								public void run() {
-									if (succeed) {
-										onSignIn(signInAccount);
-									} else {
-										Toast.makeText(getContext(), R.string.failed_signin_account, Toast.LENGTH_SHORT).show();
-									}
-								}
-							});
-						}
-					}
+		binding.signInBtn.setOnClickListener(v -> {
+			SignInFragment signInFragment = new SignInFragment();
+			FragmentManager fragmentManager = getParentFragment().getParentFragmentManager();
 
-					@Override
-					public void onSignOutResult(boolean succeed, GoogleSignInAccount signOutAccount) {
-
-					}
-				});
-			}
+			fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.TAG))
+					.add(R.id.fragmentContainerView, signInFragment, SignInFragment.TAG).setPrimaryNavigationFragment(signInFragment)
+					.addToBackStack(SignInFragment.TAG)
+					.commit();
 		});
 
 		//앱 설정 버튼의 기능 설정
-		binding.appSettingsBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				dismiss();
-				AppSettingsFragment appSettingsFragment = new AppSettingsFragment();
-				FragmentManager fragmentManager = getParentFragment().getParentFragmentManager();
-				fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName()))
-						.add(R.id.fragmentContainerView, appSettingsFragment, AppSettingsFragment.class.getName()).addToBackStack(AppSettingsFragment.class.getName())
-						.commit();
-			}
+		binding.appSettingsBtn.setOnClickListener(v -> {
+			dismiss();
+			AppSettingsFragment appSettingsFragment = new AppSettingsFragment();
+			FragmentManager fragmentManager = getParentFragment().getParentFragmentManager();
+
+			fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.TAG))
+					.add(R.id.fragmentContainerView, appSettingsFragment, AppSettingsFragment.TAG).setPrimaryNavigationFragment(appSettingsFragment)
+					.addToBackStack(AppSettingsFragment.TAG)
+					.commit();
 		});
-
-		binding.updateBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (accountViewModel.getUsingAccountType() == Constant.ACCOUNT_GOOGLE &&
-						accountViewModel.getCurrentSignInAccount() != null) {
-					calendarViewModel.syncCalendars(accountViewModel.getCurrentSignInAccount(), syncCalendarCallback);
-				} else {
-					Toast.makeText(getContext(), R.string.unavailable_update, Toast.LENGTH_SHORT).show();
-				}
-			}
-		});
-
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		String lastUpdateDateTime = sharedPreferences.getString(SharedPreferenceConstant.LAST_UPDATE_DATETIME.getVal(), "");
-
-		if (lastUpdateDateTime.isEmpty()) {
-			binding.lastUpdateDateTime.setText(R.string.noData);
-		} else {
-			ZonedDateTime time = ZonedDateTime.parse(lastUpdateDateTime);
-			binding.lastUpdateDateTime.setText(time.format(LAST_UPDATE_DATETIME_FORMATTER));
-		}
-
-		if (accountViewModel.getUsingAccountType() == Constant.ACCOUNT_LOCAL_WITHOUT_GOOGLE) {
-			onSignOut();
-		} else {
-			GoogleSignInAccount account = accountViewModel.getCurrentSignInAccount();
-
-			if (account != null) {
-				onSignIn(account);
-			} else {
-				onSignOut();
-			}
-		}
 
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		Dialog dialog = getDialog();
+		final Dialog dialog = getDialog();
 
 		Rect rect = new Rect();
 		dialog.getWindow().getWindowManager().getDefaultDisplay().getRectSize(rect);
@@ -229,15 +114,17 @@ public class ProfileFragment extends DialogFragment {
 		dialog.getWindow().setAttributes(layoutParams);
 	}
 
-	public void onSignIn(GoogleSignInAccount account) {
+	private void onSignIn() {
+		final String email = accountViewModel.getSignInResult().getValue().getUser().getEmail();
+
 		binding.profileImg.setVisibility(View.VISIBLE);
-		binding.profileName.setText(account.getDisplayName());
-		binding.email.setText(account.getEmail());
+		binding.profileName.setText(email);
+		binding.email.setText(email);
 		binding.signInBtn.setVisibility(View.GONE);
 		binding.signOutBtn.setVisibility(View.VISIBLE);
 	}
 
-	public void onSignOut() {
+	private void onSignOut() {
 		binding.profileImg.setVisibility(View.GONE);
 		binding.profileName.setText(R.string.local);
 		binding.email.setText(R.string.local);
@@ -247,9 +134,12 @@ public class ProfileFragment extends DialogFragment {
 
 	@Override
 	public void onDestroy() {
-		accountViewModel.getSignInLiveData().removeObservers(this);
-		accountViewModel.getSignOutLiveData().removeObservers(this);
-		getLifecycle().removeObserver(googleAccountLifeCycleObserver);
 		super.onDestroy();
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		binding = null;
 	}
 }

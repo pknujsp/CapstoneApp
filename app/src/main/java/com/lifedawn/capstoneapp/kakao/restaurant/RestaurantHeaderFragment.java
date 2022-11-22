@@ -11,15 +11,11 @@ import androidx.annotation.Nullable;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.tabs.TabLayout;
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.common.interfaces.OnDbQueryCallback;
 import com.lifedawn.capstoneapp.map.BottomSheetType;
-import com.lifedawn.capstoneapp.map.LocationDto;
+import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.lifedawn.capstoneapp.map.MarkerType;
-import com.lifedawn.capstoneapp.map.places.content.AroundPlacesSearchContentViewPagerItemFragment;
-import com.lifedawn.capstoneapp.map.places.header.AroundPlacesHeaderFragment;
 import com.lifedawn.capstoneapp.map.places.parent.AbstractSearchHeaderFragment;
 import com.lifedawn.capstoneapp.retrofits.parameters.LocalApiPlaceParameter;
-import com.lifedawn.capstoneapp.room.dto.CustomPlaceCategoryDto;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +33,7 @@ public class RestaurantHeaderFragment extends AbstractSearchHeaderFragment {
 
 		if (bundle.containsKey("locationDto")) {
 			currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_CURRENT_LOCATION;
-			searchPlaceShareViewModel.setPromiseLocationDto((LocationDto) bundle.getSerializable("locationDto"));
+			searchPlaceShareViewModel.setPromiseLocationDto((PlaceDto) bundle.getSerializable("locationDto"));
 		} else {
 			currentSearchMapPointCriteria = LocalApiPlaceParameter.SEARCH_CRITERIA_MAP_POINT_MAP_CENTER;
 		}
