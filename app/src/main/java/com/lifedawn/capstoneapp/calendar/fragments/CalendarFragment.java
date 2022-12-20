@@ -1,6 +1,5 @@
 package com.lifedawn.capstoneapp.calendar.fragments;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -41,7 +40,6 @@ import com.kizitonwose.calendarview.ui.DayBinder;
 import com.kizitonwose.calendarview.ui.MonthHeaderFooterBinder;
 import com.kizitonwose.calendarview.ui.ViewContainer;
 import com.lifedawn.capstoneapp.R;
-import com.lifedawn.capstoneapp.common.classes.AlreadySyncingException;
 import com.lifedawn.capstoneapp.common.interfaces.BackgroundCallback;
 import com.lifedawn.capstoneapp.common.interfaces.IRefreshCalendar;
 import com.lifedawn.capstoneapp.common.interfaces.OnClickPromiseItemListener;
@@ -56,7 +54,7 @@ import com.lifedawn.capstoneapp.databinding.EventDialogFragmentBinding;
 import com.lifedawn.capstoneapp.databinding.FragmentCalendarBinding;
 import com.lifedawn.capstoneapp.databinding.ItemViewEventListBinding;
 import com.lifedawn.capstoneapp.databinding.ViewEventDialogBinding;
-import com.lifedawn.capstoneapp.main.MainTransactionFragment;
+import com.lifedawn.capstoneapp.main._MainTransactionFragment;
 import com.lifedawn.capstoneapp.promise.editpromise.EditPromiseFragment;
 import com.lifedawn.capstoneapp.promise.promiseinfo.PromiseInfoFragment;
 
@@ -204,7 +202,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 
 								FragmentManager fragmentManager =
 										getParentFragment().getParentFragment().getParentFragmentManager();
-								fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName())).add(
+								fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(_MainTransactionFragment.class.getName())).add(
 										R.id.fragmentContainerView, editPromiseFragment, EditPromiseFragment.class.getName()).addToBackStack(
 										EditPromiseFragment.class.getName()).commit();
 							}
@@ -596,7 +594,7 @@ public class CalendarFragment extends Fragment implements IRefreshCalendar {
 
 					FragmentManager fragmentManager =
 							getParentFragment().getParentFragment().getParentFragment().getParentFragmentManager();
-					fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName())).add(
+					fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(_MainTransactionFragment.class.getName())).add(
 							R.id.fragmentContainerView, promiseInfoFragment, PromiseInfoFragment.class.getName()).addToBackStack(
 							PromiseInfoFragment.class.getName()).commit();
 					dismiss();

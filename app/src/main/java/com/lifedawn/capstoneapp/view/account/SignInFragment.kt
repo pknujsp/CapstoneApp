@@ -7,13 +7,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.preference.PreferenceManager
 import com.lifedawn.capstoneapp.R
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel
 import com.lifedawn.capstoneapp.databinding.FragmentSignInBinding
-import com.lifedawn.capstoneapp.main.MainTransactionFragment
+import com.lifedawn.capstoneapp.main._MainTransactionFragment
 
 
 class SignInFragment : Fragment() {
@@ -49,9 +48,9 @@ class SignInFragment : Fragment() {
                 val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
                 sharedPreferences.edit().putBoolean(SharedPreferenceConstant.APP_INIT.name, true).apply()
 
-                val mainTransactionFragment = MainTransactionFragment()
+                val mainTransactionFragment = _MainTransactionFragment()
                 val fragmentTransaction = parentFragmentManager.beginTransaction()
-                fragmentTransaction.replace(R.id.fragmentContainerView, mainTransactionFragment, MainTransactionFragment::class.java.name)
+                fragmentTransaction.replace(R.id.fragmentContainerView, mainTransactionFragment, _MainTransactionFragment::class.java.name)
                         .setPrimaryNavigationFragment(mainTransactionFragment).commitAllowingStateLoss()
             }
         }

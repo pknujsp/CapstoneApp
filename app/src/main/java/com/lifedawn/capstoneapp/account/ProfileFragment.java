@@ -1,40 +1,27 @@
 package com.lifedawn.capstoneapp.account;
 
 import android.app.Dialog;
-import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.preference.PreferenceManager;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.appsettings.AppSettingsFragment;
-import com.lifedawn.capstoneapp.calendar.fragments.SyncCalendarCallback;
-import com.lifedawn.capstoneapp.common.constants.Constant;
-import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
-import com.lifedawn.capstoneapp.common.repositoryinterface.AccountRepository;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
-import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentProfileBinding;
-import com.lifedawn.capstoneapp.main.MainTransactionFragment;
+import com.lifedawn.capstoneapp.main._MainTransactionFragment;
 import com.lifedawn.capstoneapp.view.account.SignInFragment;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class ProfileFragment extends DialogFragment {
 	private FragmentProfileBinding binding;
@@ -79,7 +66,7 @@ public class ProfileFragment extends DialogFragment {
 			SignInFragment signInFragment = new SignInFragment();
 			FragmentManager fragmentManager = getParentFragment().getParentFragmentManager();
 
-			fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.TAG))
+			fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(_MainTransactionFragment.TAG))
 					.add(R.id.fragmentContainerView, signInFragment, SignInFragment.TAG).setPrimaryNavigationFragment(signInFragment)
 					.addToBackStack(SignInFragment.TAG)
 					.commit();
@@ -91,7 +78,7 @@ public class ProfileFragment extends DialogFragment {
 			AppSettingsFragment appSettingsFragment = new AppSettingsFragment();
 			FragmentManager fragmentManager = getParentFragment().getParentFragmentManager();
 
-			fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.TAG))
+			fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(_MainTransactionFragment.TAG))
 					.add(R.id.fragmentContainerView, appSettingsFragment, AppSettingsFragment.TAG).setPrimaryNavigationFragment(appSettingsFragment)
 					.addToBackStack(AppSettingsFragment.TAG)
 					.commit();

@@ -40,7 +40,7 @@ import com.lifedawn.capstoneapp.common.viewmodel.CalendarViewModel;
 import com.lifedawn.capstoneapp.common.viewmodel.FriendViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentReceivedInvitationBinding;
 import com.lifedawn.capstoneapp.databinding.ItemViewInvitedPromiseBinding;
-import com.lifedawn.capstoneapp.main.MainTransactionFragment;
+import com.lifedawn.capstoneapp.main._MainTransactionFragment;
 import com.lifedawn.capstoneapp.main.MyApplication;
 import com.lifedawn.capstoneapp.model.firestore.PlaceDto;
 import com.lifedawn.capstoneapp.promise.promiseinfo.PromiseInfoFragment;
@@ -149,7 +149,7 @@ public class ReceivedInvitationFragment extends Fragment implements IRefreshCale
 				promiseInfoFragment.setArguments(bundle);
 
 				FragmentManager fragmentManager = getParentFragment().getParentFragment().getParentFragmentManager();
-				fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.class.getName())).add(
+				fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(_MainTransactionFragment.class.getName())).add(
 						R.id.fragmentContainerView, promiseInfoFragment, PromiseInfoFragment.class.getName()).addToBackStack(
 						PromiseInfoFragment.class.getName()).commit();
 			}

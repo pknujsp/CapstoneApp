@@ -1,19 +1,14 @@
 package com.lifedawn.capstoneapp;
 
-import android.content.SharedPreferences;
-import android.os.Bundle;
+import android.os.Bundle
 import android.os.PersistableBundle
-
-import androidx.activity.OnBackPressedCallback;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil.setContentView
-import androidx.fragment.app.FragmentTransaction;
-import androidx.preference.PreferenceManager;
-
-import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant;
-import com.lifedawn.capstoneapp.databinding.ActivityMainBinding;
-import com.lifedawn.capstoneapp.main.MainTransactionFragment;
-import com.lifedawn.capstoneapp.view.account.SignInFragment;
+import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
+import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant
+import com.lifedawn.capstoneapp.databinding.ActivityMainBinding
+import com.lifedawn.capstoneapp.main._MainTransactionFragment
+import com.lifedawn.capstoneapp.view.account.SignInFragment
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -42,15 +37,15 @@ class MainActivity : AppCompatActivity() {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
 
         if (appInit) {
-            val mainTransactionFragment = MainTransactionFragment()
+            val mainTransactionFragment = _MainTransactionFragment()
             fragmentTransaction.add(
                 binding.fragmentContainerView.id, mainTransactionFragment,
-                MainTransactionFragment.TAG
+                _MainTransactionFragment.TAG
             ).setPrimaryNavigationFragment(mainTransactionFragment)
                 .commit()
         } else {
             //intro
-            
+
             val signInFragment = SignInFragment()
             fragmentTransaction.add(binding.fragmentContainerView.id, signInFragment, SignInFragment.TAG)
                 .setPrimaryNavigationFragment(signInFragment).commit()

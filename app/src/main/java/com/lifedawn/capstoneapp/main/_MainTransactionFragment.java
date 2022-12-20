@@ -38,7 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class MainTransactionFragment extends Fragment {
+public class _MainTransactionFragment extends Fragment {
 	private FragmentMainTransactionBinding binding;
 	private AccountViewModel accountViewModel;
 	private boolean initializing = true;
