@@ -12,7 +12,7 @@ import com.lifedawn.capstoneapp.R
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel
 import com.lifedawn.capstoneapp.databinding.FragmentSignInBinding
-import com.lifedawn.capstoneapp.main._MainTransactionFragment
+import com.lifedawn.capstoneapp.main.MainTransactionFragment
 
 
 class SignInFragment : Fragment() {
@@ -48,9 +48,9 @@ class SignInFragment : Fragment() {
                 val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
                 sharedPreferences.edit().putBoolean(SharedPreferenceConstant.APP_INIT.name, true).apply()
 
-                val mainTransactionFragment = _MainTransactionFragment()
+                val mainTransactionFragment = MainTransactionFragment()
                 val fragmentTransaction = parentFragmentManager.beginTransaction()
-                fragmentTransaction.replace(R.id.fragmentContainerView, mainTransactionFragment, _MainTransactionFragment::class.java.name)
+                fragmentTransaction.replace(R.id.fragmentContainerView, mainTransactionFragment, MainTransactionFragment.TAG)
                         .setPrimaryNavigationFragment(mainTransactionFragment).commitAllowingStateLoss()
             }
         }

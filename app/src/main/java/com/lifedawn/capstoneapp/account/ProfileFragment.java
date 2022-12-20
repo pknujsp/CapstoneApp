@@ -18,7 +18,7 @@ import com.lifedawn.capstoneapp.R;
 import com.lifedawn.capstoneapp.appsettings.AppSettingsFragment;
 import com.lifedawn.capstoneapp.common.viewmodel.AccountViewModel;
 import com.lifedawn.capstoneapp.databinding.FragmentProfileBinding;
-import com.lifedawn.capstoneapp.main._MainTransactionFragment;
+import com.lifedawn.capstoneapp.main.MainTransactionFragment;
 import com.lifedawn.capstoneapp.view.account.SignInFragment;
 
 import org.jetbrains.annotations.NotNull;
@@ -66,7 +66,7 @@ public class ProfileFragment extends DialogFragment {
 			SignInFragment signInFragment = new SignInFragment();
 			FragmentManager fragmentManager = getParentFragment().getParentFragmentManager();
 
-			fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(_MainTransactionFragment.TAG))
+			fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.TAG))
 					.add(R.id.fragmentContainerView, signInFragment, SignInFragment.TAG).setPrimaryNavigationFragment(signInFragment)
 					.addToBackStack(SignInFragment.TAG)
 					.commit();
@@ -78,7 +78,7 @@ public class ProfileFragment extends DialogFragment {
 			AppSettingsFragment appSettingsFragment = new AppSettingsFragment();
 			FragmentManager fragmentManager = getParentFragment().getParentFragmentManager();
 
-			fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(_MainTransactionFragment.TAG))
+			fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(MainTransactionFragment.TAG))
 					.add(R.id.fragmentContainerView, appSettingsFragment, AppSettingsFragment.TAG).setPrimaryNavigationFragment(appSettingsFragment)
 					.addToBackStack(AppSettingsFragment.TAG)
 					.commit();

@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import com.lifedawn.capstoneapp.common.constants.SharedPreferenceConstant
 import com.lifedawn.capstoneapp.databinding.ActivityMainBinding
-import com.lifedawn.capstoneapp.main._MainTransactionFragment
+import com.lifedawn.capstoneapp.main.MainTransactionFragment
 import com.lifedawn.capstoneapp.view.account.SignInFragment
 
 class MainActivity : AppCompatActivity() {
@@ -37,10 +37,10 @@ class MainActivity : AppCompatActivity() {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
 
         if (appInit) {
-            val mainTransactionFragment = _MainTransactionFragment()
+            val mainTransactionFragment = MainTransactionFragment()
             fragmentTransaction.add(
                 binding.fragmentContainerView.id, mainTransactionFragment,
-                _MainTransactionFragment.TAG
+                MainTransactionFragment.TAG
             ).setPrimaryNavigationFragment(mainTransactionFragment)
                 .commit()
         } else {
