@@ -9,7 +9,7 @@ plugins {
 
 android {
     compileSdk 32
-    buildToolsVersion '30.0.3'
+    buildToolsVersion '33.0.1'
 
     defaultConfig {
         applicationId "com.lifedawn.capstoneapp"
@@ -28,17 +28,14 @@ android {
         }
     }
 
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
-    }
     compileOptions {
         coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
     buildFeatures {
-        viewBinding = true
-        dataBinding = true
+        viewBinding true
+        dataBinding true
     }
 }
 
@@ -52,7 +49,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
 
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
@@ -72,10 +69,10 @@ dependencies {
     annotationProcessor 'androidx.room:room-compiler:2.4.3'
 
     implementation 'com.github.bumptech.glide:glide:4.13.2'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.13.2'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
 
     implementation 'com.tickaroo.tikxml:annotation:0.8.13'
-    implementation 'com.tickaroo.tikxml:core:0.8.13'
+    implementation 'com.tickaroo.tikxml:core:0.8.15'
 
     annotationProcessor 'com.tickaroo.tikxml:processor:0.8.13'
     implementation 'com.tickaroo.tikxml:retrofit-converter:0.8.13'
@@ -111,7 +108,6 @@ dependencies {
     testImplementation "androidx.arch.core:core-testing:$arch_version"
 
     implementation 'org.jsoup:jsoup:1.15.3'
-
     implementation 'com.naver.maps:map-sdk:3.14.0'
 
     implementation('com.google.api-client:google-api-client-android:1.33.1') {

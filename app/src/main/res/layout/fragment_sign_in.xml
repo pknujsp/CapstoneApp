@@ -1,88 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingHorizontal="24dp"
-    tools:context=".view.account.SignInFragment"
-    >
+<layout>
 
-    <TextView
-        android:id="@+id/signin_label"
-        style="@style/TextAppearance.MaterialComponents.Headline4"
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:drawableTop="@mipmap/ic_launcher_foreground_appointment"
-        android:gravity="center"
-        android:text="@string/signin"
-        app:layout_constraintBottom_toTopOf="@id/email_input_layout"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
-        />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/email_input_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:hint="@string/input_email"
-        app:endIconMode="clear_text"
-        app:layout_constraintBottom_toTopOf="@id/pw_input_layout"
-        app:layout_constraintTop_toBottomOf="@id/signin_label"
-        app:layout_constraintVertical_chainStyle="packed"
+        android:layout_height="match_parent"
+        android:paddingHorizontal="24dp"
+        tools:context=".ui.screens.account.SignInFragment"
         >
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/email_edit_text"
+        <TextView
+            android:id="@+id/signin_label"
+            style="@style/TextAppearance.MaterialComponents.Headline4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textEmailAddress"
+            android:drawableTop="@mipmap/ic_launcher_foreground_appointment"
+            android:gravity="center"
+            android:text="@string/signin"
+            app:layout_constraintBottom_toTopOf="@id/email_input_layout"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
             />
 
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/pw_input_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:hint="@string/input_pw"
-        app:endIconMode="clear_text"
-        app:layout_constraintBottom_toTopOf="@id/signInBtn"
-        app:layout_constraintTop_toBottomOf="@id/email_input_layout"
-        app:layout_constraintVertical_chainStyle="packed"
-        >
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/pw_edit_text"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/email_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPassword"
+            android:layout_marginTop="24dp"
+            android:hint="@string/input_email"
+            app:endIconMode="clear_text"
+            app:layout_constraintBottom_toTopOf="@id/pw_input_layout"
+            app:layout_constraintTop_toBottomOf="@id/signin_label"
+            app:layout_constraintVertical_chainStyle="packed"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/email_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/pw_input_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="@string/input_pw"
+            app:endIconMode="clear_text"
+            app:layout_constraintBottom_toTopOf="@id/signInBtn"
+            app:layout_constraintTop_toBottomOf="@id/email_input_layout"
+            app:layout_constraintVertical_chainStyle="packed"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/pw_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/signInBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/signin"
+            app:layout_constraintBottom_toTopOf="@id/signup_btn"
+            app:layout_constraintTop_toBottomOf="@id/pw_input_layout"
+            app:layout_constraintVertical_chainStyle="packed"
             />
 
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <Button
-        android:id="@+id/signInBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="@string/signin"
-        app:layout_constraintBottom_toTopOf="@id/signup_btn"
-        app:layout_constraintTop_toBottomOf="@id/pw_input_layout"
-        app:layout_constraintVertical_chainStyle="packed"
-        />
-
-    <Button
-        android:id="@+id/signup_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/design_default_color_secondary_variant"
-        android:text="@string/signup"
-        android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/signInBtn"
-        app:layout_constraintVertical_chainStyle="packed"
-        />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <Button
+            android:id="@+id/signup_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/design_default_color_secondary_variant"
+            android:text="@string/signup"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/signInBtn"
+            app:layout_constraintVertical_chainStyle="packed"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
