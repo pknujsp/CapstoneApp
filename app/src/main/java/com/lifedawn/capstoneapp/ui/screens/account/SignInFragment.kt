@@ -1,15 +1,14 @@
 package com.lifedawn.capstoneapp.ui.screens.account
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import com.lifedawn.capstoneapp.R
 import com.lifedawn.capstoneapp.common.ui.BaseFragment
 import com.lifedawn.capstoneapp.databinding.FragmentSignInBinding
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sign_in) {
     private val accountSignViewModel by activityViewModels<AccountSignViewModel>()
 
@@ -39,5 +38,4 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
                 .commit()
         }
     }
-
 }
